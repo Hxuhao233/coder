@@ -8,8 +8,8 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 @SpringBootApplication
 public class CoderApplication extends SpringBootServletInitializer {
 
-	@Override
 	// to run in outer tomcat
+	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(CoderApplication.class);
 	}
