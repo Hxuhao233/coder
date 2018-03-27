@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>WebSocket 测试</title>
+    <!-- 通过webjars引入的前端文件-->
     <link href="/webjars/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/main.css" rel="stylesheet">
     <script src="/webjars/jquery/3.1.0/jquery.min.js"></script>
     <script src="/webjars/sockjs-client/1.0.2/sockjs.min.js"></script>
     <script src="/webjars/stomp-websocket/2.3.3/stomp.min.js"></script>
-    <script src="app.js"></script>
+    <script src="chat.js"></script>
 </head>
 <body>
     <noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
@@ -17,7 +17,7 @@
     </noscript>
     <div id="main-content" class="container">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <form class="form-inline">
                     <div class="form-group">
                         <label for="connect">WebSocket connection:</label>
@@ -27,14 +27,25 @@
                     </div>
                 </form>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <form class="form-inline">
                     <div class="form-group">
                         <label for="name">What is your name?</label>
                         <input type="text" id="name" class="form-control" placeholder="Your name here...">
                     </div>
-                    <button id="send" class="btn btn-default" type="submit">Send</button>
                 </form>
+            </div>
+            <div class="col-md-5">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label for="room">Where do you want to go?</label>
+                        <input type="text" id="room" class="form-control" placeholder="the room to join...">
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-2">
+                <button id="enter" class="btn btn-default" type="submit">enter</button>
+                <button id="exit" class="btn btn-default" type="submit">exit</button>
             </div>
         </div>
         <div class="row">
@@ -42,17 +53,17 @@
                 <table id="conversation" class="table table-striped">
                     <thead>
                     <tr>
-                        <th>Greetings</th>
+                        <th>Contents</th>
                     </tr>
                     </thead>
-                    <tbody id="greetings">
+                    <tbody id="contents">
                     </tbody>
                 </table>
             </div>
             <div class="col-md-12">
                 <label>write message:</label>
                 <input type="text" name="mysend" id="mysend"/>
-                <button id="mybutton" value="send">发送</button>
+                <button id="mybutton" value="send">send</button>
             </div>
         </div>
         </form>
