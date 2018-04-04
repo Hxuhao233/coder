@@ -60,8 +60,26 @@ public class PostService implements IPostService {
     }
 
     public Integer deletePost(Post post) {
-        post.setType(0);
-        postMapper.updateByPrimaryKey(post);
+        Integer isDeleted=post.getIsDeleted();
+        if(isDeleted==0) {
+            post.setIsDeleted(1);
+            postMapper.updateByPrimaryKey(post);
+        }
+        else{
+            return 0;
+        }
+        return 1;
+    }
+
+    public Integer recoverPost(Post post){
+        Integer isDeleted=post.getIsDeleted();
+        if(isDeleted==1) {
+            post.setIsDeleted(0);
+            postMapper.updateByPrimaryKey(post);
+        }
+        else{
+            return 0;
+        }
         return 1;
     }
 
