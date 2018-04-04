@@ -11,14 +11,15 @@
     <result column="anonymous_name" jdbcType="VARCHAR" property="anonymousName" />
     <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
-    <result column="sector" jdbcType="INTEGER" property="sector" />
+    <result column="sector_id" jdbcType="INTEGER" property="sectorId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="org.flysky.coder.entity.Post">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, upvote, downvote, type, anonymous, anonymous_name, created_at, updated_at, 
-    sector
+    sector_id, title
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -41,12 +42,12 @@
     </selectKey>
     insert into post (user_id, upvote, downvote, 
       type, anonymous, anonymous_name, 
-      created_at, updated_at, sector, 
-      content)
+      created_at, updated_at, sector_id, 
+      title, content)
     values (#{userId,jdbcType=INTEGER}, #{upvote,jdbcType=INTEGER}, #{downvote,jdbcType=INTEGER}, 
       #{type,jdbcType=INTEGER}, #{anonymous,jdbcType=INTEGER}, #{anonymousName,jdbcType=VARCHAR}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{sector,jdbcType=INTEGER}, 
-      #{content,jdbcType=LONGVARCHAR})
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{sectorId,jdbcType=INTEGER}, 
+      #{title,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="org.flysky.coder.entity.Post">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
@@ -78,8 +79,11 @@
       <if test="updatedAt != null">
         updated_at,
       </if>
-      <if test="sector != null">
-        sector,
+      <if test="sectorId != null">
+        sector_id,
+      </if>
+      <if test="title != null">
+        title,
       </if>
       <if test="content != null">
         content,
@@ -110,8 +114,11 @@
       <if test="updatedAt != null">
         #{updatedAt,jdbcType=TIMESTAMP},
       </if>
-      <if test="sector != null">
-        #{sector,jdbcType=INTEGER},
+      <if test="sectorId != null">
+        #{sectorId,jdbcType=INTEGER},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -145,8 +152,11 @@
       <if test="updatedAt != null">
         updated_at = #{updatedAt,jdbcType=TIMESTAMP},
       </if>
-      <if test="sector != null">
-        sector = #{sector,jdbcType=INTEGER},
+      <if test="sectorId != null">
+        sector_id = #{sectorId,jdbcType=INTEGER},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
@@ -164,7 +174,8 @@
       anonymous_name = #{anonymousName,jdbcType=VARCHAR},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
       updated_at = #{updatedAt,jdbcType=TIMESTAMP},
-      sector = #{sector,jdbcType=INTEGER},
+      sector_id = #{sectorId,jdbcType=INTEGER},
+      title = #{title,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -178,7 +189,8 @@
       anonymous_name = #{anonymousName,jdbcType=VARCHAR},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
       updated_at = #{updatedAt,jdbcType=TIMESTAMP},
-      sector = #{sector,jdbcType=INTEGER}
+      sector_id = #{sectorId,jdbcType=INTEGER},
+      title = #{title,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

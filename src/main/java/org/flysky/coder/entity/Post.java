@@ -21,7 +21,9 @@ public class Post {
 
     private LocalDateTime updatedAt;
 
-    private Integer sector;
+    private Integer sectorId;
+
+    private String title;
 
     private String content;
 
@@ -97,12 +99,20 @@ public class Post {
         this.updatedAt = updatedAt;
     }
 
-    public Integer getSector() {
-        return sector;
+    public Integer getSectorId() {
+        return sectorId;
     }
 
-    public void setSector(Integer sector) {
-        this.sector = sector;
+    public void setSectorId(Integer sectorId) {
+        this.sectorId = sectorId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title == null ? null : title.trim();
     }
 
     public String getContent() {
