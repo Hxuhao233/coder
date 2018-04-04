@@ -14,7 +14,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class redisTest {
 
@@ -24,6 +23,7 @@ public class redisTest {
     @Test
     public void test001() {
         redisTemplate.opsForValue().set("key1","value1");
+        //redisTemplate.opsForHash().put();
     }
 
     @Test
