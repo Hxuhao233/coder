@@ -25,6 +25,8 @@ public class Post {
 
     private String title;
 
+    private Integer isDeleted;
+
     private String content;
 
     public Integer getId() {
@@ -113,6 +115,14 @@ public class Post {
 
     public void setTitle(String title) {
         this.title = title == null ? null : title.trim();
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
 
     public String getContent() {
