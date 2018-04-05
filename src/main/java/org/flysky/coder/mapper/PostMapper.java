@@ -1,7 +1,10 @@
 package org.flysky.coder.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.flysky.coder.entity.Post;
+
+import java.util.List;
 
 @Mapper
 public interface PostMapper {
@@ -18,4 +21,6 @@ public interface PostMapper {
     int updateByPrimaryKeyWithBLOBs(Post record);
 
     int updateByPrimaryKey(Post record);
+
+    List<Post> selectBySector(@Param("sectorId") int sectorId);
 }
