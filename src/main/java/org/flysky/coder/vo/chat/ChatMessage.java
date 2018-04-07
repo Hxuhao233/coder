@@ -18,6 +18,14 @@ public class ChatMessage {
 
     private String username;
 
+    private int type = TYPE_CHAT;
+
+    public static int TYPE_CHAT = 1;
+
+    public static int TYPE_ENTER = 2;
+
+    public static int TYPE_EXIT = 3;
+
     public ChatMessage() {
 
     }
@@ -57,5 +65,13 @@ public class ChatMessage {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by hxuhao233 on 2018/3/28.
@@ -26,10 +27,8 @@ public class ChatService implements IChatService{
     @Autowired
     private RecordMapper recordMapper;
 
-
     @Override
-    public void chat(User user, ChatMessage chatMessage) {
-
+    public ChatMessage chat(User user, ChatMessage chatMessage) {
         LocalDateTime time = LocalDateTime.now();
 
         Record record = new Record();
@@ -41,12 +40,32 @@ public class ChatService implements IChatService{
 
         chatMessage.setCreatedAt(time);
         chatMessage.setUsername(user.getUsername());
-        template.convertAndSend("/chat/" + chatMessage.getRoomId(), chatMessage);
+        chatMessage.setType(ChatMessage.TYPE_CHAT);
+        return chatMessage;
+    }
+
+    @Override
+    public ChatMessage enterRoom(User user, ChatMessage enterRoomMessage) {
+        enterRoomMessage.setCreatedAt(LocalDateTime.now());
+        enterRoomMessage.setUsername(user.getUsername());
+        enterRoomMessage.setType(ChatMessage.TYPE_ENTER);
+        enterRoomMessage.setContent("加入交流室");
+        return enterRoomMessage;
+    }
+
+    @Override
+    public ChatMessage exitRoom(User user, ChatMessage exitRoomMessage) {
+        exitRoomMessage.setCreatedAt(LocalDateTime.now());
+        exitRoomMessage.setUsername(user.getUsername());
+        exitRoomMessage.setType(ChatMessage.TYPE_EXIT);
+        exitRoomMessage.setContent("退出交流室");
+        return exitRoomMessage;
     }
 
     @Override
     public List<RecordWrapper> getRecord(int roomId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
+
         List<RecordWrapper> recordList = recordMapper.getRecordWrapperByRoomId(roomId);
         return recordList;
     }
