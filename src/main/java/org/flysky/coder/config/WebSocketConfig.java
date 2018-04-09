@@ -22,6 +22,6 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 注册一个名字为"coder" 的endpoint,注册handshake拦截器用于保存HttpSession,指定SockJS协议;
-        registry.addEndpoint("/coder").setAllowedOrigins("*").addInterceptors(new HttpSessionHandshakeInterceptor()).withSockJS();
+        registry.addEndpoint("/coderRoom").setAllowedOrigins("*").addInterceptors(new HttpSessionHandshakeInterceptor()).withSockJS();
     }
 }
