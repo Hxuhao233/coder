@@ -22,5 +22,9 @@ public interface PostMapper {
 
     int updateByPrimaryKey(Post record);
 
-    List<Post> selectBySector(@Param("sectorId") int sectorId);
+    List<Post> selectBySectorAndType(@Param("sectorId") Integer sectorId,@Param("type") Integer type);
+
+    List<Post> searchPostByTitleAndContent(@Param("title") String title,@Param("content") String content,@Param("type") Integer type);
+
+    List<Post> searchPostByUsername(@Param("username") String username,@Param("type") Integer type);
 }

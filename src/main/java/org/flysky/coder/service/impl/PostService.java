@@ -1,6 +1,9 @@
 package org.flysky.coder.service.impl;
 
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.flysky.coder.entity.Post;
 import org.flysky.coder.entity.PostTag;
 import org.flysky.coder.entity.Tag;
@@ -11,9 +14,11 @@ import org.flysky.coder.mapper.TagMapper;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.service.IPostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,19 +30,27 @@ public class PostService implements IPostService {
     private UserMapper userMapper;
 
     @Autowired
+    private PostTagMapper postTagMapper;
+
+    @Autowired
     private TagMapper tagMapper;
 
     @Autowired
-    private PostTagMapper postTagMapper;
+    private StringRedisTemplate redisTemplate;
 
     @Override
-    public Integer createPost(Integer uid, String title, String content, Integer sectorId, Integer tagId, boolean isAnonymous, String anonymousName, Integer type) {
+    public Integer createPost(Integer uid, String title, String content, Integer sectorId, List<String> tagNameList, boolean isAnonymous, String anonymousName, Integer type) {
         Post post = new Post();
         post.setUserId(uid);
         post.setTitle(title);
         post.setContent(content);
         post.setSectorId(sectorId);
-        post.setCreatedAt(LocalDateTime.now());
+        LocalDateTime now=LocalDateTime.now();
+        post.setUpdatedAt(now);
+        post.setCreatedAt(now);
+        post.setUpvote(0);
+        post.setDownvote(0);
+        post.setIsDeleted(0);
         if (type == 1) {  //如果是匿名帖
             post.setType(1);
             if (isAnonymous) { //如果用户选择在匿名帖中匿名
@@ -67,12 +80,33 @@ public class PostService implements IPostService {
 
         postMapper.insert(post);
 
-        Tag tag = tagMapper.selectByPrimaryKey(tagId);
-        if (tag != null) {
-            PostTag postTag=new PostTag();
-            postTag.setPostId(post.getId());
-            postTag.setTagId(tagId);
-            postTagMapper.insert(postTag);
+        List<String> newTagNames=new ArrayList<String>();
+
+        //添加以前没有的Tag
+        for(String s:tagNameList){
+            List<Tag> tag=tagMapper.getTagByTagNameAndType(s,type);
+            if(tag.isEmpty()){
+                newTagNames.add(s);
+            }
+        }
+
+        for(String s:newTagNames){
+            Tag tag=new Tag();
+            tag.setName(s);
+            tag.setType(type);
+            tagMapper.insert(tag);
+        }
+
+        //获取添加后所有Tag的ID，并与对应的Post绑定
+        for(String s:tagNameList){
+            List<Tag> tag=tagMapper.getTagByTagNameAndType(s,type);
+            if(!tag.isEmpty()){
+                int tagId=tag.get(0).getId();
+                PostTag postTag=new PostTag();
+                postTag.setPostId(post.getId());
+                postTag.setTagId(tagId);
+                postTagMapper.insert(postTag);
+            }
         }
 
         return 1;
@@ -80,50 +114,125 @@ public class PostService implements IPostService {
 
     @Override
     public Integer upvotePost(Integer postId) {
-        return null;
+        Post post=postMapper.selectByPrimaryKey(postId);
+        Integer upvote=null;
+        if(post!=null){
+            upvote=post.getUpvote();
+            upvote++;
+            post.setUpvote(upvote);
+            postMapper.updateByPrimaryKey(post);
+            return 1;
+        }
+        return 0;
     }
 
     @Override
     public Integer downvotePost(Integer postId) {
-        return null;
+        Post post=postMapper.selectByPrimaryKey(postId);
+        Integer downvote=null;
+        if(post!=null){
+            downvote=post.getDownvote();
+            downvote++;
+            post.setDownvote(downvote);
+            postMapper.updateByPrimaryKey(post);
+            return 1;
+        }
+        return 0;
     }
 
     @Override
     public Integer collectPost(Integer postId, Integer uid) {
-        return null;
+        Post post=postMapper.selectByPrimaryKey(postId);
+        User user=userMapper.selectByPrimaryKey(uid);
+        if(post==null||user==null){
+            return 0;
+        }
+        redisTemplate.opsForList().leftPush(String.valueOf(uid)+"Collection",String.valueOf(postId));
+        return 1;
     }
 
     @Override
     public Integer removeCollectedPost(Integer postId, Integer uid) {
-        return null;
+        User user=userMapper.selectByPrimaryKey(uid);
+        if(user==null){
+            return 0;
+        }
+        redisTemplate.opsForList().remove(String.valueOf(uid)+"Collection",0,String.valueOf(postId));
+        return 1;
+    }
+
+    public List<Post> showUserCollectionList(Integer uid){
+        User user=userMapper.selectByPrimaryKey(uid);
+        if(user==null){
+            return null;
+        }
+        List<String> userCollectionPostIdList=redisTemplate.opsForList().range(String.valueOf(uid)+"Collection",0,-1);
+        List<Post> userCollectionList=new ArrayList<Post>();
+        for(String s:userCollectionPostIdList){
+            Integer postId=Integer.parseInt(s);
+            Post post=postMapper.selectByPrimaryKey(postId);
+            if(post!=null){
+                userCollectionList.add(post);
+            }
+        }
+        return userCollectionList;
     }
 
     @Override
-    public Integer addStickyPost(Integer postId) {
-        return null;
+    public Integer addStickyPost(Integer postId,Integer sectorId) {
+        String redisKeyName="StickyPost"+String.valueOf(sectorId);
+        Long size=redisTemplate.opsForList().size(redisKeyName);
+        if(size>=5){
+            return 0;
+        }else if(size>0){
+            List<String> stickyPostList=redisTemplate.opsForList().range(redisKeyName,0,-1);
+            if(stickyPostList.contains(String.valueOf(postId))){//已添加进置顶列表
+                return 2;
+            }
+        }
+        redisTemplate.opsForList().leftPush(redisKeyName,String.valueOf(postId));
+        return 1;
     }
 
     @Override
-    public Integer removeStickyPost(Integer postId) {
-        return null;
+    public Integer removeStickyPost(Integer postId,Integer sectorId) {
+        String redisKeyName="StickyPost"+String.valueOf(sectorId);
+        redisTemplate.opsForList().remove(redisKeyName,0,String.valueOf(postId));
+        return 1;
     }
+
 
     @Override
     public Integer recommendPost(Integer postId) {
-        return null;
+        Long size=redisTemplate.opsForList().size("RecommendedPost");
+        if(size>=5){
+            return 0;
+        }else if(size>0){
+            List<String> recommendedPostList=redisTemplate.opsForList().range("RecommendedPost",0,-1);
+            if(recommendedPostList.contains(String.valueOf(postId))){//已添加进推荐列表
+                return 2;
+            }
+        }
+        redisTemplate.opsForList().leftPush("RecommendedPost",String.valueOf(postId));
+        return 1;
     }
 
     @Override
     public Integer removeRecommendedPost(Integer postId) {
+        redisTemplate.opsForList().remove("RecommendedPost",0,String.valueOf(postId));
         return null;
     }
 
     @Override
-    public List<Post> searchPostByTitleAndContentAndUid(String title, String content, Integer uid) {
-        return null;
+    public PageInfo<Post> searchPostByTitleAndContentAndType(String title, String content,Integer type,Integer page) {
+        PageHelper.startPage(page,20);
+        List<Post> postList=postMapper.searchPostByTitleAndContent(title,content,type);
+        return new PageInfo<Post>(postList);
     }
 
-    public Integer deletePost(Post post) {
+    @Override
+    public Integer deletePost(Integer postId) {
+        Post post=postMapper.selectByPrimaryKey(postId);
         Integer isDeleted = post.getIsDeleted();
         if (isDeleted == 0) {
             post.setIsDeleted(1);
@@ -134,7 +243,9 @@ public class PostService implements IPostService {
         return 1;
     }
 
-    public Integer recoverPost(Post post) {
+    @Override
+    public Integer recoverPost(Integer postId) {
+        Post post=postMapper.selectByPrimaryKey(postId);
         Integer isDeleted = post.getIsDeleted();
         if (isDeleted == 1) {
             post.setIsDeleted(0);
@@ -145,7 +256,17 @@ public class PostService implements IPostService {
         return 1;
     }
 
-    public List<Post> viewPostBySector(Integer sectorId) {
-        return postMapper.selectBySector(sectorId);
+    @Override
+    public PageInfo<Post> viewPostBySectorAndType(Integer sectorId,Integer type,Integer page) {
+        PageHelper.startPage(page,20);
+        List<Post> postList=postMapper.selectBySectorAndType(sectorId,type);
+        return new PageInfo<Post>(postList);
+    }
+
+    @Override
+    public PageInfo<Post> searchPostByUsername(String username,Integer type,Integer page){
+        PageHelper.startPage(page,20);
+        List<Post> postList=postMapper.searchPostByUsername(username,type);
+        return new PageInfo<Post>(postList);
     }
 }

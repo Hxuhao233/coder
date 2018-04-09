@@ -1,34 +1,40 @@
 package org.flysky.coder.service;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
 import org.flysky.coder.entity.Post;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IPostService {
-    Integer createPost(Integer uid, String title, String content, Integer sectorId, Integer tagId, boolean isAnonymous, String anonymousName, Integer type);
+    public Integer createPost(Integer uid, String title, String content, Integer sectorId, List<String> tagNameList, boolean isAnonymous, String anonymousName, Integer type);
 
-    Integer upvotePost(Integer postId);
+    public Integer upvotePost(Integer postId);
 
-    Integer downvotePost(Integer postId);
+    public Integer downvotePost(Integer postId);
 
-    Integer collectPost(Integer postId, Integer uid);
+    public Integer collectPost(Integer postId, Integer uid);
 
-    Integer removeCollectedPost(Integer postId, Integer uid);
+    public Integer removeCollectedPost(Integer postId, Integer uid);
 
-    Integer addStickyPost(Integer postId);
+    public List<Post> showUserCollectionList(Integer uid);
 
-    Integer removeStickyPost(Integer postId);
+    public Integer addStickyPost(Integer postId, Integer sectorId);
 
-    Integer recommendPost(Integer postId);
+    public Integer removeStickyPost(Integer postId, Integer sectorId);
 
-    Integer removeRecommendedPost(Integer postId);
+    public Integer recommendPost(Integer postId);
 
-    List<Post> searchPostByTitleAndContentAndUid(String title, String content, Integer uid);
+    public Integer removeRecommendedPost(Integer postId);
 
-    Integer deletePost(Post post);
+    public PageInfo<Post> searchPostByTitleAndContentAndType(String title, String content,Integer type,Integer page);
 
-    Integer recoverPost(Post post);
+    public Integer deletePost(Integer postId);
 
-    List<Post> viewPostBySector(Integer sectorId);
+    public Integer recoverPost(Integer postId);
+
+    public PageInfo<Post> viewPostBySectorAndType(Integer sectorId, Integer type, Integer page);
+
+    public PageInfo<Post> searchPostByUsername(String username, Integer type, Integer page);
 }
