@@ -66,4 +66,7 @@
       type = #{type,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="getTagByTagNameAndType" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from tag where name=#{tagName} and type=#{type}
+  </select>
 </mapper>

@@ -1,7 +1,10 @@
 package org.flysky.coder.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.flysky.coder.entity.Tag;
+
+import java.util.List;
 
 @Mapper
 public interface TagMapper {
@@ -16,4 +19,6 @@ public interface TagMapper {
     int updateByPrimaryKeySelective(Tag record);
 
     int updateByPrimaryKey(Tag record);
+
+    List<Tag> getTagByTagNameAndType(@Param("tagName") String tagName,@Param("type") Integer type);
 }
