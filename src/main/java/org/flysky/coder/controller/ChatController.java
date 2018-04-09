@@ -30,24 +30,21 @@ public class ChatController {
     public void enter(SimpMessageHeaderAccessor headerAccessor, @RequestBody ChatMessage enterRoomMessage) throws Exception {
         User user = (User) headerAccessor.getSessionAttributes().get("user");
 
-        int roomId = enterRoomMessage.getRoomId();
-        ChatMessage response = new ChatMessage("加入交流室!");
-        response.setRoomId(roomId);
-        response.setCreatedAt(LocalDateTime.now());
-        response.setUsername(user.getUsername());
-        template.convertAndSend("/chat/" + roomId,response);
+        ChatMessage response = chatService.enterRoom(user,enterRoomMessage);
+        template.convertAndSend("/chat/" + response.getRoomId(),response);
+
+        // 获取最近10条聊天记录
+        List<RecordWrapper> recordLists = chatService.getRecord(enterRoomMessage.getRoomId(),1,10);
+        template.convertAndSendToUser(headerAccessor.getSessionId(),"/self",recordLists);
     }
 
 
     @MessageMapping("/exit")
     public void exit(SimpMessageHeaderAccessor headerAccessor, @RequestBody ChatMessage exitRoomMessage) throws Exception {
         User user = (User) headerAccessor.getSessionAttributes().get("user");
-        int roomId = exitRoomMessage.getRoomId();
-        ChatMessage response = new ChatMessage("退出交流室!");
-        response.setRoomId(roomId);
-        response.setCreatedAt(LocalDateTime.now());
-        response.setUsername(user.getUsername());
-        template.convertAndSend("/chat/" + roomId,response);
+
+        ChatMessage response = chatService.exitRoom(user,exitRoomMessage);
+        template.convertAndSend("/chat/" + response.getRoomId(),response);
     }
 
     /**
@@ -57,14 +54,15 @@ public class ChatController {
     @MessageMapping("/chat")
     public void chat(SimpMessageHeaderAccessor headerAccessor, @RequestBody ChatMessage chatMessage) {
         User user = (User) headerAccessor.getSessionAttributes().get("user");
-        chatService.chat(user,chatMessage);
+
+        ChatMessage response = chatService.chat(user,chatMessage);
+        template.convertAndSend("/chat/" + response.getRoomId(), response);
     }
 
     @MessageMapping("/getRecord")
-    @SendToUser("/self")
-    public List<RecordWrapper> getMessageRecord(@RequestBody RecordPage recordPage) {
+    public void getMessageRecord(SimpMessageHeaderAccessor headerAccessor, @RequestBody RecordPage recordPage) {
         List<RecordWrapper> recordLists = chatService.getRecord(recordPage.getRoomId(), recordPage.getPageNum(), recordPage.getPageSize());
-        return recordLists;
+        template.convertAndSendToUser(headerAccessor.getSessionId(),"/self",recordLists);
     }
 
 

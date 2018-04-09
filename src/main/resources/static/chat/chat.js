@@ -33,8 +33,8 @@ function connect() {
                 var recordList = JSON.parse(response.body);
                 console.log(recordList);
                 for (var i=recordList.length-1;i>=0;i--){
-                    var record = recordList[i];
-                    appendMsg(record.username + " : " + record.content + " at " + record.createdAt);
+                    var message = recordList[i];
+                    appendMsg(message.username + " : " + message.content + " at " + message.createdAt);
                 }
             }
         );
@@ -60,7 +60,7 @@ function enterRoom() {
         '/chat/' + $("#room").val(),
         function (response) {
             var record = JSON.parse(response.body);
-            appendMsg(record.username + " : " + record.content + " at " + record.createdAt);
+            handleMsg(record);
         }
     );
 
@@ -75,7 +75,7 @@ function enterRoom() {
         )
     );
 
-    getMessageRecord($("#room").val(),1,10);
+    // getMessageRecord($("#room").val(),1,10);
 
 }
 
@@ -98,6 +98,15 @@ function exitRoom() {
     console.log("exit room : " + $("#room").val());
     clearMsg();
 
+}
+
+/* 处理消息 */
+function handleMsg(message) {
+    if (message.type == 1) {
+        appendMsg(message.username + " : " + message.content + " at " + message.createdAt);
+    } else {
+        console.log(message);
+    }
 }
 
 /* 显示消息 */
@@ -138,7 +147,6 @@ function getMessageRecord(roomId,pageNum,pageSize) {
     );
 }
 
-
 function guid() {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
@@ -147,7 +155,6 @@ function guid() {
     }
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
-
 
 $(function () {
 
