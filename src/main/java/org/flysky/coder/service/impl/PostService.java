@@ -175,6 +175,7 @@ public class PostService implements IPostService {
                 userCollectionList.add(post);
             }
         }
+
         return userCollectionList;
     }
 

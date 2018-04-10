@@ -66,4 +66,10 @@
       type = #{type,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="getSectorByName_COUNT">
+    select count(*) from sector where name=#{name}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from sector
+  </select>
 </mapper>

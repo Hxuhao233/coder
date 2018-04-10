@@ -2,7 +2,7 @@ package org.flysky.coder.entity;
 
 import java.time.LocalDateTime;
 
-public class Mesaage {
+public class Message {
     private Integer id;
 
     private Integer fromUid;

@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import org.flysky.coder.controller.wrapper.PostWrapper;
 import org.flysky.coder.controller.wrapper.ResultWrapper;
 import org.flysky.coder.entity.Post;
+import org.flysky.coder.service.IPostService;
 import org.flysky.coder.service.impl.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,7 @@ import java.util.List;
 @RestController
 public class PostController {
     @Autowired
-    private PostService postService;
+    private IPostService postService;
 
     @RequestMapping("/forum/upvote/{postId}")
     public ResultWrapper upvote(@PathVariable int postId){
@@ -91,9 +92,22 @@ public class PostController {
         return new ResultWrapper(result);
     }
 
-    @RequestMapping("/forum/searchPostByTitleAndContent/{page}/{title}/{content}")
-    public PageInfo<Post> searchPostByTitleAndContentAndType(@PathVariable int postId,@PathVariable int page){
-        PageInfo<Post> result=postService.searchPostByTitleAndContentAndType()
+    @RequestMapping("/forum/searchPostByTitleAndContent/{type}/{page}/{title}/{content}")
+    public PageInfo<Post> searchPostByTitleAndContentAndType(@PathVariable String title,@PathVariable String content,@PathVariable int page,@PathVariable int type){
+        PageInfo<Post> result=postService.searchPostByTitleAndContentAndType(title,content,type,page);
+        return result;
+    }
+
+    @RequestMapping("/forum/searchPostByUserAndType/{type}/{page}/{username}")
+    public PageInfo<Post> searchPostByUserAndType(@PathVariable String username,@PathVariable Integer type,@PathVariable Integer page){
+        PageInfo<Post> result=postService.searchPostByUsername(username, type, page);
+        return result;
+    }
+
+    @RequestMapping("/usercenter/getCollectedPost/{uid}")
+    public List<Post> getCollectedPost(@PathVariable Integer uid){
+        List<Post> result=postService.showUserCollectionList(uid);
+        return result;
     }
 
 }
