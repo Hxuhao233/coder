@@ -18,7 +18,7 @@ function setConnected(connected) {
 function connect() {
 
     sessionId = guid();
-    var socket = new SockJS('/coder', [], {
+    var socket = new SockJS('/coderRoom', [], {
         sessionId: () => {
         return sessionId
         }
