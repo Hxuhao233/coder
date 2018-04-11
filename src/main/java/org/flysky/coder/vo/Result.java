@@ -9,6 +9,9 @@ public class Result {
 
     private String info;
 
+    public Result() {
+    }
+
     public Result(int code) {
         this.code = code;
     }

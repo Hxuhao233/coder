@@ -7,6 +7,9 @@ public class ResultWrapper extends Result{
 
     private Object payload;
 
+    public ResultWrapper() {
+    }
+
     public ResultWrapper(int code) {
         super(code);
     }

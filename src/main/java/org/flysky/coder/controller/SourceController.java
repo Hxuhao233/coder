@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
+ * 资源分享控制器
  * Created by hxuhao233 on 2018/4/8.
  */
 @Controller

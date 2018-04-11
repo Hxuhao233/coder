@@ -10,8 +10,6 @@ public class HomeInfo {
 
     private String description;
 
-    private List<String> tips;
-
     public String getName() {
         return name;
     }
@@ -26,13 +24,5 @@ public class HomeInfo {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public List<String> getTips() {
-        return tips;
-    }
-
-    public void setTips(List<String> tips) {
-        this.tips = tips;
     }
 }

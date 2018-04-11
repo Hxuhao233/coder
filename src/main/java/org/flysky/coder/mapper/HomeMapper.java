@@ -5,6 +5,8 @@ import org.flysky.coder.entity.Home;
 
 @Mapper
 public interface HomeMapper {
+    boolean hasHomeName(String name);
+
     int deleteByPrimaryKey(Integer id);
 
     int insert(Home record);

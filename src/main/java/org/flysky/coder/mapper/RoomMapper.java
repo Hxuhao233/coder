@@ -5,6 +5,8 @@ import org.flysky.coder.entity.Room;
 
 @Mapper
 public interface RoomMapper {
+    boolean hasRoomName(String name);
+
     int deleteByPrimaryKey(Integer id);
 
     int insert(Room record);

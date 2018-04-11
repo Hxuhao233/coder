@@ -2,6 +2,7 @@ package org.flysky.coder.controller;
 
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.UserMapper;
+import org.flysky.coder.vo.ResultWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 
+/**
+ * 测试用控制器
+ */
 @RestController
 public class Controller {
 
@@ -25,10 +29,13 @@ public class Controller {
 
     @RequestMapping("/test/login/{uid}")
     @ResponseBody
-    public String login(HttpSession session,@PathVariable("uid") int uid){
+    public ResultWrapper login(HttpSession session, @PathVariable("uid") int uid){
         User u = userMapper.selectByPrimaryKey(uid);
         session.setAttribute("user",u);
-        return "login "  + u.getUsername();
+        ResultWrapper result = new ResultWrapper(1);
+        result.setInfo("登录成功");
+        result.setPayload(u);
+        return result;
     }
 
 
