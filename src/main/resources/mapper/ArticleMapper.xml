@@ -10,9 +10,10 @@
     <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="column_id" jdbcType="INTEGER" property="columnId" />
+    <result column="is_deleted" jdbcType="BIT" property="isDeleted" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, name, description, content, user_id, created_at, updated_at, column_id
+    id, name, description, content, user_id, created_at, updated_at, column_id, is_deleted
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -30,10 +31,10 @@
     </selectKey>
     insert into article (name, description, content, 
       user_id, created_at, updated_at, 
-      column_id)
+      column_id, is_deleted)
     values (#{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
       #{userId,jdbcType=INTEGER}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, 
-      #{columnId,jdbcType=INTEGER})
+      #{columnId,jdbcType=INTEGER}, #{isDeleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="org.flysky.coder.entity.Article">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
@@ -62,6 +63,9 @@
       <if test="columnId != null">
         column_id,
       </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="name != null">
@@ -84,6 +88,9 @@
       </if>
       <if test="columnId != null">
         #{columnId,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -111,6 +118,9 @@
       <if test="columnId != null">
         column_id = #{columnId,jdbcType=INTEGER},
       </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -122,7 +132,8 @@
       user_id = #{userId,jdbcType=INTEGER},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
       updated_at = #{updatedAt,jdbcType=TIMESTAMP},
-      column_id = #{columnId,jdbcType=INTEGER}
+      column_id = #{columnId,jdbcType=INTEGER},
+      is_deleted = #{isDeleted,jdbcType=BIT}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -9,9 +9,10 @@
     <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="is_deleted" jdbcType="BIT" property="isDeleted" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, name, description, home_id, created_at, updated_at, user_id
+    id, name, description, home_id, created_at, updated_at, user_id, is_deleted
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -28,11 +29,11 @@
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into room (name, description, home_id, 
-      created_at, updated_at, user_id
-      )
+      created_at, updated_at, user_id, 
+      is_deleted)
     values (#{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{homeId,jdbcType=INTEGER}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{userId,jdbcType=INTEGER}
-      )
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{userId,jdbcType=INTEGER}, 
+      #{isDeleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="org.flysky.coder.entity.Room">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
@@ -58,6 +59,9 @@
       <if test="userId != null">
         user_id,
       </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="name != null">
@@ -77,6 +81,9 @@
       </if>
       <if test="userId != null">
         #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -101,6 +108,9 @@
       <if test="userId != null">
         user_id = #{userId,jdbcType=INTEGER},
       </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -111,7 +121,8 @@
       home_id = #{homeId,jdbcType=INTEGER},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
       updated_at = #{updatedAt,jdbcType=TIMESTAMP},
-      user_id = #{userId,jdbcType=INTEGER}
+      user_id = #{userId,jdbcType=INTEGER},
+      is_deleted = #{isDeleted,jdbcType=BIT}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -17,6 +17,8 @@ public class Room {
 
     private Integer userId;
 
+    private Boolean isDeleted;
+
     public Integer getId() {
         return id;
     }
@@ -71,5 +73,13 @@ public class Room {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

@@ -15,6 +15,8 @@ public class Home {
 
     private LocalDateTime updatedAt;
 
+    private Boolean isDeleted;
+
     public Integer getId() {
         return id;
     }
@@ -61,5 +63,13 @@ public class Home {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

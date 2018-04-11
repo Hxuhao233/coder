@@ -19,6 +19,8 @@ public class Article {
 
     private Integer columnId;
 
+    private Boolean isDeleted;
+
     public Integer getId() {
         return id;
     }
@@ -81,5 +83,13 @@ public class Article {
 
     public void setColumnId(Integer columnId) {
         this.columnId = columnId;
+    }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }
