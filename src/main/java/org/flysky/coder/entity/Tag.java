@@ -1,6 +1,12 @@
 package org.flysky.coder.entity;
 
 public class Tag {
+    public static final int TYPE_POST = 1;
+
+    public static final int TYPE_ANONYMOUS = 2;
+
+    public static final int TYPE_ARTICLE = 3;
+
     private Integer id;
 
     private String name;

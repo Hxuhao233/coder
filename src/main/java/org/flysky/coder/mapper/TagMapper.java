@@ -20,5 +20,5 @@ public interface TagMapper {
 
     int updateByPrimaryKey(Tag record);
 
-    List<Tag> getTagByTagNameAndType(@Param("tagName") String tagName,@Param("type") Integer type);
+    Tag getTagByTagNameAndType(@Param("tagName") String tagName,@Param("type") Integer type);
 }
