@@ -84,8 +84,8 @@ public class PostService implements IPostService {
 
         //添加以前没有的Tag
         for(String s:tagNameList){
-            List<Tag> tag=tagMapper.getTagByTagNameAndType(s,type);
-            if(tag.isEmpty()){
+            Tag tag=tagMapper.getTagByTagNameAndType(s,type);
+            if(tag==null){
                 newTagNames.add(s);
             }
         }
@@ -99,9 +99,9 @@ public class PostService implements IPostService {
 
         //获取添加后所有Tag的ID，并与对应的Post绑定
         for(String s:tagNameList){
-            List<Tag> tag=tagMapper.getTagByTagNameAndType(s,type);
-            if(!tag.isEmpty()){
-                int tagId=tag.get(0).getId();
+            Tag tag=tagMapper.getTagByTagNameAndType(s,type);
+            if(tag!=null){
+                int tagId=tag.getId();
                 PostTag postTag=new PostTag();
                 postTag.setPostId(post.getId());
                 postTag.setTagId(tagId);

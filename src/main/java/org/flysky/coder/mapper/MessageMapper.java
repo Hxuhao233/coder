@@ -1,10 +1,12 @@
 package org.flysky.coder.mapper;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.flysky.coder.entity.Message;
 
 import java.util.List;
 
+@Mapper
 public interface MessageMapper {
     int deleteByPrimaryKey(Integer id);
 

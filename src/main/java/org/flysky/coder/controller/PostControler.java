@@ -1,19 +1,17 @@
 package org.flysky.coder.controller;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.flysky.coder.controller.wrapper.PostWrapper;
-import org.flysky.coder.controller.wrapper.ResultWrapper;
 import org.flysky.coder.entity.Post;
 import org.flysky.coder.service.IPostService;
-import org.flysky.coder.service.impl.PostService;
+import org.flysky.coder.vo.ResultWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-public class PostController {
+public class PostControler {
     @Autowired
     private IPostService postService;
 
@@ -29,17 +27,22 @@ public class PostController {
         return new ResultWrapper(result);
     }
 
-    @RequestMapping("/forum/createPost")
+    @RequestMapping(value="/forum/createPost",method = RequestMethod.POST)
     public ResultWrapper createPost(@RequestBody PostWrapper postWrapper){
         Integer uid=postWrapper.getUid();
         String title=postWrapper.getTitle();
         String content=postWrapper.getContent();
         Integer sectorId=postWrapper.getSectorId();
         List<String> tagNameList=postWrapper.getTagNameList();
-        boolean isAnonymous=postWrapper.isAnonymous();
+        Integer isAnonymousInt=postWrapper.getIsAnonymous();
         String anonymousName=postWrapper.getAnonymousName();
         Integer type=postWrapper.getType();
-
+        boolean isAnonymous;
+        if(isAnonymousInt==0){
+            isAnonymous=true;
+        }else{
+            isAnonymous=false;
+        }
         Integer result=postService.createPost(uid,title,content,sectorId,tagNameList,isAnonymous,anonymousName,type);
         return new ResultWrapper(result);
     }
@@ -63,15 +66,15 @@ public class PostController {
     }
 
     @RequestMapping("/forum/showPostBySectorAndType/{page}/{sectorId}/{type}")
-    public PageInfo<Post> showPostBySectorAndType(@PathVariable int sectorId,@PathVariable int type,@PathVariable int page){
+    public PageInfo<Post> showPostBySectorAndType(@PathVariable int sectorId, @PathVariable int type, @PathVariable int page){
         PageInfo<Post> postList=postService.viewPostBySectorAndType(sectorId,type,page);
         return postList;
     }
 
     @RequestMapping("/forum/addStickyPost/{sectorId}/{postId}")
     public ResultWrapper addStickyPost(@PathVariable int sectorId,@PathVariable int postId){
-       Integer result=postService.addStickyPost(postId,sectorId);
-       return new ResultWrapper(result);
+        Integer result=postService.addStickyPost(postId,sectorId);
+        return new ResultWrapper(result);
     }
 
     @RequestMapping("/forum/removeStickyPost/{sectorId}/{postId}")
@@ -108,6 +111,12 @@ public class PostController {
     public List<Post> getCollectedPost(@PathVariable Integer uid){
         List<Post> result=postService.showUserCollectionList(uid);
         return result;
+    }
+
+    @RequestMapping("/homexxxx/1")
+    @ResponseBody
+    public String home() {
+        return "Hello sb";
     }
 
 }

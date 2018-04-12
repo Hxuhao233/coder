@@ -1,4 +1,4 @@
-package org.flysky.coder.controller.wrapper;
+package org.flysky.coder.vo;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ public class PostWrapper {
     private String content;
     private Integer sectorId;
     private List<String> tagNameList;
-    private Integer isAnonymous;
+    private boolean isAnonymous;
     private String anonymousName;
     private Integer type;
 
@@ -52,6 +52,13 @@ public class PostWrapper {
         this.tagNameList = tagNameList;
     }
 
+    public boolean isAnonymous() {
+        return isAnonymous;
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        isAnonymous = anonymous;
+    }
 
     public String getAnonymousName() {
         return anonymousName;
@@ -69,19 +76,7 @@ public class PostWrapper {
         this.type = type;
     }
 
-    public Integer getIsAnonymous() {
-        return isAnonymous;
-    }
-
-    public void setIsAnonymous(Integer isAnonymous) {
-        this.isAnonymous = isAnonymous;
-    }
-
-    public PostWrapper(){
-
-    }
-
-    public PostWrapper(Integer uid, String title, String content, Integer sectorId, List<String> tagNameList, Integer isAnonymous, String anonymousName, Integer type) {
+    public PostWrapper(Integer uid, String title, String content, Integer sectorId, List<String> tagNameList, boolean isAnonymous, String anonymousName, Integer type) {
         this.uid = uid;
         this.title = title;
         this.content = content;
@@ -91,5 +86,4 @@ public class PostWrapper {
         this.anonymousName = anonymousName;
         this.type = type;
     }
-
 }

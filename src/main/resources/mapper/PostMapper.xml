@@ -208,12 +208,12 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectBySectorAndType" resultMap="ResultMapWithBLOBs">
-    select <include refid="Base_Column_List" />,<include refid="Blob_Column_List" /> from post where sectorId=#{sectorId} and type=#{type} and isDeleted=0 DESC create_time
+    select <include refid="Base_Column_List" />,<include refid="Blob_Column_List" /> from post where sector_id=#{sectorId} and type=#{type} and is_deleted=0 order by created_at DESC
   </select>
   <select id="searchPostByTitleAndContentAndType" resultMap="ResultMapWithBLOBs">
-    select <include refid="Base_Column_List" />,<include refid="Blob_Column_List" /> from post where title=#{title} and content LIKE CONCAT('%',#{content},'%') and type=#{type} and isDeleted=0 DESC create_time
+    select <include refid="Base_Column_List" />,<include refid="Blob_Column_List" /> from post where title=#{title} and content LIKE CONCAT('%',#{content},'%') and type=#{type} and is_deleted=0 order by created_at DESC
   </select>
   <select id="searchPostByUsernameAndType" resultMap="ResultMapWithBLOBs">
-    select <include refid="Base_Column_List" />,<include refid="Blob_Column_List" /> from post p and user u where p.userId=u.id and u.username=#{username} and type=#{type} and isDeleted=0 DESC create_time
+    select <include refid="Base_Column_List" />,<include refid="Blob_Column_List" /> from post p and user u where p.user_id=u.id and u.username=#{username} and type=#{type} and is_deleted=0 order by created_at DESC
   </select>
 </mapper>

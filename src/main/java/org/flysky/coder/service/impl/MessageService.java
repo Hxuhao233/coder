@@ -6,11 +6,13 @@ import org.flysky.coder.mapper.MessageMapper;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.service.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
 public class MessageService implements IMessageService{
     @Autowired
     private UserMapper userMapper;
@@ -53,6 +55,5 @@ public class MessageService implements IMessageService{
     public List<Message> showConversations(Integer uid1, Integer uid2) {
         return messageMapper.viewConversations(uid1,uid2);
     }
-
 
 }
