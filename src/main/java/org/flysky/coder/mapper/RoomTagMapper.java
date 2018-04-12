@@ -1,7 +1,9 @@
 package org.flysky.coder.mapper;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.flysky.coder.entity.RoomTag;
 
+@Mapper
 public interface RoomTagMapper {
     int deleteByPrimaryKey(Integer id);
 
