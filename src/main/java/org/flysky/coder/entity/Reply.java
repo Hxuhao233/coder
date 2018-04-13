@@ -21,7 +21,7 @@ public class Reply {
 
     private Integer anonymous;
 
-    private Integer anonymousName;
+    private String anonymousName;
 
     public Integer getId() {
         return id;
@@ -95,11 +95,11 @@ public class Reply {
         this.anonymous = anonymous;
     }
 
-    public Integer getAnonymousName() {
+    public String getAnonymousName() {
         return anonymousName;
     }
 
-    public void setAnonymousName(Integer anonymousName) {
+    public void setAnonymousName(String anonymousName) {
         this.anonymousName = anonymousName;
     }
 }

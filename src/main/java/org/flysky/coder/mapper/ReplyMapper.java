@@ -1,7 +1,10 @@
 package org.flysky.coder.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.flysky.coder.entity.Reply;
+
+import java.util.List;
 
 @Mapper
 public interface ReplyMapper {
@@ -16,4 +19,10 @@ public interface ReplyMapper {
     int updateByPrimaryKeySelective(Reply record);
 
     int updateByPrimaryKey(Reply record);
+
+    int getInnerReplyCountByPostIdAndFloor(@Param("postId") Integer postId, @Param("floor")Integer floor);
+
+    List<Reply> getAllReplyByPostIdAndFloor(@Param("postId") Integer postId,@Param("floor") Integer floor);
+
+    List<Reply> getRepliesByPostId(Integer postId);
 }

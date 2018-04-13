@@ -27,6 +27,8 @@ public class Post {
 
     private Integer isDeleted;
 
+    private Integer floorCnt;
+
     private String content;
 
     public Integer getId() {
@@ -123,6 +125,14 @@ public class Post {
 
     public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public Integer getFloorCnt() {
+        return floorCnt;
+    }
+
+    public void setFloorCnt(Integer floorCnt) {
+        this.floorCnt = floorCnt;
     }
 
     public String getContent() {

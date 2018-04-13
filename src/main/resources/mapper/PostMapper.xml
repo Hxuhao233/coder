@@ -14,19 +14,20 @@
     <result column="sector_id" jdbcType="INTEGER" property="sectorId" />
     <result column="title" jdbcType="VARCHAR" property="title" />
     <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="floor_cnt" jdbcType="INTEGER" property="floorCnt" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="org.flysky.coder.entity.Post">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, user_id, upvote, downvote, type, anonymous, anonymous_name, created_at, updated_at, 
-    sector_id, title, is_deleted
+    id, user_id, upvote, downvote, type, anonymous, anonymous_name, created_at, updated_at,
+    sector_id, title, is_deleted, floor_cnt
   </sql>
   <sql id="Blob_Column_List">
     content
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
-    select 
+    select
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -41,16 +42,16 @@
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into post (user_id, upvote, downvote, 
-      type, anonymous, anonymous_name, 
-      created_at, updated_at, sector_id, 
-      title, is_deleted, content
-      )
-    values (#{userId,jdbcType=INTEGER}, #{upvote,jdbcType=INTEGER}, #{downvote,jdbcType=INTEGER}, 
-      #{type,jdbcType=INTEGER}, #{anonymous,jdbcType=INTEGER}, #{anonymousName,jdbcType=VARCHAR}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{sectorId,jdbcType=INTEGER}, 
-      #{title,jdbcType=VARCHAR}, #{isDeleted,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR}
-      )
+    insert into post (user_id, upvote, downvote,
+    type, anonymous, anonymous_name,
+    created_at, updated_at, sector_id,
+    title, is_deleted, floor_cnt,
+    content)
+    values (#{userId,jdbcType=INTEGER}, #{upvote,jdbcType=INTEGER}, #{downvote,jdbcType=INTEGER},
+    #{type,jdbcType=INTEGER}, #{anonymous,jdbcType=INTEGER}, #{anonymousName,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{sectorId,jdbcType=INTEGER},
+    #{title,jdbcType=VARCHAR}, #{isDeleted,jdbcType=INTEGER}, #{floorCnt,jdbcType=INTEGER},
+    #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="org.flysky.coder.entity.Post">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
@@ -91,6 +92,9 @@
       <if test="isDeleted != null">
         is_deleted,
       </if>
+      <if test="floorCnt != null">
+        floor_cnt,
+      </if>
       <if test="content != null">
         content,
       </if>
@@ -128,6 +132,9 @@
       </if>
       <if test="isDeleted != null">
         #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="floorCnt != null">
+        #{floorCnt,jdbcType=INTEGER},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -170,6 +177,9 @@
       <if test="isDeleted != null">
         is_deleted = #{isDeleted,jdbcType=INTEGER},
       </if>
+      <if test="floorCnt != null">
+        floor_cnt = #{floorCnt,jdbcType=INTEGER},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
@@ -179,17 +189,18 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.flysky.coder.entity.Post">
     update post
     set user_id = #{userId,jdbcType=INTEGER},
-      upvote = #{upvote,jdbcType=INTEGER},
-      downvote = #{downvote,jdbcType=INTEGER},
-      type = #{type,jdbcType=INTEGER},
-      anonymous = #{anonymous,jdbcType=INTEGER},
-      anonymous_name = #{anonymousName,jdbcType=VARCHAR},
-      created_at = #{createdAt,jdbcType=TIMESTAMP},
-      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
-      sector_id = #{sectorId,jdbcType=INTEGER},
-      title = #{title,jdbcType=VARCHAR},
-      is_deleted = #{isDeleted,jdbcType=INTEGER},
-      content = #{content,jdbcType=LONGVARCHAR}
+    upvote = #{upvote,jdbcType=INTEGER},
+    downvote = #{downvote,jdbcType=INTEGER},
+    type = #{type,jdbcType=INTEGER},
+    anonymous = #{anonymous,jdbcType=INTEGER},
+    anonymous_name = #{anonymousName,jdbcType=VARCHAR},
+    created_at = #{createdAt,jdbcType=TIMESTAMP},
+    updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+    sector_id = #{sectorId,jdbcType=INTEGER},
+    title = #{title,jdbcType=VARCHAR},
+    is_deleted = #{isDeleted,jdbcType=INTEGER},
+    floor_cnt = #{floorCnt,jdbcType=INTEGER},
+    content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="org.flysky.coder.entity.Post">
@@ -204,7 +215,8 @@
       updated_at = #{updatedAt,jdbcType=TIMESTAMP},
       sector_id = #{sectorId,jdbcType=INTEGER},
       title = #{title,jdbcType=VARCHAR},
-      is_deleted = #{isDeleted,jdbcType=INTEGER}
+      is_deleted = #{isDeleted,jdbcType=INTEGER},
+      floor_cnt = #{floorCnt,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectBySectorAndType" resultMap="ResultMapWithBLOBs">

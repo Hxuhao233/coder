@@ -11,7 +11,7 @@
     <result column="inner_reply_floor" jdbcType="INTEGER" property="innerReplyFloor" />
     <result column="content" jdbcType="VARCHAR" property="content" />
     <result column="anonymous" jdbcType="INTEGER" property="anonymous" />
-    <result column="anonymous_name" jdbcType="INTEGER" property="anonymousName" />
+    <result column="anonymous_name" jdbcType="VARCHAR" property="anonymousName" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, type, postid, floor_cnt, created_at, inner_reply_floor, content, anonymous, 

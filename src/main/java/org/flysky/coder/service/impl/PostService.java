@@ -78,6 +78,8 @@ public class PostService implements IPostService {
             post.setAnonymousName(null);
         }
 
+        post.setFloorCnt(1);
+
         postMapper.insert(post);
 
         List<String> newTagNames=new ArrayList<String>();
