@@ -1,25 +1,20 @@
 package org.flysky.coder.service.impl;
 
 import com.github.pagehelper.PageHelper;
-import org.flysky.coder.entity.Home;
-import org.flysky.coder.entity.Record;
-import org.flysky.coder.entity.Room;
-import org.flysky.coder.entity.User;
+import com.github.pagehelper.PageInfo;
+import org.flysky.coder.entity.*;
 import org.flysky.coder.entity.wrapper.RecordWrapper;
-import org.flysky.coder.mapper.HomeMapper;
-import org.flysky.coder.mapper.RecordMapper;
-import org.flysky.coder.mapper.RoomMapper;
+import org.flysky.coder.entity.wrapper.RoomWrapper;
+import org.flysky.coder.mapper.*;
 import org.flysky.coder.service.IChatService;
 import org.flysky.coder.vo.chat.ChatMessage;
-import org.flysky.coder.vo.chat.HomeInfo;
-import org.flysky.coder.vo.chat.RoomInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by hxuhao233 on 2018/3/28.
@@ -39,26 +34,43 @@ public class ChatService implements IChatService{
     @Autowired
     private HomeMapper homeMapper;
 
+    @Autowired
+    private TagMapper tagMapper;
+
+    @Autowired
+    private RoomTagMapper roomTagMapper;
+
 
     @Override
     public int createHome(Home home) {
-        if (!homeMapper.hasHomeName(home.getName())) {
-            return homeMapper.insertSelective(home);
+        if (homeMapper.hasHomeName(home.getName())) {
+            return 0;
         }
-        return 0;
+
+        return homeMapper.insertSelective(home);
     }
 
     @Override
-    public int modifyHome(Home home) {
-        if (!homeMapper.hasHomeName(home.getName())) {
-            return homeMapper.updateByPrimaryKeySelective(home);
+    public int modifyHome(Home home, boolean needCheckName) {
+        if (needCheckName && homeMapper.hasHomeName(home.getName())) {
+            return 0;
         }
-        return 0;
+        return homeMapper.updateByPrimaryKeySelective(home);
     }
 
     @Override
     public int deleteHome(int homeId) {
-        return homeMapper.deleteByPrimaryKey(homeId);
+        Home home = new Home();
+        home.setId(homeId);
+        home.setIsDeleted(true);
+        homeMapper.updateByPrimaryKeySelective(home);
+
+        List<Room> rooms = roomMapper.getAllRoomsByHomeId(homeId);
+        for (Room room : rooms) {
+            deleteRoom(room.getId());
+        }
+
+        return 1;
     }
 
     @Override
@@ -67,38 +79,144 @@ public class ChatService implements IChatService{
     }
 
     @Override
-    public int createRoom(Room room) {
-        return 0;
+    public PageInfo<RoomWrapper> getRoomByHomeId(int homeId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+
+        PageInfo<RoomWrapper> roomWrappers = new PageInfo<>(roomMapper.getRoomWrappersByHomeId(homeId));
+        List<RoomWrapper> roomWrapperList = roomWrappers.getList();
+        for (RoomWrapper roomWrapper : roomWrapperList) {
+            List<Integer> tagIds = roomTagMapper.getTagIdsByRoomId(roomWrapper.getId());
+            List<String> tagNames = new ArrayList<>();
+            for (Integer tagId : tagIds) {
+                tagNames.add(tagMapper.selectByPrimaryKey(tagId).getName());
+            }
+            roomWrapper.setTags(tagNames);
+        }
+
+
+        return roomWrappers;
     }
 
     @Override
-    public int modifyRoom(Room room) {
-        return 0;
+    public PageInfo<RoomWrapper> getRoomByInfo(String info, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+
+        PageInfo<RoomWrapper> roomWrappers = new PageInfo<>(roomMapper.getRoomWrappersByInfo(info));
+        List<RoomWrapper> roomWrapperList = roomWrappers.getList();
+        for (RoomWrapper roomWrapper : roomWrapperList) {
+            List<Integer> tagIds = roomTagMapper.getTagIdsByRoomId(roomWrapper.getId());
+            List<String> tagNames = new ArrayList<>();
+            for (Integer tagId : tagIds) {
+                tagNames.add(tagMapper.selectByPrimaryKey(tagId).getName());
+            }
+            roomWrapper.setTags(tagNames);
+        }
+
+
+        return roomWrappers;
+    }
+
+
+    @Override
+    public int createRoom(Room room, List<String> tags) {
+        if (roomMapper.hasRoomName(room.getName())) {
+            return 0;
+        }
+
+        int result = roomMapper.insertSelective(room);
+
+        for (String tagName : tags) {
+            Tag tag = tagMapper.getTagByTagNameAndType(tagName, Tag.TYPE_ARTICLE);
+            if (tag == null) {
+                tag = new Tag();
+                tag.setName(tagName);
+                tag.setType(Tag.TYPE_ARTICLE);
+                tagMapper.insertSelective(tag);
+            }
+
+            RoomTag roomTag = new RoomTag();
+            roomTag.setRoomId(room.getId());
+            roomTag.setTagId(tag.getId());
+            roomTagMapper.insertSelective(roomTag);
+        }
+
+
+        return result;
+
+    }
+
+    @Override
+    public int modifyRoom(Room room, boolean needCheckName, List<String> tags) {
+        if (needCheckName && roomMapper.hasRoomName(room.getName())) {
+            return 0;
+        }
+        int result = roomMapper.updateByPrimaryKeySelective(room);
+
+        List<Integer> tagIdList = roomTagMapper.getTagIdsByRoomId(room.getId());
+        //List<Integer> deleteTagIdList = new ArrayList<>();
+        for (Integer tagId : tagIdList) {
+            Tag tag = tagMapper.selectByPrimaryKey(tagId);
+            int index = tags.indexOf(tag.getName());
+            if (index == -1) {
+                roomTagMapper.deleteByTagId(tag.getId());
+            } else {
+                tags.remove(index);
+            }
+        }
+
+        for (String tagName : tags) {
+            Tag tag = new Tag();
+            tag.setName(tagName);
+            tag.setType(Tag.TYPE_ARTICLE);
+            tagMapper.insertSelective(tag);
+
+            RoomTag roomTag = new RoomTag();
+            roomTag.setRoomId(room.getId());
+            roomTag.setTagId(tag.getId());
+            roomTagMapper.insertSelective(roomTag);
+        }
+
+
+        return result;
     }
 
     @Override
     public int deleteRoom(int roomId) {
-        return 0;
+        Room room = new Room();
+        room.setId(roomId);
+        room.setIsDeleted(true);
+        roomMapper.updateByPrimaryKeySelective(room);
+        roomTagMapper.deleteByRoomId(roomId);
+        return 1;
     }
 
     @Override
-    public List<Room> searchRoom(String info) {
+    public PageInfo<Room> searchRoom(String info) {
         return null;
     }
 
     @Override
-    public List<Room> getRoomByHomeId(int homeId) {
-        return null;
-    }
-
-    @Override
-    public List<Home> getHomeByUserId(int userId) {
-        return null;
+    public PageInfo getHomeByUserId(int userId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Home> homes = homeMapper.getHomesByUserId(userId);
+        PageInfo page = new PageInfo(homes);
+        return page;
     }
 
     @Override
     public Room getRoomById(int roomId) {
-        return null;
+        RoomWrapper roomWrapper = roomMapper.getRoomWrapperById(roomId);
+        if (roomWrapper == null) {
+            return null;
+        }
+        List<Integer> tagIds = roomTagMapper.getTagIdsByRoomId(roomId);
+        List<String> tagNames = new ArrayList<>();
+        for (Integer tagId : tagIds) {
+            tagNames.add(tagMapper.selectByPrimaryKey(tagId).getName());
+        }
+        roomWrapper.setTags(tagNames);
+
+        return roomWrapper;
     }
 
     @Override
@@ -137,10 +255,10 @@ public class ChatService implements IChatService{
     }
 
     @Override
-    public List<RecordWrapper> getRecord(int roomId, int pageNum, int pageSize) {
+    public PageInfo<RecordWrapper> getRecord(int roomId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
         List<RecordWrapper> recordList = recordMapper.getRecordWrapperByRoomId(roomId);
-        return recordList;
+        return new PageInfo<>(recordList);
     }
 }

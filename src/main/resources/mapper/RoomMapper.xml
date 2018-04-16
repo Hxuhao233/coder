@@ -11,22 +11,53 @@
     <result column="user_id" jdbcType="INTEGER" property="userId" />
     <result column="is_deleted" jdbcType="BIT" property="isDeleted" />
   </resultMap>
+  <resultMap id="RoomWrapperResultMap" type="org.flysky.coder.entity.wrapper.RoomWrapper" extends="BaseResultMap">
+    <result column="username" property="username"/>
+    <result column="homename" property="home"/>
+  </resultMap>
   <sql id="Base_Column_List">
     id, name, description, home_id, created_at, updated_at, user_id, is_deleted
+  </sql>
+  <sql id="RoomWrapper_Column_List">
+    r.id, r.name, r.description, r.home_id, r.created_at, r.updated_at, r.user_id, r.is_deleted , u.username, h.name 'homename'
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from room
+    where id = #{id,jdbcType=INTEGER} and is_deleted = 0
+  </select>
+  <select id="getRoomWrapperById" parameterType="java.lang.Integer" resultMap="RoomWrapperResultMap">
+    select
+    <include refid="RoomWrapper_Column_List" />
+    from (room r JOIN user u on r.user_id = u.id) JOIN home h on r.home_id = h.id
+    where r.id = #{id,jdbcType=INTEGER} and r.is_deleted = 0
+  </select>
+  <select id="getRoomWrappersByHomeId" parameterType="java.lang.Integer" resultMap="RoomWrapperResultMap">
+    select
+    <include refid="RoomWrapper_Column_List" />
+    from (room r JOIN user u on r.user_id = u.id) JOIN home h on r.home_id = h.id
+    where r.home_id = #{homeId,jdbcType=INTEGER} and r.is_deleted = 0
+  </select>
+  <select id="getRoomWrappersByInfo" parameterType="java.lang.String" resultMap="RoomWrapperResultMap">
+    select
+    <include refid="RoomWrapper_Column_List" />
+    from (room r JOIN user u on r.user_id = u.id) JOIN home h on r.home_id = h.id
+    where r.name LIKE "%"#{info}"%" and r.is_deleted = 0
+  </select>
+  <select id="getAllRoomsByHomeId" parameterType="java.lang.Integer" resultMap="RoomWrapperResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from room
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="hasRoomName" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="hasRoomName" parameterType="java.lang.String" resultType="java.lang.Boolean">
     select count(1)
     from room
     where name = #{name,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from room
+    DELETE from room
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="org.flysky.coder.entity.Room">

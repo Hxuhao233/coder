@@ -10,7 +10,9 @@ public class RoomInfo {
 
     private String description;
 
-    private List<String> tips;
+    private List<String> tags;
+
+    private int homeId;
 
     public String getName() {
         return name;
@@ -28,12 +30,19 @@ public class RoomInfo {
         this.description = description;
     }
 
-
-    public List<String> getTips() {
-        return tips;
+    public List<String> getTags() {
+        return tags;
     }
 
-    public void setTips(List<String> tips) {
-        this.tips = tips;
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public int getHomeId() {
+        return homeId;
+    }
+
+    public void setHomeId(int homeId) {
+        this.homeId = homeId;
     }
 }

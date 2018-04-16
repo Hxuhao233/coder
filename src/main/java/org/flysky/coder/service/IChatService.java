@@ -1,9 +1,11 @@
 package org.flysky.coder.service;
 
+import com.github.pagehelper.PageInfo;
 import org.flysky.coder.entity.Home;
 import org.flysky.coder.entity.Room;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.entity.wrapper.RecordWrapper;
+import org.flysky.coder.entity.wrapper.RoomWrapper;
 import org.flysky.coder.vo.chat.ChatMessage;
 
 import java.util.List;
@@ -14,23 +16,25 @@ import java.util.List;
 public interface IChatService {
     int createHome(Home home);
 
-    int modifyHome(Home home);
+    int modifyHome(Home home, boolean needCheckName);
 
     int deleteHome(int homeId);
 
     Home getHomeById(int homeId);
 
-    List<Home> getHomeByUserId(int userId);
+    PageInfo<Home> getHomeByUserId(int userId, int pageNum, int pageSize);
 
-    int createRoom(Room room);
+    int createRoom(Room room, List<String> tips);
 
-    int modifyRoom(Room room);
+    int modifyRoom(Room room, boolean needCheckName, List<String> tips);
 
     int deleteRoom(int roomId);
 
-    List<Room> searchRoom(String info);
+    PageInfo<Room> searchRoom(String info);
 
-    List<Room> getRoomByHomeId(int homeId);
+    PageInfo<RoomWrapper> getRoomByHomeId(int homeId, int pageNum, int pageSize);
+
+    PageInfo<RoomWrapper> getRoomByInfo(String info, int pageNum, int pageSize);
 
     Room getRoomById(int roomId);
 
@@ -40,5 +44,5 @@ public interface IChatService {
 
     ChatMessage exitRoom(User user, ChatMessage chatMessage);
 
-    List<RecordWrapper> getRecord(int roomId, int pageNum, int pageSize);
+    PageInfo<RecordWrapper> getRecord(int roomId, int pageNum, int pageSize);
 }
