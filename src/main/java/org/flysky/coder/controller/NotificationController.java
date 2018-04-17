@@ -47,6 +47,6 @@ public class NotificationController {
             resultWrapper.setCode(1);
             resultWrapper.setPayload(resultWrapper);
         }
-        return replyList;
+        return resultWrapper;
     }
 }
