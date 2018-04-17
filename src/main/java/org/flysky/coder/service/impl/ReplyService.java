@@ -1,4 +1,4 @@
-package org.flysky.coder.service;
+package org.flysky.coder.service.impl;
 
 import org.flysky.coder.entity.Post;
 import org.flysky.coder.entity.Reply;
@@ -6,6 +6,7 @@ import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.PostMapper;
 import org.flysky.coder.mapper.ReplyMapper;
 import org.flysky.coder.mapper.UserMapper;
+import org.flysky.coder.service.IReplyService;
 import org.flysky.coder.vo.ReplyWrapper;
 import org.flysky.coder.vo.ResultWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-public class ReplyService implements IReplyService{
+public class ReplyService implements IReplyService {
     @Autowired
     private ReplyMapper replyMapper;
 
@@ -116,6 +117,7 @@ public class ReplyService implements IReplyService{
         return 1;
     }
 
+    @Override
     public List<ReplyWrapper> getRepliesByPostId(int postId){
         List<Reply> replyList=replyMapper.getRepliesByPostId(postId);
         List<Integer> floorList=new ArrayList<Integer>();

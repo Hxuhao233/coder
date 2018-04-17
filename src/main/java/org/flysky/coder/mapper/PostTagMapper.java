@@ -3,6 +3,8 @@ package org.flysky.coder.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.flysky.coder.entity.PostTag;
 
+import java.util.List;
+
 @Mapper
 public interface PostTagMapper {
     int deleteByPrimaryKey(Integer id);
@@ -16,4 +18,6 @@ public interface PostTagMapper {
     int updateByPrimaryKeySelective(PostTag record);
 
     int updateByPrimaryKey(PostTag record);
+
+    List<PostTag> getPostTagByPostId(Integer postId);
 }

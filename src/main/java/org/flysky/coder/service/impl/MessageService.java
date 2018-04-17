@@ -5,6 +5,7 @@ import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.MessageMapper;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.service.IMessageService;
+import org.flysky.coder.service.INotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,9 @@ public class MessageService implements IMessageService{
 
     @Autowired
     private MessageMapper messageMapper;
+
+    @Autowired
+    private INotificationService notificationService;
 
     @Override
     public Integer createMessage(Integer fromUid, Integer toUid, String content) {
@@ -48,6 +52,7 @@ public class MessageService implements IMessageService{
 
         messageMapper.insert(message);
 
+        notificationService.newMessageNotification(toUid,message.getId());
         return 1;
     }
 

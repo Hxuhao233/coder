@@ -36,7 +36,6 @@ public class MessageControler {
         if(fromUid==null||toUid==null){
             return null;
         }
-
         return messageService.showConversations(fromUid,toUid);
     }
 }
