@@ -21,5 +21,5 @@ public interface HomeMapper {
 
     int updateByPrimaryKey(Home record);
 
-    List<Home> selectByUserId(int userId);
+    List<Home> getHomesByUserId(int userId);
 }

@@ -2,6 +2,9 @@ package org.flysky.coder.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.flysky.coder.entity.Room;
+import org.flysky.coder.entity.wrapper.RoomWrapper;
+
+import java.util.List;
 
 @Mapper
 public interface RoomMapper {
@@ -18,4 +21,12 @@ public interface RoomMapper {
     int updateByPrimaryKeySelective(Room record);
 
     int updateByPrimaryKey(Room record);
+
+    RoomWrapper getRoomWrapperById(int roomId);
+
+    List<RoomWrapper> getRoomWrappersByHomeId(int homeId);
+
+    List<RoomWrapper> getRoomWrappersByInfo(String info);
+
+    List<Room> getAllRoomsByHomeId(int homeId);
 }

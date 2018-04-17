@@ -1,15 +1,17 @@
 package org.flysky.coder.controller;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.subject.Subject;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.vo.ResultWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.security.Principal;
 
 /**
  * 测试用控制器
@@ -21,36 +23,50 @@ public class Controller {
     @Autowired
     private UserMapper userMapper;
 
-    @RequestMapping("/home")
+    @RequestMapping("/hello")
     @ResponseBody
     public String home() {
         return "Hello sb";
     }
 
-    @RequestMapping("/test/login/{uid}")
+
+
+    @RequestMapping(value = "/test/login", method = RequestMethod.GET)
     @ResponseBody
-    public ResultWrapper login(HttpSession session, @PathVariable("uid") int uid){
-        User u = userMapper.selectByPrimaryKey(uid);
-        session.setAttribute("user",u);
+    public String login(){
+        return "请登录";
+    }
+
+    //@RequestMapping(value = "/test/login", method = RequestMethod.POST)
+    //@ResponseBody
+    public ResultWrapper login(@RequestParam("username")String username, @RequestParam("password")String password){
         ResultWrapper result = new ResultWrapper(1);
         result.setInfo("登录成功");
-        result.setPayload(u);
+        //result.setPayload(u);
         return result;
     }
 
 
+    @RequiresRoles(value = "user")
     @RequestMapping("/test/show")
     @ResponseBody
-    public User show(HttpSession session){
+    public User show(Principal principal, HttpSession session){
         User u = (User) session.getAttribute("user");
         return u;
     }
 
 
-    @RequestMapping("/test/exit")
+    @RequiresRoles(value = "manager")
+    @RequestMapping("/test/show2")
+    @ResponseBody
+    public User show2(HttpSession session){
+        User u = (User) session.getAttribute("user");
+        return u;
+    }
+
+    @RequestMapping("/test/logout")
     @ResponseBody
     public String exit(HttpSession session){
-        session.invalidate();
         return "bye";
     }
 

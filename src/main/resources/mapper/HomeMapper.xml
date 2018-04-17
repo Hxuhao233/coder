@@ -17,15 +17,20 @@
     select 
     <include refid="Base_Column_List" />
     from home
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER} and is_deleted = 0
   </select>
   <select id="hasHomeName" parameterType="java.lang.String" resultType="java.lang.Boolean">
     select count(1)
     from home
-    where name = #{name,jdbcType=VARCHAR}
+    where name = #{name,jdbcType=VARCHAR} and is_deleted = 0
+  </select>
+  <select id="getHomesByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" />
+    from home
+    where user_id = #{userId,jdbcType=INTEGER} and is_deleted = 0
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from home
+    DELETE from home
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="org.flysky.coder.entity.Home">
