@@ -204,7 +204,7 @@ public class ChatService implements IChatService{
     }
 
     @Override
-    public Room getRoomById(int roomId) {
+    public RoomWrapper getRoomById(int roomId) {
         RoomWrapper roomWrapper = roomMapper.getRoomWrapperById(roomId);
         if (roomWrapper == null) {
             return null;

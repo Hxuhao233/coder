@@ -36,7 +36,7 @@ public interface IChatService {
 
     PageInfo<RoomWrapper> getRoomByInfo(String info, int pageNum, int pageSize);
 
-    Room getRoomById(int roomId);
+    RoomWrapper getRoomById(int roomId);
 
     ChatMessage chat(User user, ChatMessage chatMessage);
 
