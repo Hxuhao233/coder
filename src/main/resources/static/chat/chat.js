@@ -30,7 +30,7 @@ function connect() {
         recordSubscription = stompClient.subscribe(
             '/user/' + sessionId + '/self',
             function (response) {
-                var recordList = JSON.parse(response.body);
+                var recordList = JSON.parse(response.body).list;
                 console.log(recordList);
                 for (var i=recordList.length-1;i>=0;i--){
                     var message = recordList[i];

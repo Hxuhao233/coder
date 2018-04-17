@@ -2,6 +2,7 @@ package org.flysky.coder.controller;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.flysky.coder.entity.Home;
 import org.flysky.coder.entity.Room;
 import org.flysky.coder.entity.User;
@@ -44,6 +45,7 @@ public class ChatController {
      * @param homeInfo
      * @return
      */
+    @RequiresRoles(value = "user")
     @ResponseBody
     @RequestMapping(value = "/home",method = RequestMethod.POST)
     public Result createHome(HttpSession session, @RequestBody HomeInfo homeInfo){

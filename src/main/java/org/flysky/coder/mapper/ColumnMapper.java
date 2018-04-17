@@ -16,4 +16,6 @@ public interface ColumnMapper {
     int updateByPrimaryKeySelective(Column record);
 
     int updateByPrimaryKey(Column record);
+
+    boolean hasColumnName(String name);
 }

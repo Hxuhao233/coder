@@ -16,18 +16,24 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from column
-    where id = #{id,jdbcType=INTEGER}
+    from `column`
+    where id = #{id,jdbcType=INTEGER} and is_deleted = 0
+  </select>
+  <select id="hasColumnName" parameterType="java.lang.String" resultType="java.lang.Boolean">
+    select
+    count(1)
+    from `column`
+    where name = #{name} and is_deleted = 0
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from column
+    delete from `column`
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="org.flysky.coder.entity.Column">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into column (user_id, name, description, 
+    insert into `column` (user_id, name, description,
       created_at, updated_at, is_deleted
       )
     values (#{userId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
@@ -38,7 +44,7 @@
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into column
+    insert into `column`
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="userId != null">
         user_id,
@@ -81,7 +87,7 @@
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="org.flysky.coder.entity.Column">
-    update column
+    update `column`
     <set>
       <if test="userId != null">
         user_id = #{userId,jdbcType=INTEGER},
@@ -105,7 +111,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="org.flysky.coder.entity.Column">
-    update column
+    update `column`
     set user_id = #{userId,jdbcType=INTEGER},
       name = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},

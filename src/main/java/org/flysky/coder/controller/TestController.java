@@ -1,13 +1,11 @@
 package org.flysky.coder.controller;
 
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.apache.shiro.subject.Subject;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.vo.ResultWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -16,8 +14,8 @@ import java.security.Principal;
 /**
  * 测试用控制器
  */
-@RestController
-public class Controller {
+@Controller
+public class TestController {
 
 
     @Autowired
@@ -32,9 +30,8 @@ public class Controller {
 
 
     @RequestMapping(value = "/test/login", method = RequestMethod.GET)
-    @ResponseBody
     public String login(){
-        return "请登录";
+        return "/login.html";
     }
 
     //@RequestMapping(value = "/test/login", method = RequestMethod.POST)
@@ -47,7 +44,7 @@ public class Controller {
     }
 
 
-    @RequiresRoles(value = "user")
+    //@RequiresRoles(value = "user")
     @RequestMapping("/test/show")
     @ResponseBody
     public User show(Principal principal, HttpSession session){
@@ -56,7 +53,7 @@ public class Controller {
     }
 
 
-    @RequiresRoles(value = "manager")
+    //@RequiresRoles(value = "manager")
     @RequestMapping("/test/show2")
     @ResponseBody
     public User show2(HttpSession session){
