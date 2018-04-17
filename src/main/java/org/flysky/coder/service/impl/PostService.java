@@ -12,6 +12,7 @@ import org.flysky.coder.mapper.PostMapper;
 import org.flysky.coder.mapper.PostTagMapper;
 import org.flysky.coder.mapper.TagMapper;
 import org.flysky.coder.mapper.UserMapper;
+import org.flysky.coder.service.INotificationService;
 import org.flysky.coder.service.IPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -37,6 +38,9 @@ public class PostService implements IPostService {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private INotificationService notificationService;
 
     @Override
     public Integer createPost(Integer uid, String title, String content, Integer sectorId, List<String> tagNameList, boolean isAnonymous, String anonymousName, Integer type) {
@@ -240,6 +244,7 @@ public class PostService implements IPostService {
         if (isDeleted == 0) {
             post.setIsDeleted(1);
             postMapper.updateByPrimaryKey(post);
+            notificationService.newPostDeleted(post.getUserId(),post.getTitle());
         } else {
             return 0;
         }
@@ -253,6 +258,7 @@ public class PostService implements IPostService {
         if (isDeleted == 1) {
             post.setIsDeleted(0);
             postMapper.updateByPrimaryKey(post);
+            notificationService.new
         } else {
             return 0;
         }
