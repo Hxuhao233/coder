@@ -17,4 +17,8 @@ public interface INotificationService {
     List<Reply> viewReplyNotifications(int uid);
     List<String> viewPostDeletedNotifications(int uid);
     List<String> viewPostRecoveredNotifications(int uid);
+    Long getNewMessageNotificationNum(int uid);
+    Long getNewReplyNotificationNum(int uid);
+    Long getNewPostDeletedNotificationNum(int uid);
+    Long getNewPostRecoveredNotificaionNum(int uid);
 }

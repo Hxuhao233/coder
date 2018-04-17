@@ -258,7 +258,7 @@ public class PostService implements IPostService {
         if (isDeleted == 1) {
             post.setIsDeleted(0);
             postMapper.updateByPrimaryKey(post);
-            notificationService.new
+            notificationService.newPostRecovered(post.getUserId(),post.getTitle());
         } else {
             return 0;
         }

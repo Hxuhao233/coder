@@ -145,4 +145,24 @@ public class NotificationService implements INotificationService{
 
         return oldPostRecoveredNotificationList;
     }
+
+    @Override
+    public Long getNewMessageNotificationNum(int uid) {
+        return redisTemplate.opsForList().size(unreadMessageNotificationPrefix);
+    }
+
+    @Override
+    public Long getNewReplyNotificationNum(int uid) {
+        return redisTemplate.opsForList().size(unreadReplyNotificationPrefix);
+    }
+
+    @Override
+    public Long getNewPostDeletedNotificationNum(int uid) {
+        return redisTemplate.opsForList().size(unreadPostDeletedNotificationPrefix);
+    }
+
+    @Override
+    public Long getNewPostRecoveredNotificaionNum(int uid) {
+        return redisTemplate.opsForList().size(unreadPostRecoveredNotificationPrefix);
+    }
 }
