@@ -150,10 +150,13 @@
       anonymous_name = #{anonymousName,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="getAllReplyByPostIdAndFloor" resultMap="Base_Column_List">
+  <select id="getAllReplyByPostIdAndFloor" resultMap="BaseResultMap">
     select  <include refid="Base_Column_List"/> from reply where postid=#{postId} and floor_cnt=#{floor} order by created_at DESC
   </select>
-  <select id="getRepliesByPostId" resultMap="Base_Column_List">
+  <select id="getRepliesByPostId" resultMap="BaseResultMap">
     select  <include refid="Base_Column_List"/> from reply where postid=#{postId} order by created_at DESC
+  </select>
+  <select id="getInnerReplyCountByPostIdAndFloor" resultType="java.lang.Integer">
+    select count(*) from reply where postid=#{postId} and floor_cnt=#{floor}
   </select>
 </mapper>

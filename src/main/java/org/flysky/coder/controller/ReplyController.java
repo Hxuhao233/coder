@@ -60,7 +60,7 @@ public class ReplyController {
         return result;
     }
 
-    @RequestMapping("/reply/getRepliesByPostId")
+    @RequestMapping("/reply/getRepliesByPostId/{postId}")
     public List<ReplyWrapper> getRepliesByPostId(@PathVariable Integer postId){
         return replyService.getRepliesByPostId(postId);
     }

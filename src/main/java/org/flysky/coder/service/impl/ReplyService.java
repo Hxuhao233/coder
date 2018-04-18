@@ -52,6 +52,9 @@ public class ReplyService implements IReplyService {
         reply.setCreatedAt(LocalDateTime.now());
         reply.setFloorCnt(post.getFloorCnt()+1);
         reply.setInnerReplyFloor(0);
+        reply.setUserId(uid);
+        reply.setPostid(postId);
+
         post.setFloorCnt(post.getFloorCnt()+1);
         replyMapper.insert(reply);
         postMapper.updateByPrimaryKey(post);
@@ -82,7 +85,11 @@ public class ReplyService implements IReplyService {
         reply.setContent(content);
         reply.setCreatedAt(LocalDateTime.now());
         reply.setFloorCnt(post.getFloorCnt());
-        reply.setInnerReplyFloor(replyMapper.getInnerReplyCountByPostIdAndFloor(postId,floorCount)+1);
+        reply.setInnerReplyFloor(replyMapper.getInnerReplyCountByPostIdAndFloor(postId,floorCount));
+        reply.setUserId(uid);
+        reply.setPostid(postId);
+
+        replyMapper.insert(reply);
         return null;
     }
 
