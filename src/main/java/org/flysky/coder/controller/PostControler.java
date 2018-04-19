@@ -1,9 +1,9 @@
 package org.flysky.coder.controller;
 
 import com.github.pagehelper.PageInfo;
-import org.flysky.coder.controller.wrapper.PostWrapper;
 import org.flysky.coder.entity.Post;
 import org.flysky.coder.service.IPostService;
+import org.flysky.coder.vo.PostWrapper;
 import org.flysky.coder.vo.ResultWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

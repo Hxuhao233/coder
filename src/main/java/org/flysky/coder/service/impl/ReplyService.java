@@ -149,6 +149,7 @@ public class ReplyService implements IReplyService {
                     replyWrapper.setTime(r.getCreatedAt());
                     replyWrapper.setInnerReplyList(null);
                     replyWrapper.setFloor(floor);
+                    replyWrapper.setUsername(userMapper.selectByPrimaryKey(r.getUserId()).getUsername());
                     replyWrapperList.add(replyWrapper);
                     removeList.add(r);
                 }
@@ -171,7 +172,12 @@ public class ReplyService implements IReplyService {
                     innerReplyWrapperList.add(replyWrapper);
                 }
             }
-            rw.setInnerReplyList(innerReplyWrapperList);
+            List<ReplyWrapper> rList=new ArrayList<ReplyWrapper>();
+            for(int i=innerReplyWrapperList.size()-1;i>=0;i--){
+                rList.add(innerReplyWrapperList.get(i));
+            }
+
+            rw.setInnerReplyList(rList);
         }
 
         return replyWrapperList;

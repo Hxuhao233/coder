@@ -9,6 +9,7 @@ public class ReplyWrapper {
     private String content;
     private LocalDateTime time;
     private int floor;
+    private String username;
 
     public ReplyWrapper() {
 
@@ -52,5 +53,13 @@ public class ReplyWrapper {
 
     public void setFloor(int floor) {
         this.floor = floor;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
