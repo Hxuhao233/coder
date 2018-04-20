@@ -19,7 +19,7 @@ import javax.servlet.http.HttpSession;
 public class CustomFormAuthenticationFilter extends FormAuthenticationFilter {
 
 
-
+ 
     @Override
     protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request,
                                      ServletResponse response) throws Exception {

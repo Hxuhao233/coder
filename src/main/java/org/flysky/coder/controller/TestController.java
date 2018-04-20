@@ -1,6 +1,8 @@
 package org.flysky.coder.controller;
 
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.subject.Subject;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.vo.ResultWrapper;
@@ -43,20 +45,25 @@ public class TestController {
         return result;
     }
 
-
-    //@RequiresRoles(value = "user")
-    @RequestMapping("/test/show")
+    @RequestMapping("/test/guest")
     @ResponseBody
-    public User show(Principal principal, HttpSession session){
+    public String guest(Principal principal, HttpSession session){
+        return "游客可访问";
+    }
+
+    @RequiresRoles(value = "user")
+    @RequestMapping("/test/user")
+    @ResponseBody
+    public User user(Principal principal, HttpSession session){
         User u = (User) session.getAttribute("user");
         return u;
     }
 
 
-    //@RequiresRoles(value = "manager")
-    @RequestMapping("/test/show2")
+    @RequiresRoles(value = "manager")
+    @RequestMapping("/test/manager")
     @ResponseBody
-    public User show2(HttpSession session){
+    public User manager(HttpSession session){
         User u = (User) session.getAttribute("user");
         return u;
     }
@@ -64,6 +71,8 @@ public class TestController {
     @RequestMapping("/test/logout")
     @ResponseBody
     public String exit(HttpSession session){
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
         return "bye";
     }
 

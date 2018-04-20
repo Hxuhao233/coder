@@ -23,6 +23,8 @@ public class Article {
 
     private Boolean isDeleted;
 
+    private Integer parseType;
+
     public Integer getId() {
         return id;
     }
@@ -95,5 +97,13 @@ public class Article {
 
     public void setIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public Integer getParseType() {
+        return parseType;
+    }
+
+    public void setParseType(Integer parseType) {
+        this.parseType = parseType;
     }
 }

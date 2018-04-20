@@ -10,8 +10,14 @@
     <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="is_deleted" jdbcType="BIT" property="isDeleted" />
   </resultMap>
+  <resultMap id="ColumnWrapperResultMap" type="org.flysky.coder.entity.wrapper.ColumnWrapper" extends="BaseResultMap">
+    <result column="username" property="username"/>
+  </resultMap>
   <sql id="Base_Column_List">
     id, user_id, name, description, created_at, updated_at, is_deleted
+  </sql>
+  <sql id="ColumnWrapper_Column_List">
+    c.id, c.user_id, c.name, c.description, c.created_at, c.updated_at, c.is_deleted , u.username
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -24,6 +30,18 @@
     count(1)
     from `column`
     where name = #{name} and is_deleted = 0
+  </select>
+  <select id="getColumnWrapperById" parameterType="java.lang.Integer" resultMap="ColumnWrapperResultMap">
+    select
+    <include refid="ColumnWrapper_Column_List" />
+    from `column` c join user u on c.user_id = u.id
+    where c.id = #{id} and c.is_deleted = 0
+  </select>
+  <select id="getColumnByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from `column`
+    where user_id = #{userId,jdbcType=INTEGER} and is_deleted = 0
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from `column`

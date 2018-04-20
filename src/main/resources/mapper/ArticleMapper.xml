@@ -11,15 +11,48 @@
     <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="column_id" jdbcType="INTEGER" property="columnId" />
     <result column="is_deleted" jdbcType="BIT" property="isDeleted" />
+    <result column="parse_type" jdbcType="INTEGER" property="parseType" />
+  </resultMap>
+  <resultMap id="ArticleWrapperResultMap" type="org.flysky.coder.entity.wrapper.ArticleWrapper" extends="BaseResultMap">
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="columnname" jdbcType="VARCHAR" property="column" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, name, description, content, user_id, created_at, updated_at, column_id, is_deleted
+    id, name, description, content, user_id, created_at, updated_at, column_id, is_deleted, 
+    parse_type
+  </sql>
+  <sql id="ArticleWrapper_Column_List">
+    a.id,a.name,a.description,a.content,a.user_id,a.created_at,a.updated_at,a.column_id,a.is_deleted,parse_type, u.username, c.name columnname
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from article
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER} and is_deleted = 0
+  </select>
+  <select id="getArticleWrapperById" parameterType="java.lang.Integer" resultMap="ArticleWrapperResultMap">
+    select
+    <include refid="ArticleWrapper_Column_List" />
+    from (article a JOIN user u on a.user_id = u.id) JOIN `column` c on a.column_id = c.id
+    where a.id = #{id,jdbcType=INTEGER} and a.is_deleted = 0
+  </select>
+  <select id="hasArticleName" parameterType="java.lang.String" resultType="java.lang.Boolean">
+    select
+    count(1)
+    from article
+    where name = #{name}
+  </select>
+  <select id="getArticleWrapperByInfo" parameterType="java.lang.String" resultMap="ArticleWrapperResultMap">
+    select
+    <include refid="ArticleWrapper_Column_List" />
+    from (article a JOIN user u on a.user_id = u.id) JOIN `column` c on a.column_id = c.id
+    where a.name LIKE "%"#{info}"%" and a.is_deleted = 0
+  </select>
+  <select id="getArticleWrapperByColumnId" parameterType="java.lang.Integer" resultMap="ArticleWrapperResultMap">
+    select
+    <include refid="ArticleWrapper_Column_List" />
+    from (article a JOIN user u on a.user_id = u.id) JOIN `column` c on a.column_id = c.id
+    where a.column_id = #{columnId} and a.is_deleted = 0
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from article
@@ -31,10 +64,12 @@
     </selectKey>
     insert into article (name, description, content, 
       user_id, created_at, updated_at, 
-      column_id, is_deleted)
+      column_id, is_deleted, parse_type
+      )
     values (#{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
       #{userId,jdbcType=INTEGER}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, 
-      #{columnId,jdbcType=INTEGER}, #{isDeleted,jdbcType=BIT})
+      #{columnId,jdbcType=INTEGER}, #{isDeleted,jdbcType=BIT}, #{parseType,jdbcType=INTEGER}
+      )
   </insert>
   <insert id="insertSelective" parameterType="org.flysky.coder.entity.Article">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
@@ -66,6 +101,9 @@
       <if test="isDeleted != null">
         is_deleted,
       </if>
+      <if test="parseType != null">
+        parse_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="name != null">
@@ -91,6 +129,9 @@
       </if>
       <if test="isDeleted != null">
         #{isDeleted,jdbcType=BIT},
+      </if>
+      <if test="parseType != null">
+        #{parseType,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -121,6 +162,9 @@
       <if test="isDeleted != null">
         is_deleted = #{isDeleted,jdbcType=BIT},
       </if>
+      <if test="parseType != null">
+        parse_type = #{parseType,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -133,7 +177,8 @@
       created_at = #{createdAt,jdbcType=TIMESTAMP},
       updated_at = #{updatedAt,jdbcType=TIMESTAMP},
       column_id = #{columnId,jdbcType=INTEGER},
-      is_deleted = #{isDeleted,jdbcType=BIT}
+      is_deleted = #{isDeleted,jdbcType=BIT},
+      parse_type = #{parseType,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

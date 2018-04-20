@@ -12,7 +12,11 @@ public class ArticleInfo {
 
     private List<String> tags;
 
-    private int ColumnId;
+    private int columnId;
+
+    private String content;
+
+    private int parseType;
 
     public String getName() {
         return name;
@@ -39,10 +43,26 @@ public class ArticleInfo {
     }
 
     public int getColumnId() {
-        return ColumnId;
+        return columnId;
     }
 
     public void setColumnId(int columnId) {
-        ColumnId = columnId;
+        this.columnId = columnId;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public int getParseType() {
+        return parseType;
+    }
+
+    public void setParseType(int parseType) {
+        this.parseType = parseType;
     }
 }

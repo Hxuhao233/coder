@@ -19,9 +19,8 @@ import java.util.Map;
 /**
  * Created by hxuhao233 on 2018/4/13.
  */
-//@Configuration
+@Configuration
 public class ShiroConfig {
-
 
 
     @Bean
@@ -35,19 +34,17 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
 
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
-
         //  注意过滤器配置顺序 不能颠倒
         //  配置登出url
         filterChainDefinitionMap.put("/test/logout", "logout");
         // 配置不会被拦截的url 顺序判断
         filterChainDefinitionMap.put("/favicon.ico", "anon");
         filterChainDefinitionMap.put("/login.html", "anon");
-        filterChainDefinitionMap.put("/hello", "anon");
+        //filterChainDefinitionMap.put("/hello", "anon");
         filterChainDefinitionMap.put("/static/**", "anon");
         filterChainDefinitionMap.put("/webjars/**", "anon");
-
         // 配置需要验证的url
-        filterChainDefinitionMap.put("/**", "authc");
+        //filterChainDefinitionMap.put("/**", "authc");
         //配置shiro默认登录界面地址，前后端分离中登录界面跳转应由前端路由控制，后台仅返回json数据
         shiroFilterFactoryBean.setLoginUrl("/test/login");
         // 登录成功后要跳转的链接

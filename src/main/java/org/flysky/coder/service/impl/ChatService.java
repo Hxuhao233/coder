@@ -3,6 +3,7 @@ package org.flysky.coder.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.flysky.coder.entity.*;
+import org.flysky.coder.entity.wrapper.HomeWrapper;
 import org.flysky.coder.entity.wrapper.RecordWrapper;
 import org.flysky.coder.entity.wrapper.RoomWrapper;
 import org.flysky.coder.mapper.*;
@@ -79,6 +80,11 @@ public class ChatService implements IChatService{
     }
 
     @Override
+    public HomeWrapper getHomeWrapperById(int homeId) {
+        return homeMapper.getHomeWrapperById(homeId);
+    }
+
+    @Override
     public PageInfo<RoomWrapper> getRoomByHomeId(int homeId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
@@ -112,8 +118,12 @@ public class ChatService implements IChatService{
             roomWrapper.setTags(tagNames);
         }
 
-
         return roomWrappers;
+    }
+
+    @Override
+    public Room getRoomById(int roomId) {
+        return roomMapper.selectByPrimaryKey(roomId);
     }
 
 
@@ -126,11 +136,11 @@ public class ChatService implements IChatService{
         int result = roomMapper.insertSelective(room);
 
         for (String tagName : tags) {
-            Tag tag = tagMapper.getTagByTagNameAndType(tagName, Tag.TYPE_ARTICLE);
+            Tag tag = tagMapper.getTagByTagNameAndType(tagName, Tag.TYPE_ROOM);
             if (tag == null) {
                 tag = new Tag();
                 tag.setName(tagName);
-                tag.setType(Tag.TYPE_ARTICLE);
+                tag.setType(Tag.TYPE_ROOM);
                 tagMapper.insertSelective(tag);
             }
 
@@ -167,7 +177,7 @@ public class ChatService implements IChatService{
         for (String tagName : tags) {
             Tag tag = new Tag();
             tag.setName(tagName);
-            tag.setType(Tag.TYPE_ARTICLE);
+            tag.setType(Tag.TYPE_ROOM);
             tagMapper.insertSelective(tag);
 
             RoomTag roomTag = new RoomTag();
@@ -191,11 +201,6 @@ public class ChatService implements IChatService{
     }
 
     @Override
-    public PageInfo<Room> searchRoom(String info) {
-        return null;
-    }
-
-    @Override
     public PageInfo getHomeByUserId(int userId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         List<Home> homes = homeMapper.getHomesByUserId(userId);
@@ -204,7 +209,7 @@ public class ChatService implements IChatService{
     }
 
     @Override
-    public RoomWrapper getRoomById(int roomId) {
+    public RoomWrapper getRoomWrapperById(int roomId) {
         RoomWrapper roomWrapper = roomMapper.getRoomWrapperById(roomId);
         if (roomWrapper == null) {
             return null;

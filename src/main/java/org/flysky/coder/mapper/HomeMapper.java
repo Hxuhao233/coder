@@ -2,6 +2,7 @@ package org.flysky.coder.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.flysky.coder.entity.Home;
+import org.flysky.coder.entity.wrapper.HomeWrapper;
 
 import java.util.List;
 
@@ -22,4 +23,6 @@ public interface HomeMapper {
     int updateByPrimaryKey(Home record);
 
     List<Home> getHomesByUserId(int userId);
+
+    HomeWrapper getHomeWrapperById(int homeId);
 }
