@@ -3,6 +3,8 @@ package org.flysky.coder.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.flysky.coder.entity.ArticleTag;
 
+import java.util.List;
+
 @Mapper
 public interface ArticleTagMapper {
     int deleteByPrimaryKey(Integer id);
@@ -16,4 +18,8 @@ public interface ArticleTagMapper {
     int updateByPrimaryKeySelective(ArticleTag record);
 
     int updateByPrimaryKey(ArticleTag record);
+
+    List<ArticleTag> getTagsByArticleId(Integer id);
+
+    void deleteByTagId(Integer id);
 }

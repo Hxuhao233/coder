@@ -11,7 +11,9 @@ public class Comment {
 
     private Integer commentedId;
 
-    private String commentedType;
+    private Integer commentedType;
+
+    public final static int COMMENTED_TYPE_ARTICLE = 1;
 
     private String content;
 
@@ -41,12 +43,12 @@ public class Comment {
         this.commentedId = commentedId;
     }
 
-    public String getCommentedType() {
+    public Integer getCommentedType() {
         return commentedType;
     }
 
-    public void setCommentedType(String commentedType) {
-        this.commentedType = commentedType == null ? null : commentedType.trim();
+    public void setCommentedType(Integer commentedType) {
+        this.commentedType = commentedType;
     }
 
     public String getContent() {

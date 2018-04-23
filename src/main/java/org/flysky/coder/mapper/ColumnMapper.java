@@ -2,6 +2,9 @@ package org.flysky.coder.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.flysky.coder.entity.Column;
+import org.flysky.coder.entity.wrapper.ColumnWrapper;
+
+import java.util.List;
 
 @Mapper
 public interface ColumnMapper {
@@ -18,4 +21,8 @@ public interface ColumnMapper {
     int updateByPrimaryKey(Column record);
 
     boolean hasColumnName(String name);
+
+    ColumnWrapper getColumnWrapperById(int id);
+
+    List<Column> getColumnByUserId(int userId);
 }

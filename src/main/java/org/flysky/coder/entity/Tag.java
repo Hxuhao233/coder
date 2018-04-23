@@ -7,6 +7,8 @@ public class Tag {
 
     public static final int TYPE_ARTICLE = 3;
 
+    public static final int TYPE_ROOM = 4;
+
     private Integer id;
 
     private String name;

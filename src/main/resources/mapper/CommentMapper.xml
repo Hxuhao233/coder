@@ -5,18 +5,36 @@
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="uid" jdbcType="INTEGER" property="uid" />
     <result column="commented_id" jdbcType="INTEGER" property="commentedId" />
-    <result column="commented_type" jdbcType="VARCHAR" property="commentedType" />
+    <result column="commented_type" jdbcType="INTEGER" property="commentedType" />
     <result column="content" jdbcType="VARCHAR" property="content" />
     <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
+  <resultMap id="CommentWrapperResultMap" type="org.flysky.coder.entity.wrapper.CommentWrapper" extends="BaseResultMap">
+    <result column="username" property="username"/>
+  </resultMap>
   <sql id="Base_Column_List">
     id, uid, commented_id, commented_type, content, created_at
+  </sql>
+  <sql id="CommentWrapper_Column_List">
+    c.id, c.uid, c.commented_id, c.commented_type, c.content, c.created_at ,u.username
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from comment
     where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getCommentWrapperById" parameterType="java.lang.Integer" resultMap="CommentWrapperResultMap">
+    select
+    <include refid="CommentWrapper_Column_List" />
+    from comment c JOIN user u on c.user_id = u.id
+    where c.id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getCommentWrapperByArticleId"  resultMap="CommentWrapperResultMap">
+    select
+    <include refid="CommentWrapper_Column_List" />
+    from comment c JOIN user u on c.uid = u.id
+    where c.commented_id = #{commentedId} and c.commented_type = #{commentedType}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from comment
@@ -28,7 +46,7 @@
     </selectKey>
     insert into comment (uid, commented_id, commented_type, 
       content, created_at)
-    values (#{uid,jdbcType=INTEGER}, #{commentedId,jdbcType=INTEGER}, #{commentedType,jdbcType=VARCHAR}, 
+    values (#{uid,jdbcType=INTEGER}, #{commentedId,jdbcType=INTEGER}, #{commentedType,jdbcType=INTEGER}, 
       #{content,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="org.flysky.coder.entity.Comment">
@@ -61,7 +79,7 @@
         #{commentedId,jdbcType=INTEGER},
       </if>
       <if test="commentedType != null">
-        #{commentedType,jdbcType=VARCHAR},
+        #{commentedType,jdbcType=INTEGER},
       </if>
       <if test="content != null">
         #{content,jdbcType=VARCHAR},
@@ -81,7 +99,7 @@
         commented_id = #{commentedId,jdbcType=INTEGER},
       </if>
       <if test="commentedType != null">
-        commented_type = #{commentedType,jdbcType=VARCHAR},
+        commented_type = #{commentedType,jdbcType=INTEGER},
       </if>
       <if test="content != null">
         content = #{content,jdbcType=VARCHAR},
@@ -96,7 +114,7 @@
     update comment
     set uid = #{uid,jdbcType=INTEGER},
       commented_id = #{commentedId,jdbcType=INTEGER},
-      commented_type = #{commentedType,jdbcType=VARCHAR},
+      commented_type = #{commentedType,jdbcType=INTEGER},
       content = #{content,jdbcType=VARCHAR},
       created_at = #{createdAt,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}

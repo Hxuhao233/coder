@@ -1,7 +1,7 @@
 package org.flysky.coder.controller;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.flysky.coder.entity.Home;
 import org.flysky.coder.entity.Room;
@@ -22,10 +22,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 在线交流功能控制器
@@ -76,16 +74,21 @@ public class ChatController {
      * @param homeInfo
      * @return
      */
+    @RequiresRoles(value = "user")
     @ResponseBody
     @RequestMapping(value = "/home/{homeId}",method = RequestMethod.PUT)
-    public Result modifyHome(@PathVariable(value = "homeId")int homeId, @RequestBody HomeInfo homeInfo) {
+    public Result modifyHome(HttpSession session, @PathVariable(value = "homeId")int homeId, @RequestBody HomeInfo homeInfo) {
+        User user = (User) session.getAttribute("user");
         LocalDateTime time = LocalDateTime.now();
         Result result = new Result();
 
-        Home home = chatService.getHomeById(homeId);
+
+        Home home = chatService.getHomeWrapperById(homeId);
         if (home == null){
             result.setCode(2);
             result.setInfo("不存在社区");
+        } else if (home.getUserId() != user.getId()) {
+            throw new UnauthorizedException();
         } else {
             boolean needCheckName;
             if (homeInfo.getName().equals(home.getName())) {
@@ -113,10 +116,11 @@ public class ChatController {
      * @param homeId
      * @return
      */
+    @RequiresRoles(value = "user")
     @ResponseBody
     @RequestMapping(value = "/home/{homeId}",method = RequestMethod.GET)
     public Result getHome(@PathVariable(value = "homeId")int homeId) {
-        Home home = chatService.getHomeById(homeId);
+        Home home = chatService.getHomeWrapperById(homeId);
         ResultWrapper result = new ResultWrapper();
         if (home != null) {
             result.setCode(1);
@@ -135,17 +139,22 @@ public class ChatController {
      * @param homeId
      * @return
      */
+    @RequiresRoles(value = "user")
     @ResponseBody
     @RequestMapping(value = "/home/{homeId}",method = RequestMethod.DELETE)
     public Result deleteHome(HttpSession session, @PathVariable(value = "homeId")int homeId) {
         User user = (User) session.getAttribute("user");
-        int code = chatService.deleteHome(homeId);
-        Result result = new Result(code);
-        if (code != 0) {
-            result.setCode(1);
-        } else {
+        Result result = new Result();
+
+        Home home = chatService.getHomeWrapperById(homeId);
+        if (home == null){
             result.setCode(2);
-            result.setInfo("不存在此社区");
+            result.setInfo("不存在社区");
+        } else if (home.getUserId() != user.getId()) {
+            throw new UnauthorizedException();
+        } else {
+            chatService.deleteHome(homeId);
+            result.setCode(1);
         }
 
         return result;
@@ -169,7 +178,7 @@ public class ChatController {
             result.setCode(1);
             result.setPayload(homes);
         } else {
-            result.setInfo("不存在此社区");
+            result.setInfo("你还没有社区，老哥");
             result.setCode(2);
         }
 
@@ -208,11 +217,19 @@ public class ChatController {
      * @param roomInfo
      * @return
      */
+    @RequiresRoles(value = "user")
     @ResponseBody
     @RequestMapping(value = "/room",method = RequestMethod.POST)
     public Result createRoom(HttpSession session, @RequestBody RoomInfo roomInfo) {
         LocalDateTime time = LocalDateTime.now();
         User user = (User) session.getAttribute("user");
+        Result result = new Result();
+
+        if (chatService.getHomeById(roomInfo.getHomeId()) == null){
+            result.setCode(4);
+            result.setInfo("创建房间失败，该交流室不存在");
+            return result;
+        }
 
         Room room = new Room();
         room.setName(roomInfo.getName());
@@ -224,7 +241,7 @@ public class ChatController {
         room.setUserId(user.getId());
         int code = chatService.createRoom(room, roomInfo.getTags());
 
-        Result result = new Result(code);
+        result.setCode(code);
         if (code == 1) {
             result.setInfo("创建成功");
         } else {
@@ -240,6 +257,7 @@ public class ChatController {
      * @param roomInfo
      * @return
      */
+    @RequiresRoles(value = "user")
     @ResponseBody
     @RequestMapping(value = "/room/{roomId}",method = RequestMethod.PUT)
     public Result modifyRoom(HttpSession session, @PathVariable(value = "roomId") int roomId, @RequestBody RoomInfo roomInfo) {
@@ -251,6 +269,8 @@ public class ChatController {
         if (room == null) {
             result.setCode(2);
             result.setInfo("不存在此房间");
+        } else if (room.getId() != user.getId()) {
+            throw new UnauthorizedException();
         } else {
             boolean needCheckName;
             if (roomInfo.getName().equals(room.getName())) {
@@ -284,7 +304,7 @@ public class ChatController {
     @ResponseBody
     @RequestMapping(value = "/room/{roomId}", method = RequestMethod.GET)
     public Result getRoom(@PathVariable(value = "roomId")int roomId) {
-        Room room = chatService.getRoomById(roomId);
+        Room room = chatService.getRoomWrapperById(roomId);
         ResultWrapper result = new ResultWrapper();
         if (room != null) {
             result.setCode(1);
@@ -302,17 +322,22 @@ public class ChatController {
      * @param roomId
      * @return
      */
+    @RequiresRoles(value = "user")
     @ResponseBody
     @RequestMapping(value = "/room/{roomId}",method = RequestMethod.DELETE)
     public Result deleteRoom(HttpSession session, @PathVariable(value = "roomId")int roomId) {
         User user = (User) session.getAttribute("user");
-        int code = chatService.deleteRoom(roomId);
-        Result result = new Result(code);
-        if (code != 0) {
-            result.setCode(1);
-        } else {
+        Result result = new Result();
+
+        Room room = chatService.getRoomById(roomId);
+        if (room == null){
             result.setCode(2);
-            result.setInfo("不存在此房间");
+            result.setInfo("不存在房间");
+        } else if (room.getUserId() != user.getId()) {
+            throw new UnauthorizedException();
+        } else {
+            chatService.deleteRoom(roomId);
+            result.setCode(1);
         }
 
         return result;

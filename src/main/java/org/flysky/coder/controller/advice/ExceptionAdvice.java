@@ -24,6 +24,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(RuntimeException.class)
     @ResponseBody
     public Result runtimeExceptionHandler(RuntimeException runtimeException) {
+        System.out.println(runtimeException);
         Result result = new Result();
         result.setCode(500);
         result.setInfo("boom");
