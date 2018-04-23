@@ -127,6 +127,13 @@ public class PostControler {
         return rw;
     }
 
+    @RequestMapping("/forum/showAllRecommendedPosts")
+    public ResultWrapper showAllRecommendedPosts(){
+        ResultWrapper rw=new ResultWrapper();
+        rw.setPayload(postService.showAllRecommendedPosts());
+        return rw;
+    }
+
     @RequestMapping("/homexxxx/1")
     @ResponseBody
     public String home() {

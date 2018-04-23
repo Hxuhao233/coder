@@ -41,4 +41,7 @@ public interface IPostService {
     public Integer isPostCollected(Integer uid, Integer postId);
 
     public List<Integer> showStickyPostBySectorId(Integer sectorId);
+
+    public List<Integer> showAllRecommendedPosts();
+
 }

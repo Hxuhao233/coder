@@ -309,4 +309,16 @@ public class PostService implements IPostService {
         }
         return stickyPostIdList;
     }
+
+    @Override
+    public List<Integer> showAllRecommendedPosts() {
+        List<String> recommendedPostsStringList=redisTemplate.opsForList().range("RecommendedPost",0,-1);
+        List<Integer> recommendedPostList=new ArrayList<Integer>();
+        for(String s:recommendedPostsStringList){
+            recommendedPostList.add(Integer.parseInt(s));
+        }
+        return recommendedPostList;
+    }
+
+
 }
