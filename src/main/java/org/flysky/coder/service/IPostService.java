@@ -28,7 +28,7 @@ public interface IPostService {
 
     public Integer removeRecommendedPost(Integer postId);
 
-    public PageInfo<Post> searchPostByTitleAndContentAndType(String title, String content,Integer type,Integer page);
+    public PageInfo<Post> searchPostByTitleAndContentAndType(String title, String content, Integer type, Integer page);
 
     public Integer deletePost(Integer postId);
 
@@ -38,5 +38,7 @@ public interface IPostService {
 
     public PageInfo<Post> searchPostByUsername(String username, Integer type, Integer page);
 
-    public Integer isPostCollected(Integer uid,Integer postId);
+    public Integer isPostCollected(Integer uid, Integer postId);
+
+    public List<Integer> showStickyPostBySectorId(Integer sectorId);
 }

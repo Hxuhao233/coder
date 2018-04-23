@@ -298,4 +298,15 @@ public class PostService implements IPostService {
             return 0;
         }
     }
+
+    @Override
+    public List<Integer> showStickyPostBySectorId(Integer sectorId) {
+        String redisKeyName="StickyPost"+String.valueOf(sectorId);
+        List<String> stickyPostIdStringList=redisTemplate.opsForList().range(redisKeyName,0,-1);
+        List<Integer> stickyPostIdList=new ArrayList<Integer>();
+        for(String s:stickyPostIdStringList){
+            stickyPostIdList.add(Integer.parseInt(s));
+        }
+        return stickyPostIdList;
+    }
 }
