@@ -37,4 +37,6 @@ public interface IPostService {
     public PageInfo<Post> viewPostBySectorAndType(Integer sectorId, Integer type, Integer page);
 
     public PageInfo<Post> searchPostByUsername(String username, Integer type, Integer page);
+
+    public Integer isPostCollected(Integer uid,Integer postId);
 }

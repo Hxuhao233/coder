@@ -113,6 +113,11 @@ public class PostControler {
         return result;
     }
 
+    @RequestMapping("/forum/isCollectedPost/{uid}/{postid}")
+    public Integer isPostCollected(@PathVariable Integer uid,@PathVariable Integer postid){
+        return postService.isPostCollected(uid,postid);
+    }
+
     @RequestMapping("/homexxxx/1")
     @ResponseBody
     public String home() {

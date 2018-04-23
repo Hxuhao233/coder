@@ -153,7 +153,13 @@ public class PostService implements IPostService {
         if(post==null||user==null){
             return 0;
         }
-        redisTemplate.opsForList().leftPush(String.valueOf(uid)+"Collection",String.valueOf(postId));
+        long result=redisTemplate.opsForList().leftPushIfPresent(String.valueOf(uid)+"Collection",String.valueOf(postId));
+        if(result==1){
+            redisTemplate.opsForList().leftPop(String.valueOf(uid)+"Collection");
+        }else{
+            redisTemplate.opsForList().leftPush(String.valueOf(uid)+"Collection",String.valueOf(postId));
+        }
+
         return 1;
     }
 
@@ -277,5 +283,19 @@ public class PostService implements IPostService {
         PageHelper.startPage(page,20);
         List<Post> postList=postMapper.searchPostByUsername(username,type);
         return new PageInfo<Post>(postList);
+    }
+
+    @Override
+    public Integer isPostCollected(Integer uid, Integer postId) {
+        User user=userMapper.selectByPrimaryKey(uid);
+        if(user==null){
+            return null;
+        }
+        List<String> userCollectionPostIdList=redisTemplate.opsForList().range(String.valueOf(uid)+"Collection",0,-1);
+        if(userCollectionPostIdList.contains(String.valueOf(postId))){
+            return 1;
+        }else{
+            return 0;
+        }
     }
 }
