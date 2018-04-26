@@ -2,7 +2,6 @@ package org.flysky.coder.controller;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.shiro.authz.UnauthorizedException;
-import org.apache.shiro.authz.annotation.RequiresGuest;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.flysky.coder.entity.*;
 import org.flysky.coder.entity.wrapper.ArticleWrapper;
@@ -49,9 +48,10 @@ public class ArticleController {
         column.setUserId(user.getId());
         int code = articleService.createColumn(column);
 
-        Result result = new Result(code);
+        ResultWrapper result = new ResultWrapper(code);
         if (code == 1) {
             result.setInfo("创建成功");
+            result.setPayload(column);
         } else {
             result.setInfo("创建失败，名字重复");
         }
@@ -70,7 +70,7 @@ public class ArticleController {
     public Result modifyColumn(HttpSession session, @PathVariable("columnId")int columnId, @RequestBody ColumnInfo columnInfo) {
         User user = (User) session.getAttribute("user");
         LocalDateTime time = LocalDateTime.now();
-        Result result = new Result();
+        ResultWrapper result = new ResultWrapper();
 
         Column column = articleService.getColumnById(columnId);
         if (column == null){
@@ -93,6 +93,7 @@ public class ArticleController {
             result.setCode(code);
             if (code == 1) {
                 result.setInfo("修改成功");
+                result.setPayload(column);
             } else {
                 result.setInfo("修改失败，名字重复");
             }
@@ -357,6 +358,13 @@ public class ArticleController {
         return result;
     }
 
+    /**
+     * 对文章评论
+     * @param session
+     * @param articleId
+     * @param commentInfo
+     * @return
+     */
     @RequiresRoles(value = "user")
     @RequestMapping(value = "article/{articleId}/comment")
     public Result createComment(HttpSession session, @PathVariable(value = "articleId") int articleId, @RequestBody CommentInfo commentInfo) {

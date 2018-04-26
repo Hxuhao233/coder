@@ -25,8 +25,9 @@ public class TestController {
 
     @RequestMapping("/hello")
     @ResponseBody
-    public String home() {
-        return "Hello sb";
+    public String home(HttpSession session) {
+        String ret = "hello, " +  (session == null || session.getAttribute("user") == null ? "游客" : ((User)session.getAttribute("user")).getUsername());
+        return ret;
     }
 
 

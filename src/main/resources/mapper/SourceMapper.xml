@@ -10,30 +10,57 @@
     <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="is_deleted" jdbcType="BIT" property="isDeleted" />
+  </resultMap>
+  <resultMap id="SourceWrapperResultMap" type="org.flysky.coder.entity.wrapper.SourceWrapper" extends="BaseResultMap">
+    <result column="username" property="username" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, user_id, name, addr, created_at, updated_at, description, type
+    id, user_id, name, addr, created_at, updated_at, description, type, is_deleted
+  </sql>
+  <sql id="SourceWrapper_Column_List">
+    s.id, s.user_id, s.name, s.addr, s.created_at, s.updated_at, s.description, s.type, s.is_deleted , u.username
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from source
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER} and is_deleted = 0
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from source
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
+  <select id="getSourceWrapperById" parameterType="java.lang.Integer" resultMap="SourceWrapperResultMap">
+    select
+    <include refid="SourceWrapper_Column_List" />
+    from source s JOIN user u on s.user_id = u.id
+    where s.id = #{id,jdbcType=INTEGER} and s.is_deleted = 0
+  </select>
+  <select id="getSourceWrappersByInfo" parameterType="java.lang.String" resultMap="SourceWrapperResultMap">
+    select
+    <include refid="SourceWrapper_Column_List" />
+    from source s JOIN user u on s.user_id = u.id
+    where s.name LIKE "%"#{info}"%" and s.is_deleted = 0
+  </select>
+  <select id="getSourceWrappersByUserId" parameterType="java.lang.Integer" resultMap="SourceWrapperResultMap">
+    select
+    <include refid="SourceWrapper_Column_List" />
+    from source s JOIN user u on s.user_id = u.id
+    where s.user_id = #{userId} and s.is_deleted = 0
+  </select>
+  <select id="hasSourceName" parameterType="java.lang.String" resultType="java.lang.Boolean">
+    select
+    count(1)
+    from source
+    where name = #{name}
+  </select>
   <insert id="insert" parameterType="org.flysky.coder.entity.Source">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into source (user_id, name, addr, 
-      created_at, updated_at, description, 
-      type)
-    values (#{userId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{addr,jdbcType=VARCHAR}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{description,jdbcType=VARCHAR}, 
-      #{type,jdbcType=INTEGER})
+    insert into source (user_id, name, addr,
+    created_at, updated_at, description,
+    type, is_deleted)
+    values (#{userId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{addr,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{description,jdbcType=VARCHAR},
+    #{type,jdbcType=INTEGER}, #{isDeleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="org.flysky.coder.entity.Source">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
@@ -62,6 +89,9 @@
       <if test="type != null">
         type,
       </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="userId != null">
@@ -84,6 +114,9 @@
       </if>
       <if test="type != null">
         #{type,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -111,6 +144,9 @@
       <if test="type != null">
         type = #{type,jdbcType=INTEGER},
       </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -122,7 +158,8 @@
       created_at = #{createdAt,jdbcType=TIMESTAMP},
       updated_at = #{updatedAt,jdbcType=TIMESTAMP},
       description = #{description,jdbcType=VARCHAR},
-      type = #{type,jdbcType=INTEGER}
+      type = #{type,jdbcType=INTEGER},
+      is_deleted = #{isDeleted,jdbcType=BIT}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

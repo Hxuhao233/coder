@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
 public class Source {
+    public static final int TYPE_IMG = 1;               // 图片
+
+    public static final int TYPE_NORMAL_SOURCE = 2;     // 普通资源
+
     private Integer id;
 
     private Integer userId;
@@ -20,6 +24,8 @@ public class Source {
     private String description;
 
     private Integer type;
+
+    private Boolean isDeleted;
 
     public Integer getId() {
         return id;
@@ -53,20 +59,20 @@ public class Source {
         this.addr = addr == null ? null : addr.trim();
     }
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
@@ -85,5 +91,13 @@ public class Source {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }
