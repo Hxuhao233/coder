@@ -83,6 +83,8 @@ public class PostControler {
         return new ResultWrapper(result);
     }
 
+
+
     @RequestMapping("/forum/recommendPost/{postId}")
     public ResultWrapper recommendPost(@PathVariable int postId){
         Integer result=postService.recommendPost(postId);
@@ -111,6 +113,25 @@ public class PostControler {
     public List<Post> getCollectedPost(@PathVariable Integer uid){
         List<Post> result=postService.showUserCollectionList(uid);
         return result;
+    }
+
+    @RequestMapping("/forum/isCollectedPost/{uid}/{postid}")
+    public Integer isPostCollected(@PathVariable Integer uid,@PathVariable Integer postid){
+        return postService.isPostCollected(uid,postid);
+    }
+
+    @RequestMapping("/forum/showStickyPostBySectorId/{sectorId}")
+    public ResultWrapper showStickyPostBySectorId(@PathVariable Integer sectorId){
+        ResultWrapper rw=new ResultWrapper();
+        rw.setPayload(postService.showStickyPostBySectorId(sectorId));
+        return rw;
+    }
+
+    @RequestMapping("/forum/showAllRecommendedPosts")
+    public ResultWrapper showAllRecommendedPosts(){
+        ResultWrapper rw=new ResultWrapper();
+        rw.setPayload(postService.showAllRecommendedPosts());
+        return rw;
     }
 
     @RequestMapping("/homexxxx/1")

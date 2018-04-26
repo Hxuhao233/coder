@@ -153,7 +153,13 @@ public class PostService implements IPostService {
         if(post==null||user==null){
             return 0;
         }
-        redisTemplate.opsForList().leftPush(String.valueOf(uid)+"Collection",String.valueOf(postId));
+        long result=redisTemplate.opsForList().leftPushIfPresent(String.valueOf(uid)+"Collection",String.valueOf(postId));
+        if(result==1){
+            redisTemplate.opsForList().leftPop(String.valueOf(uid)+"Collection");
+        }else{
+            redisTemplate.opsForList().leftPush(String.valueOf(uid)+"Collection",String.valueOf(postId));
+        }
+
         return 1;
     }
 
@@ -278,4 +284,41 @@ public class PostService implements IPostService {
         List<Post> postList=postMapper.searchPostByUsername(username,type);
         return new PageInfo<Post>(postList);
     }
+
+    @Override
+    public Integer isPostCollected(Integer uid, Integer postId) {
+        User user=userMapper.selectByPrimaryKey(uid);
+        if(user==null){
+            return null;
+        }
+        List<String> userCollectionPostIdList=redisTemplate.opsForList().range(String.valueOf(uid)+"Collection",0,-1);
+        if(userCollectionPostIdList.contains(String.valueOf(postId))){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    @Override
+    public List<Integer> showStickyPostBySectorId(Integer sectorId) {
+        String redisKeyName="StickyPost"+String.valueOf(sectorId);
+        List<String> stickyPostIdStringList=redisTemplate.opsForList().range(redisKeyName,0,-1);
+        List<Integer> stickyPostIdList=new ArrayList<Integer>();
+        for(String s:stickyPostIdStringList){
+            stickyPostIdList.add(Integer.parseInt(s));
+        }
+        return stickyPostIdList;
+    }
+
+    @Override
+    public List<Integer> showAllRecommendedPosts() {
+        List<String> recommendedPostsStringList=redisTemplate.opsForList().range("RecommendedPost",0,-1);
+        List<Integer> recommendedPostList=new ArrayList<Integer>();
+        for(String s:recommendedPostsStringList){
+            recommendedPostList.add(Integer.parseInt(s));
+        }
+        return recommendedPostList;
+    }
+
+
 }
