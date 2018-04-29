@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.flysky.coder.mapper.RecruitmentMapper">
+  <resultMap id="BaseResultMap" type="org.flysky.coder.entity.Recruitment">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="salary" jdbcType="VARCHAR" property="salary" />
+    <result column="requirement" jdbcType="VARCHAR" property="requirement" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="upvote" jdbcType="INTEGER" property="upvote" />
+    <result column="downvote" jdbcType="INTEGER" property="downvote" />
+    <result column="collection" jdbcType="INTEGER" property="collection" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="is_deleted" jdbcType="BIT" property="isDeleted" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+  </resultMap>
+  <resultMap id="RecruitmentWrapperResultMap" type="org.flysky.coder.entity.wrapper.RecruitmentWrapper" extends="BaseResultMap">
+    <result column="username" property="username"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, title, salary, requirement, phone, upvote, downvote, collection, created_at, 
+    updated_at, type, is_deleted, user_id
+  </sql>
+  <sql id="RecruitmentWrapper_Column_List">
+    r.id ,r.title ,r.salary ,r.requirement ,r.phone ,r.upvote ,r.downvote ,r.collection ,r.created_at ,
+    r.updated_at ,r.type ,r.is_deleted ,r.user_id ,u.username
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from recruitment
+    where id = #{id,jdbcType=INTEGER} and is_deleted = 0
+  </select>
+  <select id="getRecruitmentWrapperById" parameterType="java.lang.Integer" resultMap="RecruitmentWrapperResultMap">
+    select
+    <include refid="RecruitmentWrapper_Column_List" />
+    from recruitment r JOIN `user` u on r.user_id = u.id
+    where r.id = #{id} and r.is_deleted = 0
+  </select>
+  <select id="getRecruitmentWrappersByInfo" parameterType="java.lang.String" resultMap="RecruitmentWrapperResultMap">
+    select
+    <include refid="RecruitmentWrapper_Column_List" />
+    from recruitment r JOIN `user` u on r.user_id = u.id
+    where r.title LIKE "%"#{info}"%" and r.is_deleted = 0
+  </select>
+  <select id="hasRecruitmentName" parameterType="java.lang.String" resultType="java.lang.Boolean">
+    select
+    COUNT(1)
+    from recruitment
+    where title = #{title}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from recruitment
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.flysky.coder.entity.Recruitment">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into recruitment (title, salary, requirement,
+    phone, upvote, downvote,
+    collection, created_at, updated_at,
+    type, is_deleted, user_id
+    )
+    values (#{title,jdbcType=VARCHAR}, #{salary,jdbcType=VARCHAR}, #{requirement,jdbcType=VARCHAR},
+    #{phone,jdbcType=VARCHAR}, #{upvote,jdbcType=INTEGER}, #{downvote,jdbcType=INTEGER},
+    #{collection,jdbcType=INTEGER}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP},
+    #{type,jdbcType=INTEGER}, #{isDeleted,jdbcType=BIT}, #{userId,jdbcType=INTEGER}
+    )
+  </insert>
+  <insert id="insertSelective" parameterType="org.flysky.coder.entity.Recruitment">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into recruitment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="title != null">
+        title,
+      </if>
+      <if test="salary != null">
+        salary,
+      </if>
+      <if test="requirement != null">
+        requirement,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="upvote != null">
+        upvote,
+      </if>
+      <if test="downvote != null">
+        downvote,
+      </if>
+      <if test="collection != null">
+        collection,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+      <if test="updatedAt != null">
+        updated_at,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="salary != null">
+        #{salary,jdbcType=VARCHAR},
+      </if>
+      <if test="requirement != null">
+        #{requirement,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="upvote != null">
+        #{upvote,jdbcType=INTEGER},
+      </if>
+      <if test="downvote != null">
+        #{downvote,jdbcType=INTEGER},
+      </if>
+      <if test="collection != null">
+        #{collection,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=BIT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.flysky.coder.entity.Recruitment">
+    update recruitment
+    <set>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="salary != null">
+        salary = #{salary,jdbcType=VARCHAR},
+      </if>
+      <if test="requirement != null">
+        requirement = #{requirement,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="upvote != null">
+        upvote = #{upvote,jdbcType=INTEGER},
+      </if>
+      <if test="downvote != null">
+        downvote = #{downvote,jdbcType=INTEGER},
+      </if>
+      <if test="collection != null">
+        collection = #{collection,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=BIT},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.flysky.coder.entity.Recruitment">
+    update recruitment
+    set title = #{title,jdbcType=VARCHAR},
+      salary = #{salary,jdbcType=VARCHAR},
+      requirement = #{requirement,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      upvote = #{upvote,jdbcType=INTEGER},
+      downvote = #{downvote,jdbcType=INTEGER},
+      collection = #{collection,jdbcType=INTEGER},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      type = #{type,jdbcType=INTEGER},
+      is_deleted = #{isDeleted,jdbcType=BIT},
+      user_id = #{userId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
