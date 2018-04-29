@@ -14,6 +14,8 @@ import java.util.List;
  * Created by hxuhao233 on 2018/4/17.
  */
 public interface IArticleService {
+    boolean hasColumnName(String name);
+
     int createColumn(Column column);
 
     int modifyColumn(Column column, boolean needCheckName);
@@ -25,6 +27,8 @@ public interface IArticleService {
     ColumnWrapper getColumnWrapperById(int columnId);
 
     PageInfo<Column> getColumnByUserId(int userId, int pageNum, int pageSize);
+
+    boolean hasArticleName(String name);
 
     int createArticle(Article article, List<String> tips);
 

@@ -36,6 +36,11 @@ public class ArticleService implements IArticleService {
     private CommentMapper commentMapper;
 
     @Override
+    public boolean hasColumnName(String name) {
+        return columnMapper.hasColumnName(name);
+    }
+
+    @Override
     public int createColumn(Column column) {
         if (columnMapper.hasColumnName(column.getName())) {
             return 0;
@@ -74,6 +79,11 @@ public class ArticleService implements IArticleService {
     public PageInfo<Column> getColumnByUserId(int userId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum,pageSize);
         return new PageInfo<>(columnMapper.getColumnByUserId(userId));
+    }
+
+    @Override
+    public boolean hasArticleName(String name) {
+        return hasArticleName(name);
     }
 
     @Override

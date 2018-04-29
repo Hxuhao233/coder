@@ -14,14 +14,14 @@ import java.util.List;
 /**
  * Created by hxuhao233 on 2018/3/29.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@SpringBootTest
 public class ChatServiceTest {
 
     @Autowired
     private IChatService chatService;
 
-    @Test
+    //@Test
     public void getRecordTest(){
         PageInfo<RecordWrapper> record = chatService.getRecord(1,1,10);
         System.out.println(record);
