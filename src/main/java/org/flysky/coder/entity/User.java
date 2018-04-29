@@ -1,5 +1,8 @@
 package org.flysky.coder.entity;
 
+
+import org.springframework.data.annotation.Transient;
+
 public class User {
     private Integer id;
 
@@ -14,6 +17,9 @@ public class User {
     private Integer type;
 
     private String info;
+
+    @Transient
+    private String checkcode;
 
     public Integer getId() {
         return id;
@@ -69,5 +75,14 @@ public class User {
 
     public void setInfo(String info) {
         this.info = info == null ? null : info.trim();
+    }
+
+
+    public String getCheckcode() {
+        return checkcode;
+    }
+
+    public void setCheckcode(String checkcode) {
+        this.checkcode = checkcode;
     }
 }

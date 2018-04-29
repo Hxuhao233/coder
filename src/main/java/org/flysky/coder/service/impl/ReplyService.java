@@ -6,6 +6,7 @@ import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.PostMapper;
 import org.flysky.coder.mapper.ReplyMapper;
 import org.flysky.coder.mapper.UserMapper;
+import org.flysky.coder.service.INotificationService;
 import org.flysky.coder.service.IReplyService;
 import org.flysky.coder.vo.ReplyWrapper;
 import org.flysky.coder.vo.ResultWrapper;
@@ -27,6 +28,9 @@ public class ReplyService implements IReplyService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private INotificationService notificationService;
 
     @Override
     public Integer replyToPost(Integer postId, Integer uid, String content,boolean isAnonymous,String anonymousName) {
@@ -58,7 +62,7 @@ public class ReplyService implements IReplyService {
         post.setFloorCnt(post.getFloorCnt()+1);
         replyMapper.insert(reply);
         postMapper.updateByPrimaryKey(post);
-
+        notificationService.newReplyNotification(post.getUserId(),reply.getId());
         return null;
     }
 
@@ -182,5 +186,11 @@ public class ReplyService implements IReplyService {
 
         return replyWrapperList;
     }
+
+    @Override
+    public List<Reply> getReplyByContentAndTimeAndType(String content, LocalDateTime time1, LocalDateTime time2, Integer type) {
+        return replyMapper.getReplyByContentAndTimeAndType(content,time1,time2,type);
+    }
+
 
 }

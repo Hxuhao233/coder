@@ -7,6 +7,10 @@ public class MessageWrapper {
 
     private String content;
 
+    public MessageWrapper(){
+
+    }
+
     public MessageWrapper(Integer fromUid, Integer toUid, String content) {
         this.fromUid = fromUid;
         this.toUid = toUid;

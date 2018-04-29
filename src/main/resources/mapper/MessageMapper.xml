@@ -91,6 +91,10 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="viewConversations" resultMap="BaseResultMap">
-    select <include refid="Base_Column_List" /> from message where (fromUid=#{fromUid} and toUid=#{toUid} ) or (fromUid=#{toUid} and toUid=#{fromUid} ) DESC created_at
+    select <include refid="Base_Column_List" /> from message where from_uid=#{fromUid} and to_uid=#{toUid} union select <include refid="Base_Column_List" /> from message where from_uid=#{toUid}
+    and to_uid=#{fromUid} order by created_at DESC
+  </select>
+  <select id="getMessageByContentAndTime" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/> from message where content LIKE CONCAT('%',#{content},'%') and #{time1}<=created_at and created_at<=#{time2}
   </select>
 </mapper>

@@ -159,4 +159,7 @@
   <select id="getInnerReplyCountByPostIdAndFloor" resultType="java.lang.Integer">
     select count(*) from reply where postid=#{postId} and floor_cnt=#{floor}
   </select>
+  <select id="getReplyByContentAndTimeAndType" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/> from reply r and post p where p.type=#{type} and content LIKE CONCAT('%',#{content},'%') and #{time1}<=created_at and created_at<=#{time2}
+  </select>
 </mapper>

@@ -118,4 +118,31 @@
       info = #{info,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="isExistEmail" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select id
+    from user
+    where email=#{email,jdbcType=VARCHAR}
+  </select>
+  <select id="isExistNickname" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select id
+    from user
+    where username=#{username,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByEmailAndPassword" parameterType="org.flysky.coder.entity.User" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from user
+    where email=#{email,jdbcType=VARCHAR} and password=#{password,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from user
+  </select>
+  <select id="selectAllNormalUser" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from user
+    where type=0
+  </select>
 </mapper>

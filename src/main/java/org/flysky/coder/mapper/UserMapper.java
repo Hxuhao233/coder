@@ -2,7 +2,11 @@ package org.flysky.coder.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.flysky.coder.entity.Post;
 import org.flysky.coder.entity.User;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -19,4 +23,15 @@ public interface UserMapper {
     int updateByPrimaryKeySelective(User record);
 
     int updateByPrimaryKey(User record);
+
+    User selectByEmailAndPassword(User user);
+
+    Integer isExistEmail(String email);
+
+    Integer isExistNickname(String nickname);
+
+    List<User> selectAll();
+
+    List<User> selectAllNormalUser();
+
 }

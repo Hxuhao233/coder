@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.flysky.coder.entity.Post;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -27,4 +28,6 @@ public interface PostMapper {
     List<Post> searchPostByTitleAndContent(@Param("title") String title,@Param("content") String content,@Param("type") Integer type);
 
     List<Post> searchPostByUsername(@Param("username") String username,@Param("type") Integer type);
+
+    List<Post> getPostByTitleAndTimeAndType(@Param("title")String title, @Param("time1") LocalDateTime time1, @Param("time2")LocalDateTime time2, @Param("type") Integer type);
 }

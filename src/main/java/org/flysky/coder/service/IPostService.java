@@ -2,8 +2,11 @@ package org.flysky.coder.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
+import org.apache.tomcat.jni.Local;
 import org.flysky.coder.entity.Post;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,5 +46,9 @@ public interface IPostService {
     public List<Integer> showStickyPostBySectorId(Integer sectorId);
 
     public List<Integer> showAllRecommendedPosts();
+
+    public Post getPostByPostId(Integer postId);
+
+    public List<Post> getPostByTitleAndTimeAndType(String title, LocalDateTime time1,LocalDateTime time2,Integer type);
 
 }
