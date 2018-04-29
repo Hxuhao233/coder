@@ -228,4 +228,7 @@
   <select id="searchPostByUsernameAndType" resultMap="ResultMapWithBLOBs">
     select <include refid="Base_Column_List" />,<include refid="Blob_Column_List" /> from post p and user u where p.user_id=u.id and u.username=#{username} and type=#{type} and is_deleted=0 order by created_at DESC
   </select>
+  <select id="getPostByTitleAndTimeAndType" resultMap="ResultMapWithBLOBS">
+    select <include refid="Base_Column_List" />,<include refid="Blob_Column_List" /> from post where title LIKE CONCAT('%',#{title},'%') and type=#{type} and #{time1}<=created_at and created_at<=#{time2}
+  </select>
 </mapper>

@@ -61,4 +61,10 @@ public class MessageService implements IMessageService{
         return messageMapper.viewConversations(uid1,uid2);
     }
 
+    @Override
+    public List<Message> getMessageByContentAndTime(String content, LocalDateTime time1, LocalDateTime time2) {
+        return messageMapper.getMessageByContentAndTime(content,time1,time2);
+    }
+
+
 }

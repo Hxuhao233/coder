@@ -4,6 +4,7 @@ import org.flysky.coder.entity.Message;
 import org.flysky.coder.service.IMessageService;
 import org.flysky.coder.vo.MessageWrapper;
 import org.flysky.coder.vo.ResultWrapper;
+import org.flysky.coder.vo.message.SearchMessageWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,10 +33,19 @@ public class MessageControler {
     }
 
     @RequestMapping("/message/viewConversations/{fromUid}/{toUid}")
-    public List<Message> viewConversations(@PathVariable Integer fromUid, @PathVariable Integer toUid){
+    public ResultWrapper viewConversations(@PathVariable Integer fromUid, @PathVariable Integer toUid){
         if(fromUid==null||toUid==null){
             return null;
         }
-        return messageService.showConversations(fromUid,toUid);
+        ResultWrapper rw=new ResultWrapper();
+        rw.setPayload(messageService.showConversations(fromUid,toUid));
+        return rw;
+    }
+
+    @RequestMapping("/message/getMessageByContentAndTime")
+    public ResultWrapper getMessageByContentAndTime(@RequestBody SearchMessageWrapper smw){
+        ResultWrapper rw=new ResultWrapper();
+        rw.setPayload(messageService.getMessageByContentAndTime(smw.getContent(),smw.getTime1(),smw.getTime2()));
+        return rw;
     }
 }

@@ -320,5 +320,15 @@ public class PostService implements IPostService {
         return recommendedPostList;
     }
 
+    @Override
+    public Post getPostByPostId(Integer postId) {
+        return postMapper.selectByPrimaryKey(postId);
+    }
+
+    @Override
+    public List<Post> getPostByTitleAndTimeAndType(String title, LocalDateTime time1, LocalDateTime time2, Integer type) {
+        return postMapper.getPostByTitleAndTimeAndType(title,time1,time2,type);
+    }
+
 
 }
