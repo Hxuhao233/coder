@@ -1,8 +1,10 @@
 package org.flysky.coder.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.sun.org.apache.regexp.internal.RE;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.flysky.coder.ResponseCode;
 import org.flysky.coder.entity.*;
 import org.flysky.coder.entity.wrapper.ArticleWrapper;
 import org.flysky.coder.entity.wrapper.CommentWrapper;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import javax.xml.ws.Response;
 import java.time.LocalDateTime;
 
 /**
@@ -48,12 +51,14 @@ public class ArticleController {
         column.setUserId(user.getId());
         int code = articleService.createColumn(column);
 
-        ResultWrapper result = new ResultWrapper(code);
+        ResultWrapper result = new ResultWrapper();
         if (code == 1) {
+            result.setCode(ResponseCode.SUCCEED);
             result.setInfo("创建成功");
             result.setPayload(column);
         } else {
-            result.setInfo("创建失败，名字重复");
+            result.setCode(ResponseCode.DUPLICATE_NAME);
+            result.setInfo("创建失败，该专栏已存在");
         }
         return result;
     }
@@ -70,12 +75,12 @@ public class ArticleController {
     public Result modifyColumn(HttpSession session, @PathVariable("columnId")int columnId, @RequestBody ColumnInfo columnInfo) {
         User user = (User) session.getAttribute("user");
         LocalDateTime time = LocalDateTime.now();
-        ResultWrapper result = new ResultWrapper();
+        Result result = new Result();
 
         Column column = articleService.getColumnById(columnId);
         if (column == null){
-            result.setCode(2);
-            result.setInfo("不存在专栏");
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该专栏不存在");
         } else if (column.getUserId() != user.getId()) {
             throw new UnauthorizedException();
         } else {
@@ -90,12 +95,12 @@ public class ArticleController {
             column.setUpdatedAt(time);
 
             int code = articleService.modifyColumn(column, needCheckName);
-            result.setCode(code);
             if (code == 1) {
+                result.setCode(ResponseCode.SUCCEED);
                 result.setInfo("修改成功");
-                result.setPayload(column);
             } else {
-                result.setInfo("修改失败，名字重复");
+                result.setCode(ResponseCode.DUPLICATE_NAME);
+                result.setInfo("修改失败，已存在此专栏");
             }
         }
         return result;
@@ -113,13 +118,12 @@ public class ArticleController {
         Column column = articleService.getColumnWrapperById(columnId);
         ResultWrapper result = new ResultWrapper();
         if (column != null) {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(column);
         } else {
-            result.setCode(2);
-            result.setInfo("不存在此专栏");
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该专栏不存在");
         }
-
         return result;
     }
 
@@ -138,13 +142,13 @@ public class ArticleController {
 
         Column column = articleService.getColumnById(columnId);
         if (column == null){
-            result.setCode(2);
-            result.setInfo("不存在专栏");
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该专栏不存在");
         } else if (column.getUserId() != user.getId()) {
             throw new UnauthorizedException();
         } else {
             articleService.deleteColumn(columnId);
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
         }
 
         return result;
@@ -166,11 +170,11 @@ public class ArticleController {
         PageInfo<Column> column = articleService.getColumnByUserId(user.getId(), pageNum, pageSize);
 
         if (column.getSize() > 0) {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(column);
         } else {
-            result.setInfo("你还没有专栏，老哥");
-            result.setCode(2);
+            result.setInfo("你还没有专栏");
+            result.setCode(ResponseCode.NOT_FOUND);
         }
 
         return result;
@@ -189,19 +193,18 @@ public class ArticleController {
         ResultWrapper result = new ResultWrapper();
 
         if (articleService.getColumnById(columnId)==null) {
-            result.setCode(4);
+            result.setCode(ResponseCode.PREV_OBJECT_NOT_FOUND);
             result.setInfo("该专栏不存在");
         }
 
         PageInfo<ArticleWrapper> articles = articleService.getArticleByColumnId(columnId, pageNum, pageSize);
         if (articles.getSize() > 0) {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(articles);
         } else {
+            result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该专栏下还没有文章");
-            result.setCode(2);
         }
-
         return result;
     }
 
@@ -218,7 +221,7 @@ public class ArticleController {
     public Result createArticle(HttpSession session, @RequestBody ArticleInfo articleInfo) {
         LocalDateTime time = LocalDateTime.now();
         User user = (User) session.getAttribute("user");
-        Result result = new Result();
+        ResultWrapper result = new ResultWrapper();
 
         if (articleService.getColumnById(articleInfo.getColumnId()) == null){
             result.setCode(4);
@@ -238,11 +241,13 @@ public class ArticleController {
         article.setUserId(user.getId());
         int code = articleService.createArticle(article, articleInfo.getTags());
 
-        result.setCode(code);
         if (code == 1) {
+            result.setCode(ResponseCode.SUCCEED);
             result.setInfo("创建成功");
+            result.setPayload(article);
         } else {
-            result.setInfo("创建失败，文章名字重复");
+            result.setCode(ResponseCode.DUPLICATE_NAME);
+            result.setInfo("创建失败，已存在该文章");
         }
         return result;
     }
@@ -258,12 +263,12 @@ public class ArticleController {
     @RequestMapping(value = "/article/{articleId}",method = RequestMethod.PUT)
     public Result modifyArticle(HttpSession session, @PathVariable(value = "articleId") int articleId, @RequestBody ArticleInfo articleInfo) {
         LocalDateTime time = LocalDateTime.now();
-        Result result = new Result();
+        ResultWrapper result = new ResultWrapper();
         User user = (User) session.getAttribute("user");
 
         Article article = articleService.getArticleById(articleId);
         if (article == null) {
-            result.setCode(2);
+            result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("不存在此文章");
         } else if (article.getId() != user.getId()) {
             throw new UnauthorizedException();
@@ -282,10 +287,11 @@ public class ArticleController {
             article.setUpdatedAt(time);
 
             int code = articleService.modifyArticle(article, needCheckName, articleInfo.getTags());
-            result.setCode(code);
             if (code == 1) {
+                result.setCode(ResponseCode.SUCCEED);
                 result.setInfo("修改成功");
             } else {
+                result.setCode(ResponseCode.DUPLICATE_NAME);
                 result.setInfo("修改失败，文章名字重复");
             }
         }
@@ -303,10 +309,10 @@ public class ArticleController {
         Article article = articleService.getArticleWrapperById(articleId);
         ResultWrapper result = new ResultWrapper();
         if (article != null) {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(article);
         } else {
-            result.setCode(2);
+            result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("不存在此文章");
         }
         return result;
@@ -323,10 +329,10 @@ public class ArticleController {
         PageInfo<ArticleWrapper> articles = articleService.getArticleWrapperByInfo(info, pageNum, pageSize);
         ResultWrapper result = new ResultWrapper();
         if (articles.getSize() > 0) {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(articles);
         } else {
-            result.setCode(2);
+            result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("搜索不到");
         }
         return result;
@@ -346,13 +352,13 @@ public class ArticleController {
 
         Article article = articleService.getArticleWrapperById(articleId);
         if (article == null){
-            result.setCode(2);
+            result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("不存在文章");
         } else if (article.getUserId() != user.getId()) {
             throw new UnauthorizedException();
         } else {
             articleService.deleteArticle(articleId);
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
         }
 
         return result;
@@ -374,7 +380,7 @@ public class ArticleController {
 
         Article article = articleService.getArticleById(articleId);
         if (article == null) {
-            result.setCode(4);
+            result.setCode(ResponseCode.PREV_OBJECT_NOT_FOUND);
             result.setInfo("评论失败，该文章不存在");
             return result;
         }
@@ -419,7 +425,5 @@ public class ArticleController {
 
         return result;
     }
-
-
 
 }

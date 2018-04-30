@@ -9,6 +9,8 @@ public class Source {
 
     public static final int TYPE_NORMAL_SOURCE = 2;     // 普通资源
 
+    public static final int TYPE_USER_ICON = 3;         // 用户头像
+
     private Integer id;
 
     private Integer userId;
