@@ -3,6 +3,7 @@ package org.flysky.coder.controller;
 import com.github.pagehelper.PageInfo;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.flysky.coder.ResponseCode;
 import org.flysky.coder.entity.Home;
 import org.flysky.coder.entity.Room;
 import org.flysky.coder.entity.User;
@@ -49,6 +50,7 @@ public class ChatController {
     public Result createHome(HttpSession session, @RequestBody HomeInfo homeInfo){
         LocalDateTime time = LocalDateTime.now();
         User user = (User) session.getAttribute("user");
+        ResultWrapper result = new ResultWrapper();
 
         Home home = new Home();
         home.setName(homeInfo.getName());
@@ -59,11 +61,13 @@ public class ChatController {
         home.setUserId(user.getId());
         int code = chatService.createHome(home);
 
-        Result result = new Result(code);
         if (code == 1) {
+            result.setCode(ResponseCode.SUCCEED);
             result.setInfo("创建成功");
+            result.setPayload(home);
         } else {
-            result.setInfo("创建失败，名字重复");
+            result.setCode(ResponseCode.DUPLICATE_NAME);
+            result.setInfo("创建失败，该社区已存在");
         }
         return result;
     }
@@ -80,13 +84,12 @@ public class ChatController {
     public Result modifyHome(HttpSession session, @PathVariable(value = "homeId")int homeId, @RequestBody HomeInfo homeInfo) {
         User user = (User) session.getAttribute("user");
         LocalDateTime time = LocalDateTime.now();
-        Result result = new Result();
-
+        ResultWrapper result = new ResultWrapper();
 
         Home home = chatService.getHomeWrapperById(homeId);
         if (home == null){
-            result.setCode(2);
-            result.setInfo("不存在社区");
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该社区不存在");
         } else if (home.getUserId() != user.getId()) {
             throw new UnauthorizedException();
         } else {
@@ -101,11 +104,13 @@ public class ChatController {
             home.setUpdatedAt(time);
 
             int code = chatService.modifyHome(home, needCheckName);
-            result.setCode(code);
+
             if (code == 1) {
+                result.setCode(ResponseCode.SUCCEED);
                 result.setInfo("修改成功");
             } else {
-                result.setInfo("修改失败，名字重复");
+                result.setCode(ResponseCode.DUPLICATE_NAME);
+                result.setInfo("修改失败，该社区已存在");
             }
         }
         return result;
@@ -123,11 +128,11 @@ public class ChatController {
         Home home = chatService.getHomeWrapperById(homeId);
         ResultWrapper result = new ResultWrapper();
         if (home != null) {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(home);
         } else {
-            result.setCode(2);
-            result.setInfo("不存在此社区");
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该社区不存在");
         }
 
         return result;
@@ -148,8 +153,8 @@ public class ChatController {
 
         Home home = chatService.getHomeWrapperById(homeId);
         if (home == null){
-            result.setCode(2);
-            result.setInfo("不存在社区");
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该社区不存在");
         } else if (home.getUserId() != user.getId()) {
             throw new UnauthorizedException();
         } else {
@@ -175,13 +180,12 @@ public class ChatController {
         PageInfo<Home> homes = chatService.getHomeByUserId(user.getId(), pageNum, pageSize);
 
         if (homes.getSize() > 0) {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(homes);
         } else {
-            result.setInfo("你还没有社区，老哥");
-            result.setCode(2);
+            result.setInfo("你还没有社区");
+            result.setCode(ResponseCode.NOT_FOUND);
         }
-
         return result;
     }
 
@@ -197,13 +201,19 @@ public class ChatController {
     public Result getRoomsByHomeId(@PathVariable(value = "homeId") int homeId, @RequestParam(value = "pageNum", defaultValue = "1")int pageNum, @RequestParam(value = "pageSize", defaultValue = "10")int pageSize) {
         ResultWrapper result = new ResultWrapper();
 
+        Home home = chatService.getHomeById(homeId);
+        if (home == null) {
+            result.setCode(ResponseCode.PREV_OBJECT_NOT_FOUND);
+            result.setInfo("该社区不存在");
+        }
+
         PageInfo<RoomWrapper> rooms = chatService.getRoomByHomeId(homeId, pageNum, pageSize);
         if (rooms.getSize() > 0) {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(rooms);
         } else {
+            result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该社区下没有房间");
-            result.setCode(2);
         }
 
         return result;
@@ -223,7 +233,7 @@ public class ChatController {
     public Result createRoom(HttpSession session, @RequestBody RoomInfo roomInfo) {
         LocalDateTime time = LocalDateTime.now();
         User user = (User) session.getAttribute("user");
-        Result result = new Result();
+        ResultWrapper result = new ResultWrapper();
 
         if (chatService.getHomeById(roomInfo.getHomeId()) == null){
             result.setCode(4);
@@ -241,11 +251,13 @@ public class ChatController {
         room.setUserId(user.getId());
         int code = chatService.createRoom(room, roomInfo.getTags());
 
-        result.setCode(code);
         if (code == 1) {
+            result.setCode(ResponseCode.SUCCEED);
             result.setInfo("创建成功");
+            result.setPayload(room);
         } else {
-            result.setInfo("创建失败，房间名字重复");
+            result.setCode(ResponseCode.DUPLICATE_NAME);
+            result.setInfo("创建失败，该房间已存在");
         }
         return result;
     }
@@ -267,8 +279,8 @@ public class ChatController {
 
         Room room = chatService.getRoomById(roomId);
         if (room == null) {
-            result.setCode(2);
-            result.setInfo("不存在此房间");
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该房间不存在");
         } else if (room.getId() != user.getId()) {
             throw new UnauthorizedException();
         } else {
@@ -284,11 +296,12 @@ public class ChatController {
             room.setUpdatedAt(time);
 
             int code = chatService.modifyRoom(room, needCheckName, roomInfo.getTags());
-            result.setCode(code);
             if (code == 1) {
+                result.setCode(ResponseCode.SUCCEED);
                 result.setInfo("修改成功");
             } else {
-                result.setInfo("修改失败，房间名字重复");
+                result.setCode(ResponseCode.DUPLICATE_NAME);
+                result.setInfo("修改失败，该房间已存在");
             }
         }
         return result;
@@ -307,11 +320,11 @@ public class ChatController {
         Room room = chatService.getRoomWrapperById(roomId);
         ResultWrapper result = new ResultWrapper();
         if (room != null) {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(room);
         } else {
-            result.setCode(2);
-            result.setInfo("不存在此房间");
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该房间不存在");
         }
         return result;
     }
@@ -331,13 +344,13 @@ public class ChatController {
 
         Room room = chatService.getRoomById(roomId);
         if (room == null){
-            result.setCode(2);
-            result.setInfo("不存在房间");
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该房间不存在");
         } else if (room.getUserId() != user.getId()) {
             throw new UnauthorizedException();
         } else {
             chatService.deleteRoom(roomId);
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
         }
 
         return result;
@@ -356,10 +369,10 @@ public class ChatController {
         PageInfo<RoomWrapper> rooms = chatService.getRoomByInfo(info, pageNum, pageSize);
         ResultWrapper result = new ResultWrapper();
         if (rooms.getSize() > 0) {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(rooms);
         } else {
-            result.setCode(2);
+            result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("搜索结果为空");
         }
         return result;
