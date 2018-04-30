@@ -153,11 +153,11 @@ public class PostService implements IPostService {
         if(post==null||user==null){
             return 0;
         }
-        long result=redisTemplate.opsForList().leftPushIfPresent(String.valueOf(uid)+"Collection",String.valueOf(postId));
-        if(result==1){
-            redisTemplate.opsForList().leftPop(String.valueOf(uid)+"Collection");
-        }else{
+        List<String> keysList=redisTemplate.opsForList().range(String.valueOf(uid)+"Collection",0,-1);
+        if(!keysList.contains(String.valueOf(postId))){
             redisTemplate.opsForList().leftPush(String.valueOf(uid)+"Collection",String.valueOf(postId));
+        }else{
+            return 2;
         }
 
         return 1;
@@ -239,7 +239,7 @@ public class PostService implements IPostService {
     @Override
     public PageInfo<Post> searchPostByTitleAndContentAndType(String title, String content,Integer type,Integer page) {
         PageHelper.startPage(page,20);
-        List<Post> postList=postMapper.searchPostByTitleAndContent(title,content,type);
+        List<Post> postList=postMapper.searchPostByTitleAndContentAndType(title,content,type);
         return new PageInfo<Post>(postList);
     }
 
@@ -281,7 +281,7 @@ public class PostService implements IPostService {
     @Override
     public PageInfo<Post> searchPostByUsername(String username,Integer type,Integer page){
         PageHelper.startPage(page,20);
-        List<Post> postList=postMapper.searchPostByUsername(username,type);
+        List<Post> postList=postMapper.searchPostByUsernameAndType(username,type);
         return new PageInfo<Post>(postList);
     }
 

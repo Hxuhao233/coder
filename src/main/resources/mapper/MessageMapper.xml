@@ -95,6 +95,6 @@
     and to_uid=#{fromUid} order by created_at DESC
   </select>
   <select id="getMessageByContentAndTime" resultMap="BaseResultMap">
-    select <include refid="Base_Column_List"/> from message where content LIKE CONCAT('%',#{content},'%') and #{time1}<=created_at and created_at<=#{time2}
+    select <include refid="Base_Column_List"/> from message where content LIKE CONCAT('%',#{content},'%') and created_at BETWEEN #{time1} and #{time2}
   </select>
 </mapper>

@@ -25,9 +25,9 @@ public interface PostMapper {
 
     List<Post> selectBySectorAndType(@Param("sectorId") Integer sectorId,@Param("type") Integer type);
 
-    List<Post> searchPostByTitleAndContent(@Param("title") String title,@Param("content") String content,@Param("type") Integer type);
+    List<Post> searchPostByTitleAndContentAndType(@Param("title") String title,@Param("content") String content,@Param("type") Integer type);
 
-    List<Post> searchPostByUsername(@Param("username") String username,@Param("type") Integer type);
+    List<Post> searchPostByUsernameAndType(@Param("username") String username,@Param("type") Integer type);
 
     List<Post> getPostByTitleAndTimeAndType(@Param("title")String title, @Param("time1") LocalDateTime time1, @Param("time2")LocalDateTime time2, @Param("type") Integer type);
 }
