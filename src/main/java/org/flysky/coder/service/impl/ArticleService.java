@@ -35,6 +35,12 @@ public class ArticleService implements IArticleService {
     @Autowired
     private CommentMapper commentMapper;
 
+    @Autowired
+    private UserVoteArticleMapper userVoteArticleMapper;
+
+    @Autowired
+    private UserCollectArticleMapper userCollectArticleMapper;
+
     @Override
     public boolean hasColumnName(String name) {
         return columnMapper.hasColumnName(name);
@@ -223,8 +229,84 @@ public class ArticleService implements IArticleService {
     public PageInfo<CommentWrapper> getCommentWrapperByArticleId(int articleId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
-        return new PageInfo<CommentWrapper>(commentMapper.getCommentWrapperByArticleId(articleId, Comment.COMMENTED_TYPE_ARTICLE));
+        return new PageInfo<>(commentMapper.getCommentWrapperByArticleId(articleId, Comment.COMMENTED_TYPE_ARTICLE));
     }
 
+    @Override
+    public PageInfo<ArticleWrapper> getCollectedArticles(int userId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        return new PageInfo<>(articleMapper.getCollectedArticleWrapperByUserId(userId));
+    }
+
+    @Override
+    public int voteArticle(Article article, UserVoteArticle userVoteArticle) {
+
+        // 删除以前的
+        UserVoteArticle prevVoteArticle = userVoteArticleMapper.getUserVoteArticleByUserIdAndArticleId(userVoteArticle.getUserId(), article.getId());
+        if (prevVoteArticle != null) {
+            if (prevVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
+                article.setUpvoteCount(article.getUpvoteCount() - 1);
+            } else if (prevVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_DOWN_VOTE)) {
+                article.setDownvoteCount(article.getDownvoteCount() - 1);
+            }
+            userVoteArticleMapper.deleteByPrimaryKey(prevVoteArticle.getId());
+        }
+
+        if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
+            article.setUpvoteCount(article.getUpvoteCount() + 1);
+        } else if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_DOWN_VOTE)){
+            article.setDownvoteCount(article.getDownvoteCount() + 1);
+        }
+        articleMapper.updateByPrimaryKeySelective(article);
+
+        return userVoteArticleMapper.insertSelective(userVoteArticle);
+    }
+
+    @Override
+    public int undoVoteArticle(int userId, Article article) {
+        UserVoteArticle userVoteArticle = userVoteArticleMapper.getUserVoteArticleByUserIdAndArticleId(userId, article.getId());
+        if (userVoteArticle == null) {
+            return 0;
+        }
+
+        if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
+            article.setUpvoteCount(article.getUpvoteCount() - 1);
+        } else if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_DOWN_VOTE)) {
+            article.setDownvoteCount(article.getDownvoteCount() - 1);
+        }
+        articleMapper.updateByPrimaryKeySelective(article);
+
+        return userVoteArticleMapper.deleteByPrimaryKey(article.getId());
+    }
+
+    @Override
+    public UserVoteArticle getVoteArticle(int userId, int articleId){
+        return userVoteArticleMapper.getUserVoteArticleByUserIdAndArticleId(userId, articleId);
+    }
+
+    @Override
+    public int collectArticle(Article article, UserCollectArticle userCollectArticle) {
+        article.setCollectCount(article.getCollectCount() + 1);
+        articleMapper.updateByPrimaryKeySelective(article);
+
+        return userCollectArticleMapper.insertSelective(userCollectArticle);
+    }
+
+    @Override
+    public int undoCollectArticle(int userId, Article article) {
+        UserCollectArticle userCollectArticle = userCollectArticleMapper.getUserCollectArticleByUserIdAndArticleId(userId, article.getId());
+        if (userCollectArticle == null){
+            return 0;
+        }
+        article.setCollectCount(article.getCollectCount() - 1);
+        articleMapper.updateByPrimaryKeySelective(article);
+
+        return userCollectArticleMapper.deleteByPrimaryKey(userCollectArticle.getId());
+    }
+
+    @Override
+    public UserCollectArticle getCollectArticle(int userId, int articleId){
+        return userCollectArticleMapper.getUserCollectArticleByUserIdAndArticleId(userId, articleId);
+    }
 
 }

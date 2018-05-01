@@ -25,6 +25,12 @@ public class Article {
 
     private Integer parseType;
 
+    private Integer upvoteCount;
+
+    private Integer downvoteCount;
+
+    private Integer collectCount;
+
     public Integer getId() {
         return id;
     }
@@ -105,5 +111,29 @@ public class Article {
 
     public void setParseType(Integer parseType) {
         this.parseType = parseType;
+    }
+
+    public Integer getUpvoteCount() {
+        return upvoteCount;
+    }
+
+    public void setUpvoteCount(Integer upvoteCount) {
+        this.upvoteCount = upvoteCount;
+    }
+
+    public Integer getDownvoteCount() {
+        return downvoteCount;
+    }
+
+    public void setDownvoteCount(Integer downvoteCount) {
+        this.downvoteCount = downvoteCount;
+    }
+
+    public Integer getCollectCount() {
+        return collectCount;
+    }
+
+    public void setCollectCount(Integer collectCount) {
+        this.collectCount = collectCount;
     }
 }

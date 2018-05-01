@@ -12,20 +12,23 @@
     <result column="column_id" jdbcType="INTEGER" property="columnId" />
     <result column="is_deleted" jdbcType="BIT" property="isDeleted" />
     <result column="parse_type" jdbcType="INTEGER" property="parseType" />
+    <result column="upvote_count" jdbcType="INTEGER" property="upvoteCount" />
+    <result column="collect_count" jdbcType="INTEGER" property="collectCount" />
+    <result column="downvote_count" jdbcType="INTEGER" property="downvoteCount" />
   </resultMap>
   <resultMap id="ArticleWrapperResultMap" type="org.flysky.coder.entity.wrapper.ArticleWrapper" extends="BaseResultMap">
     <result column="username" jdbcType="VARCHAR" property="username" />
     <result column="columnname" jdbcType="VARCHAR" property="column" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, name, description, content, user_id, created_at, updated_at, column_id, is_deleted, 
-    parse_type
+    id, name, description, content, user_id, created_at, updated_at, column_id, is_deleted,
+    parse_type, upvote_count, collect_count, downvote_count
   </sql>
   <sql id="ArticleWrapper_Column_List">
-    a.id,a.name,a.description,a.content,a.user_id,a.created_at,a.updated_at,a.column_id,a.is_deleted,parse_type, u.username, c.name columnname
+    a.id,a.name,a.description,a.content,a.user_id,a.created_at,a.updated_at,a.column_id,a.is_deleted,parse_type, a.upvote_count, a.collect_count, a.downvote_count, u.username, c.name columnname
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from article
     where id = #{id,jdbcType=INTEGER} and is_deleted = 0
@@ -54,6 +57,12 @@
     from (article a JOIN user u on a.user_id = u.id) JOIN `column` c on a.column_id = c.id
     where a.column_id = #{columnId} and a.is_deleted = 0
   </select>
+  <select id="getCollectedArticleWrapperByUserId" parameterType="java.lang.Integer" resultMap="ArticleWrapperResultMap">
+    select
+    <include refid="ArticleWrapper_Column_List" />
+    from ((user_collect_article ca JOIN article a on ca.article_id = a.id) JOIN user u on a.user_id = u.id) JOIN `column` c on a.column_id = c.id
+    where uc.user_id = #{userId} and a.is_deleted = 0
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from article
     where id = #{id,jdbcType=INTEGER}
@@ -62,14 +71,16 @@
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into article (name, description, content, 
-      user_id, created_at, updated_at, 
-      column_id, is_deleted, parse_type
-      )
-    values (#{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
-      #{userId,jdbcType=INTEGER}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, 
-      #{columnId,jdbcType=INTEGER}, #{isDeleted,jdbcType=BIT}, #{parseType,jdbcType=INTEGER}
-      )
+    insert into article (name, description, content,
+    user_id, created_at, updated_at,
+    column_id, is_deleted, parse_type,
+    upvote_count, collect_count, downvote_count
+    )
+    values (#{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR},
+    #{userId,jdbcType=INTEGER}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP},
+    #{columnId,jdbcType=INTEGER}, #{isDeleted,jdbcType=BIT}, #{parseType,jdbcType=INTEGER},
+    #{upvoteCount,jdbcType=INTEGER}, #{collectCount,jdbcType=INTEGER}, #{downvoteCount,jdbcType=INTEGER}
+    )
   </insert>
   <insert id="insertSelective" parameterType="org.flysky.coder.entity.Article">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
@@ -104,6 +115,15 @@
       <if test="parseType != null">
         parse_type,
       </if>
+      <if test="upvoteCount != null">
+        upvote_count,
+      </if>
+      <if test="collectCount != null">
+        collect_count,
+      </if>
+      <if test="downvoteCount != null">
+        downvote_count,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="name != null">
@@ -132,6 +152,15 @@
       </if>
       <if test="parseType != null">
         #{parseType,jdbcType=INTEGER},
+      </if>
+      <if test="upvoteCount != null">
+        #{upvoteCount,jdbcType=INTEGER},
+      </if>
+      <if test="collectCount != null">
+        #{collectCount,jdbcType=INTEGER},
+      </if>
+      <if test="downvoteCount != null">
+        #{downvoteCount,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -165,6 +194,15 @@
       <if test="parseType != null">
         parse_type = #{parseType,jdbcType=INTEGER},
       </if>
+      <if test="upvoteCount != null">
+        upvote_count = #{upvoteCount,jdbcType=INTEGER},
+      </if>
+      <if test="collectCount != null">
+        collect_count = #{collectCount,jdbcType=INTEGER},
+      </if>
+      <if test="downvoteCount != null">
+        downvote_count = #{downvoteCount,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -178,7 +216,10 @@
       updated_at = #{updatedAt,jdbcType=TIMESTAMP},
       column_id = #{columnId,jdbcType=INTEGER},
       is_deleted = #{isDeleted,jdbcType=BIT},
-      parse_type = #{parseType,jdbcType=INTEGER}
+      parse_type = #{parseType,jdbcType=INTEGER},
+      upvote_count = #{upvoteCount,jdbcType=INTEGER},
+      collect_count = #{collectCount,jdbcType=INTEGER},
+      downvote_count = #{downvoteCount,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

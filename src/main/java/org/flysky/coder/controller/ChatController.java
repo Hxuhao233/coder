@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 在线交流功能控制器
@@ -357,7 +358,6 @@ public class ChatController {
     }
 
 
-
     /**
      * 搜索房间
      * @param info
@@ -378,6 +378,34 @@ public class ChatController {
         return result;
     }
 
+    @ResponseBody
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/historyRooms", method = RequestMethod.GET)
+    public Result getHistoryRooms(HttpSession session){
+        User user = (User) session.getAttribute("user");
+        ResultWrapper result = new ResultWrapper();
+
+        List<Room> rooms = chatService.getHistoryRoom(user.getId());
+        if (rooms.size() > 0) {
+            result.setCode(ResponseCode.SUCCEED);
+            result.setPayload(rooms);
+        } else {
+            result.setCode(ResponseCode.NOT_FOUND);
+        }
+        return result;
+    }
+
+    @ResponseBody
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/historyRoom/{roomId}", method = RequestMethod.DELETE)
+    public Result deleteHistoryRoom(HttpSession session, @PathVariable(value = "roomId") int roomId){
+        User user = (User) session.getAttribute("user");
+        Result result = new Result();
+
+        chatService.deleteHistoryRoom(user.getId(), roomId);
+        result.setCode(ResponseCode.SUCCEED);
+        return result;
+    }
 
     /**
      * 加入聊天室

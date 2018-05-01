@@ -10,12 +10,14 @@ import org.flysky.coder.mapper.*;
 import org.flysky.coder.service.IChatService;
 import org.flysky.coder.vo.chat.ChatMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by hxuhao233 on 2018/3/28.
@@ -41,6 +43,8 @@ public class ChatService implements IChatService{
     @Autowired
     private RoomTagMapper roomTagMapper;
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Override
     public int createHome(Home home) {
@@ -98,8 +102,6 @@ public class ChatService implements IChatService{
             }
             roomWrapper.setTags(tagNames);
         }
-
-
         return roomWrappers;
     }
 
@@ -242,7 +244,34 @@ public class ChatService implements IChatService{
     }
 
     @Override
+    public int addHistoryRoom(int userId, int roomId) {
+        redisTemplate.opsForSet().add(userId + ":historyRooms", String.valueOf(roomId));
+        return 0;
+    }
+
+    @Override
+    public List<Room> getHistoryRoom(int userId) {
+        Set<String> roomIds = redisTemplate.opsForSet().members(userId + ":historyRooms");
+        List<Room> rooms = new ArrayList<>();
+
+        for (String roomId : roomIds) {
+            Room room = roomMapper.selectByPrimaryKey(Integer.valueOf(roomId));
+            rooms.add(room);
+        }
+
+        return rooms;
+    }
+
+    @Override
+    public int deleteHistoryRoom(int userId, int roomId) {
+        redisTemplate.opsForSet().remove(userId + ":historyRooms", String.valueOf(roomId));
+        return 0;
+    }
+
+    @Override
     public ChatMessage enterRoom(User user, ChatMessage enterRoomMessage) {
+        addHistoryRoom(user.getId(), enterRoomMessage.getRoomId());
+
         enterRoomMessage.setCreatedAt(LocalDateTime.now());
         enterRoomMessage.setUsername(user.getUsername());
         enterRoomMessage.setType(ChatMessage.TYPE_ENTER);
