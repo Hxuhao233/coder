@@ -5,6 +5,7 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.UserMapper;
+import org.flysky.coder.service.impl.UserService;
 import org.flysky.coder.vo.ResultWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,6 +31,13 @@ public class TestController {
         return ret;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/test/loginUser/{id}")
+    public User login1(HttpSession session, @PathVariable(value = "id")int id){
+        User user = userMapper.selectByPrimaryKey(id);
+        session.setAttribute("user", user);
+        return user;
+    }
 
 
     @RequestMapping(value = "/test/login", method = RequestMethod.GET)

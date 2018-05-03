@@ -173,6 +173,7 @@ public class ChatController {
      * @param pageSize
      * @return
      */
+    @RequiresRoles(value = "user")
     @ResponseBody
     @RequestMapping(value = "/home",method = RequestMethod.GET)
     public Result getHomes(HttpSession session, @RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {

@@ -12,14 +12,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.PrintWriter;
 
 /**
  * Created by hxuhao233 on 2018/4/15.
  */
 public class CustomFormAuthenticationFilter extends FormAuthenticationFilter {
 
-
- 
     @Override
     protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request,
                                      ServletResponse response) throws Exception {
@@ -30,9 +29,15 @@ public class CustomFormAuthenticationFilter extends FormAuthenticationFilter {
         HttpSession session = httpServletRequest.getSession();
         //把用户信息保存到session
         session.setAttribute("user", activeUser);
-        return super.onLoginSuccess(token, subject, request, response);
-    }
+        //return super.onLoginSuccess(token, subject, request, response);
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        out.println("{success:true,msg:'登录成功'}");
+        out.flush();
+        out.close();
 
+        return false;
+    }
 
     @Bean
     public FilterRegistrationBean registration(CustomFormAuthenticationFilter filter) {
