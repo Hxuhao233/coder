@@ -70,6 +70,7 @@ public class SourceController {
         source.setDescription(sourceInfo.getDescription());
         source.setUpdatedAt(time);
         source.setUserId(user.getId());
+        source.setIsDeleted(false);
         sourceService.createSource(source, basePath, uploadFile);
 
         result.setCode(1);
