@@ -3,6 +3,7 @@ package org.flysky.coder.controller;
 import com.github.pagehelper.PageInfo;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.entity.Source;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.entity.wrapper.SourceWrapper;
@@ -47,7 +48,7 @@ public class SourceController {
     public Result createSource(HttpServletRequest request, HttpSession session, SourceInfo sourceInfo, @RequestParam(value = "file") MultipartFile uploadFile) throws IOException {
         ResultWrapper result = new ResultWrapper();
         if (sourceService.hasSourceName(sourceInfo.getName())){
-            result.setCode(0);
+            result.setCode(ResponseCode.DUPLICATE_NAME);
             result.setInfo("该资源名已存在");
             return result;
         }
@@ -73,7 +74,7 @@ public class SourceController {
         source.setIsDeleted(false);
         sourceService.createSource(source, basePath, uploadFile);
 
-        result.setCode(1);
+        result.setCode(ResponseCode.SUCCEED);
         result.setPayload(source);
         return result;
     }
@@ -96,12 +97,14 @@ public class SourceController {
 
         Source source = sourceService.getSourceById(sourceId);
         if (source == null) {
-            result.setCode(2);
+            result.setCode(ResponseCode.NOT_FOUND);
             return result;
+        } else if (source.getUserId().equals(((User)session.getAttribute("user")).getId())) {
+            throw new UnauthorizedException();
         }
 
         if (sourceService.hasSourceName(sourceInfo.getName())){
-            result.setCode(0);
+            result.setCode(ResponseCode.DUPLICATE_NAME);
             result.setInfo("该资源名已存在");
             return result;
         }
@@ -138,7 +141,7 @@ public class SourceController {
         Source source = sourceService.getSourceById(sourceId);
 
         if (source == null){
-            result.setCode(2);
+            result.setCode(ResponseCode.NOT_FOUND);
             return result;
         }
 
@@ -148,7 +151,7 @@ public class SourceController {
 
         sourceService.deleteById(sourceId);
 
-        result.setCode(1);
+        result.setCode(ResponseCode.SUCCEED);
         return result;
 
     }
@@ -168,10 +171,10 @@ public class SourceController {
         PageInfo<SourceWrapper> sourceWrappers = sourceService.getSourceWrappersByInfo(info, pageNum, pageSize);
 
         if(sourceWrappers.getSize() <= 0) {
-            result.setCode(2);
+            result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("没有找到相关资源");
         } else {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(sourceWrappers);
         }
         return result;
@@ -192,10 +195,10 @@ public class SourceController {
         PageInfo<SourceWrapper> sourceWrappers = sourceService.getSourceWrappersByUserId(user.getId(), pageNum, pageSize);
 
         if(sourceWrappers.getSize() <= 0) {
-            result.setCode(2);
+            result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("你还没有上传资源");
         } else {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(sourceWrappers);
         }
         return result;
@@ -213,10 +216,10 @@ public class SourceController {
         SourceWrapper sourceWrapper = sourceService.getSourceWrapperById(sourceId);
 
         if(sourceWrapper == null) {
-            result.setCode(2);
+            result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该资源不存在");
         } else {
-            result.setCode(1);
+            result.setCode(ResponseCode.SUCCEED);
             result.setPayload(sourceWrapper);
         }
         return result;

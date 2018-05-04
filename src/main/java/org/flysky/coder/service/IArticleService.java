@@ -30,7 +30,7 @@ public interface IArticleService {
 
     int createArticle(Article article, List<String> tips);
 
-    int modifyArticle(Article article, boolean needCheckName, List<String> tips);
+    ArticleWrapper modifyArticle(Article article, boolean needCheckName, List<String> tips, User user, Column column);
 
     int deleteArticle(int articleId);
 

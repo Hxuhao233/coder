@@ -1,10 +1,9 @@
 package org.flysky.coder.controller;
 
 import com.github.pagehelper.PageInfo;
-import com.sun.org.apache.regexp.internal.RE;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.flysky.coder.ResponseCode;
+import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.entity.*;
 import org.flysky.coder.entity.wrapper.ArticleWrapper;
 import org.flysky.coder.entity.wrapper.CommentWrapper;
@@ -18,9 +17,7 @@ import org.flysky.coder.vo.article.CommentInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpSession;
-import javax.xml.ws.Response;
 import java.time.LocalDateTime;
 
 /**
@@ -83,7 +80,7 @@ public class ArticleController {
         if (column == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该专栏不存在");
-        } else if (column.getUserId() != user.getId()) {
+        } else if (!column.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             boolean needCheckName;
@@ -146,7 +143,7 @@ public class ArticleController {
         if (column == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该专栏不存在");
-        } else if (column.getUserId() != user.getId()) {
+        } else if (!column.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             articleService.deleteColumn(columnId);
@@ -272,7 +269,7 @@ public class ArticleController {
         if (article == null) {
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("不存在此文章");
-        } else if (article.getId() != user.getId()) {
+        } else if (!article.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             boolean needCheckName;
@@ -288,13 +285,13 @@ public class ArticleController {
             article.setDescription(articleInfo.getDescription());
             article.setUpdatedAt(time);
 
-            int code = articleService.modifyArticle(article, needCheckName, articleInfo.getTags());
-            if (code == 1) {
-                result.setCode(ResponseCode.SUCCEED);
-                result.setInfo("修改成功");
-            } else {
+            ArticleWrapper articleWrapper = articleService.modifyArticle(article, needCheckName, articleInfo.getTags(), user, articleService.getColumnById(article.getColumnId()));
+            if (articleWrapper == null) {
                 result.setCode(ResponseCode.DUPLICATE_NAME);
                 result.setInfo("修改失败，文章名字重复");
+            } else {
+                result.setCode(ResponseCode.SUCCEED);
+                result.setInfo("修改成功");
             }
         }
         return result;
@@ -356,7 +353,7 @@ public class ArticleController {
         if (article == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("不存在文章");
-        } else if (article.getUserId() != user.getId()) {
+        } else if (!article.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             articleService.deleteArticle(articleId);

@@ -2,17 +2,44 @@ package org.flysky.coder.entity.wrapper;
 
 import org.flysky.coder.entity.Article;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by hxuhao233 on 2018/4/17.
  */
-public class ArticleWrapper extends Article {
+public class ArticleWrapper extends Article implements Serializable {
     private String column;
 
     private List<String> tags;
 
     private String username;
+
+    public ArticleWrapper() {
+
+    }
+
+    public static ArticleWrapper build(Article article, List<String> tags, String username, String column) {
+        ArticleWrapper articleWrapper = new ArticleWrapper();
+        articleWrapper.setTags(tags);
+        articleWrapper.setcolumn(column);
+        articleWrapper.setUsername(username);
+        articleWrapper.setDownvoteCount(article.getDownvoteCount());
+        articleWrapper.setCollectCount(article.getCollectCount());
+        articleWrapper.setUpvoteCount(article.getUpvoteCount());
+        articleWrapper.setContent(article.getContent());
+        articleWrapper.setDescription(article.getDescription());
+        articleWrapper.setIsDeleted(article.getIsDeleted());
+        articleWrapper.setName(article.getName());
+        articleWrapper.setParseType(article.getParseType());
+        articleWrapper.setUpdatedAt(article.getUpdatedAt());
+        articleWrapper.setColumnId(article.getColumnId());
+        articleWrapper.setCreatedAt(article.getCreatedAt());
+        articleWrapper.setId(article.getId());
+        articleWrapper.setUserId(article.getUserId());
+
+        return articleWrapper;
+    }
 
     public List<String> getTags() {
         return tags;

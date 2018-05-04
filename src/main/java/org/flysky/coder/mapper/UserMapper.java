@@ -26,6 +26,8 @@ public interface UserMapper {
 
     User selectByEmailAndPassword(User user);
 
+    User selectByEmail(String email);
+
     Integer isExistEmail(String email);
 
     Integer isExistNickname(String nickname);

@@ -9,6 +9,9 @@ import org.flysky.coder.entity.wrapper.CommentWrapper;
 import org.flysky.coder.mapper.*;
 import org.flysky.coder.service.IArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -119,10 +122,11 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public int modifyArticle(Article article, boolean needCheckName, List<String> tags) {
+    @CachePut(value = "article", key = "#article.id")
+    public ArticleWrapper modifyArticle(Article article, boolean needCheckName, List<String> tags, User user, Column column) {
 
         if (needCheckName && articleMapper.hasArticleName(article.getName())) {
-            return 0;
+            return null;
         }
         int result = articleMapper.updateByPrimaryKeySelective(article);
 
@@ -154,10 +158,11 @@ public class ArticleService implements IArticleService {
             articleTagMapper.insertSelective(articleTag);
         }
 
-        return result;
+        return ArticleWrapper.build(article, tags, user.getUsername(), column.getName());
     }
 
     @Override
+    @CacheEvict(value = "article" ,key = "#articleId")
     public int deleteArticle(int articleId) {
         Article article = new Article();
         article.setId(articleId);
@@ -166,6 +171,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
+    @Cacheable(value = "article", key = "#article.id")
     public PageInfo<ArticleWrapper> getArticleWrapperByInfo(String info, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
@@ -183,6 +189,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
+    @Cacheable("article")
     public PageInfo<ArticleWrapper> getArticleByColumnId(int columnId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
@@ -205,6 +212,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
+    @Cacheable("article")
     public ArticleWrapper getArticleWrapperById(int articleId) {
         ArticleWrapper articleWrapper = articleMapper.getArticleWrapperById(articleId);
         if (articleWrapper == null) {
