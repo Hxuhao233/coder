@@ -11,10 +11,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+
 public class MessageServiceTest {
-    @Autowired
+    /*@Autowired
     private MessageMapper messageMapper;
     @Test
     public void nimabi() throws Exception{
@@ -34,5 +33,5 @@ public class MessageServiceTest {
             messageMapper.insert(message2);
             Thread.sleep(1000);
         }
-    }
+    }*/
 }

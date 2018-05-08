@@ -12,10 +12,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+
 public class PostServiceTest {
-    @Autowired
+    /*@Autowired
     private PostService postService;
 
     //@Test
@@ -107,7 +106,7 @@ public class PostServiceTest {
     public void isPostCollected(){
         Integer xx=postService.isPostCollected(1,5);
         xx.getClass();
-    }
+    }*/
 
 
 }

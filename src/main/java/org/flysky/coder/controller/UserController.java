@@ -7,9 +7,11 @@ import org.flysky.coder.vo.ResultWrapper;
 import org.flysky.coder.vo.mail.Mail;
 import org.flysky.coder.vo.user.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @RestController
@@ -21,6 +23,7 @@ public class UserController {
     public String getUsernameByUid(@PathVariable Integer uid){
         return userService.getUserNameById(uid);
     }
+
 
     /**
      * 检测是否登陆
@@ -48,40 +51,35 @@ public class UserController {
 
 
     @RequestMapping(value = "/user/login")
-    public LoginData login(@RequestBody User user, HttpSession session) {
-        boolean isLogin = userService.login(user);
-        LoginData loginData = new LoginData();
-        System.out.print(user.getCheckcode() == null);
-        System.out.print(session.getAttribute("code"));
-        if (!user.getCheckcode().equals((String) session.getAttribute("code"))) {// 如果验证码错误
-            loginData.setCode(Code.WRONG_CHECKCODE);
-        } else {
-            if (isLogin) {// 如果用户名和密码正确
-                User u = userService.getUserByEmailAndPassword(user);
-                Integer type = u.getType();
-                loginData.setType(type);
-                if (u.getActivated()==0) {
-                    loginData.setCode(Code.NOT_ACTIVATED);
-                } else {
-                    loginData.setCode(Code.SUCCEED);
-                    loginData.setUsername(u.getUsername());
-                    session.setAttribute("user", u);
-                }
-            } else {// 如果用户名或密码错误
-                loginData.setCode(Code.WRONG_EMAIL_OR_PASSWORD);
-            }
-        }
-        return loginData;
+    public Integer login(HttpSession session) {
+//        boolean isLogin = userService.login(user);
+//        LoginData loginData = new LoginData();
+//
+//            if (isLogin) {// 如果用户名和密码正确
+//                User u = userService.getUserByEmailAndPassword(user);
+//                Integer type = u.getType();
+//                loginData.setType(type);
+//                if (u.getActivated()==0) {
+//                    loginData.setCode(Code.NOT_ACTIVATED);
+//                } else {
+//                    loginData.setCode(Code.SUCCEED);
+//                    loginData.setUsername(u.getUsername());
+        User u=new User();
+        u.setId(1);
+        session.setAttribute("user", u);
+        return 1;
+//                }
+//            } else {// 如果用户名或密码错误
+//                loginData.setCode(Code.WRONG_EMAIL_OR_PASSWORD);
+//            }
+//
+//        return loginData;
     }
 
 
     @RequestMapping("/user/register")
     public ResultWrapper register(@RequestBody User user, HttpSession session,HttpServletRequest request) {
         ResultWrapper resultWrapper=new ResultWrapper();
-        if (!user.getCheckcode().equals((String) session.getAttribute("code"))) {
-            resultWrapper.setCode(Code.WRONG_CHECKCODE);
-            return resultWrapper;
-        }
         int status = userService.register(user,request.getServerName()+":"+request.getServerPort()+request.getContextPath());
         resultWrapper.setCode(status);
         return resultWrapper;

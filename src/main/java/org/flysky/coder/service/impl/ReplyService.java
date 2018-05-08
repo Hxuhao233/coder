@@ -88,8 +88,8 @@ public class ReplyService implements IReplyService {
 
         reply.setContent(content);
         reply.setCreatedAt(LocalDateTime.now());
-        reply.setFloorCnt(post.getFloorCnt());
-        reply.setInnerReplyFloor(replyMapper.getInnerReplyCountByPostIdAndFloor(postId,floorCount));
+        reply.setFloorCnt(floorCount);
+        reply.setInnerReplyFloor(replyMapper.getInnerReplyCountByPostIdAndFloor(postId,floorCount)+1);
         reply.setUserId(uid);
         reply.setPostid(postId);
 

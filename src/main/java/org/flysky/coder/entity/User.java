@@ -18,8 +18,6 @@ public class User {
 
     private String info;
 
-    @Transient
-    private String checkcode;
 
     public Integer getId() {
         return id;
@@ -75,14 +73,5 @@ public class User {
 
     public void setInfo(String info) {
         this.info = info == null ? null : info.trim();
-    }
-
-
-    public String getCheckcode() {
-        return checkcode;
-    }
-
-    public void setCheckcode(String checkcode) {
-        this.checkcode = checkcode;
     }
 }

@@ -157,7 +157,7 @@
     select  <include refid="Base_Column_List"/> from reply where postid=#{postId} order by created_at DESC
   </select>
   <select id="getInnerReplyCountByPostIdAndFloor" resultType="java.lang.Integer">
-    select count(*) from reply where postid=#{postId} and floor_cnt=#{floor}
+    select max(inner_reply_floor) from reply where postid=#{postId} and floor_cnt=#{floor}
   </select>
   <select id="getReplyByContentAndTimeAndType" resultMap="BaseResultMap">
     select <include refid="Base_Column_List"/> from reply r and post p where p.type=#{type} and content LIKE CONCAT('%',#{content},'%') and created_at BETWEEN #{time1} and #{time2}

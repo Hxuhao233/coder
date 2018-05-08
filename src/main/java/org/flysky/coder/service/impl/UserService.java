@@ -45,8 +45,10 @@ public class UserService implements IUserService{
                 return Code.SYSTEM_ERROR;
             } else {
                 try {
-                    Mail.sendMail("reao123@163.com", "1a2s3d4f", "smtp.163.com", user.getEmail(), user.getId(),
+                    System.out.println("nmb");
+                    Mail.sendMail("18813299326@163.com", "ll86417738", "smtp.163.com", user.getEmail(), user.getId(),
                             context);
+                    System.out.println("nmb");
                 } catch (Exception e) {
                     return Code.SYSTEM_ERROR;
                 }

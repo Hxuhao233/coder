@@ -1,11 +1,14 @@
 package org.flysky.coder.controller;
 
+import org.apache.catalina.session.StandardSession;
+import org.apache.catalina.session.StandardSessionFacade;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -80,8 +83,9 @@ public class CheckcodeController  {
         // 将四位数字的验证码保存到Session中。
         HttpSession session = req.getSession();
         System.out.println(randomCode);
+        System.out.println(((StandardSessionFacade)session).getId());
         session.setAttribute("code", randomCode.toString());
-        //System.out.print(session.getAttribute("code")==null);
+        System.out.print(session.getAttribute("code")==null);
 
         // 禁止图像缓存。
         resp.setHeader("Pragma", "no-cache");
@@ -89,11 +93,17 @@ public class CheckcodeController  {
         resp.setDateHeader("Expires", 0);
 
         resp.setContentType("image/jpeg");
-
+        resp.setHeader("Set-Cookie",session.getId());
         // 将图像输出到Servlet输出流中。
         ServletOutputStream sos = resp.getOutputStream();
         ImageIO.write(buffImg, "jpeg", sos);
         sos.close();
     }
 
+
+    @RequestMapping("/sessionFix")
+    public void sessionFix(HttpServletRequest req, HttpServletResponse resp){
+        HttpSession session=req.getSession();
+        resp.setHeader("Set-Cookie",session.getId());
+    }
 }
