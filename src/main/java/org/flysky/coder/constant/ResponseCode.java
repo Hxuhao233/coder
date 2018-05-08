@@ -1,4 +1,4 @@
-package org.flysky.coder;
+package org.flysky.coder.constant;
 
 
 public class ResponseCode {

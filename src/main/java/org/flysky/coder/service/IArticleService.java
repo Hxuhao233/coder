@@ -1,9 +1,7 @@
 package org.flysky.coder.service;
 
 import com.github.pagehelper.PageInfo;
-import org.flysky.coder.entity.Article;
-import org.flysky.coder.entity.Column;
-import org.flysky.coder.entity.Comment;
+import org.flysky.coder.entity.*;
 import org.flysky.coder.entity.wrapper.ArticleWrapper;
 import org.flysky.coder.entity.wrapper.ColumnWrapper;
 import org.flysky.coder.entity.wrapper.CommentWrapper;
@@ -32,7 +30,7 @@ public interface IArticleService {
 
     int createArticle(Article article, List<String> tips);
 
-    int modifyArticle(Article article, boolean needCheckName, List<String> tips);
+    ArticleWrapper modifyArticle(Article article, boolean needCheckName, List<String> tips, User user, Column column);
 
     int deleteArticle(int articleId);
 
@@ -47,4 +45,18 @@ public interface IArticleService {
     int createComment(Comment comment);
 
     PageInfo<CommentWrapper> getCommentWrapperByArticleId(int articleId, int pageNum, int pageSize);
+
+    PageInfo<ArticleWrapper> getCollectedArticles(int userId, int pageNum, int pageSize);
+
+    int undoCollectArticle(int userId, Article article);
+
+    int undoVoteArticle(int userId, Article article);
+
+    int collectArticle(Article article, UserCollectArticle userCollectArticle);
+
+    UserCollectArticle getCollectArticle(int userId, int articleId);
+
+    UserVoteArticle getVoteArticle(int userId, int articleId);
+
+    int voteArticle(Article article, UserVoteArticle userVoteArticle);
 }

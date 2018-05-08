@@ -2,14 +2,11 @@ package org.flysky.coder.controller.advice;
 
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthorizedException;
-import org.flysky.coder.ResponseCode;
+import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.vo.Result;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by hxuhao233 on 2018/4/15.

@@ -36,7 +36,7 @@ public class ShiroConfig {
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         //  注意过滤器配置顺序 不能颠倒
         //  配置登出url
-        filterChainDefinitionMap.put("/test/logout", "logout");
+        //filterChainDefinitionMap.put("/test/logout", "logout");
         // 配置不会被拦截的url 顺序判断
         filterChainDefinitionMap.put("/favicon.ico", "anon");
         filterChainDefinitionMap.put("/login.html", "anon");

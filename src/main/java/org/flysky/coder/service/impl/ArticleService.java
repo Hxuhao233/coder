@@ -9,6 +9,9 @@ import org.flysky.coder.entity.wrapper.CommentWrapper;
 import org.flysky.coder.mapper.*;
 import org.flysky.coder.service.IArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,6 +37,12 @@ public class ArticleService implements IArticleService {
 
     @Autowired
     private CommentMapper commentMapper;
+
+    @Autowired
+    private UserVoteArticleMapper userVoteArticleMapper;
+
+    @Autowired
+    private UserCollectArticleMapper userCollectArticleMapper;
 
     @Override
     public boolean hasColumnName(String name) {
@@ -113,10 +122,11 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public int modifyArticle(Article article, boolean needCheckName, List<String> tags) {
+    @CachePut(value = "article", key = "#article.id")
+    public ArticleWrapper modifyArticle(Article article, boolean needCheckName, List<String> tags, User user, Column column) {
 
         if (needCheckName && articleMapper.hasArticleName(article.getName())) {
-            return 0;
+            return null;
         }
         int result = articleMapper.updateByPrimaryKeySelective(article);
 
@@ -148,10 +158,11 @@ public class ArticleService implements IArticleService {
             articleTagMapper.insertSelective(articleTag);
         }
 
-        return result;
+        return ArticleWrapper.build(article, tags, user.getUsername(), column.getName());
     }
 
     @Override
+    @CacheEvict(value = "article" ,key = "#articleId")
     public int deleteArticle(int articleId) {
         Article article = new Article();
         article.setId(articleId);
@@ -160,6 +171,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
+    @Cacheable(value = "article", key = "#article.id")
     public PageInfo<ArticleWrapper> getArticleWrapperByInfo(String info, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
@@ -177,6 +189,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
+    @Cacheable("article")
     public PageInfo<ArticleWrapper> getArticleByColumnId(int columnId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
@@ -199,6 +212,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
+    @Cacheable("article")
     public ArticleWrapper getArticleWrapperById(int articleId) {
         ArticleWrapper articleWrapper = articleMapper.getArticleWrapperById(articleId);
         if (articleWrapper == null) {
@@ -223,8 +237,84 @@ public class ArticleService implements IArticleService {
     public PageInfo<CommentWrapper> getCommentWrapperByArticleId(int articleId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
-        return new PageInfo<CommentWrapper>(commentMapper.getCommentWrapperByArticleId(articleId, Comment.COMMENTED_TYPE_ARTICLE));
+        return new PageInfo<>(commentMapper.getCommentWrapperByArticleId(articleId, Comment.COMMENTED_TYPE_ARTICLE));
     }
 
+    @Override
+    public PageInfo<ArticleWrapper> getCollectedArticles(int userId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        return new PageInfo<>(articleMapper.getCollectedArticleWrapperByUserId(userId));
+    }
+
+    @Override
+    public int voteArticle(Article article, UserVoteArticle userVoteArticle) {
+
+        // 删除以前的
+        UserVoteArticle prevVoteArticle = userVoteArticleMapper.getUserVoteArticleByUserIdAndArticleId(userVoteArticle.getUserId(), article.getId());
+        if (prevVoteArticle != null) {
+            if (prevVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
+                article.setUpvoteCount(article.getUpvoteCount() - 1);
+            } else if (prevVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_DOWN_VOTE)) {
+                article.setDownvoteCount(article.getDownvoteCount() - 1);
+            }
+            userVoteArticleMapper.deleteByPrimaryKey(prevVoteArticle.getId());
+        }
+
+        if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
+            article.setUpvoteCount(article.getUpvoteCount() + 1);
+        } else if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_DOWN_VOTE)){
+            article.setDownvoteCount(article.getDownvoteCount() + 1);
+        }
+        articleMapper.updateByPrimaryKeySelective(article);
+
+        return userVoteArticleMapper.insertSelective(userVoteArticle);
+    }
+
+    @Override
+    public int undoVoteArticle(int userId, Article article) {
+        UserVoteArticle userVoteArticle = userVoteArticleMapper.getUserVoteArticleByUserIdAndArticleId(userId, article.getId());
+        if (userVoteArticle == null) {
+            return 0;
+        }
+
+        if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
+            article.setUpvoteCount(article.getUpvoteCount() - 1);
+        } else if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_DOWN_VOTE)) {
+            article.setDownvoteCount(article.getDownvoteCount() - 1);
+        }
+        articleMapper.updateByPrimaryKeySelective(article);
+
+        return userVoteArticleMapper.deleteByPrimaryKey(article.getId());
+    }
+
+    @Override
+    public UserVoteArticle getVoteArticle(int userId, int articleId){
+        return userVoteArticleMapper.getUserVoteArticleByUserIdAndArticleId(userId, articleId);
+    }
+
+    @Override
+    public int collectArticle(Article article, UserCollectArticle userCollectArticle) {
+        article.setCollectCount(article.getCollectCount() + 1);
+        articleMapper.updateByPrimaryKeySelective(article);
+
+        return userCollectArticleMapper.insertSelective(userCollectArticle);
+    }
+
+    @Override
+    public int undoCollectArticle(int userId, Article article) {
+        UserCollectArticle userCollectArticle = userCollectArticleMapper.getUserCollectArticleByUserIdAndArticleId(userId, article.getId());
+        if (userCollectArticle == null){
+            return 0;
+        }
+        article.setCollectCount(article.getCollectCount() - 1);
+        articleMapper.updateByPrimaryKeySelective(article);
+
+        return userCollectArticleMapper.deleteByPrimaryKey(userCollectArticle.getId());
+    }
+
+    @Override
+    public UserCollectArticle getCollectArticle(int userId, int articleId){
+        return userCollectArticleMapper.getUserCollectArticleByUserIdAndArticleId(userId, articleId);
+    }
 
 }

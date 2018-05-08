@@ -1,16 +1,16 @@
 package org.flysky.coder.controller;
 
 import com.github.pagehelper.PageInfo;
-import com.sun.org.apache.regexp.internal.RE;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.flysky.coder.ResponseCode;
+import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.entity.*;
 import org.flysky.coder.entity.wrapper.ArticleWrapper;
 import org.flysky.coder.entity.wrapper.CommentWrapper;
 import org.flysky.coder.service.IArticleService;
 import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
+import org.flysky.coder.vo.VoteInfo;
 import org.flysky.coder.vo.article.ArticleInfo;
 import org.flysky.coder.vo.article.ColumnInfo;
 import org.flysky.coder.vo.article.CommentInfo;
@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import javax.xml.ws.Response;
 import java.time.LocalDateTime;
 
 /**
@@ -81,7 +80,7 @@ public class ArticleController {
         if (column == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该专栏不存在");
-        } else if (column.getUserId() != user.getId()) {
+        } else if (!column.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             boolean needCheckName;
@@ -144,7 +143,7 @@ public class ArticleController {
         if (column == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该专栏不存在");
-        } else if (column.getUserId() != user.getId()) {
+        } else if (!column.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             articleService.deleteColumn(columnId);
@@ -270,7 +269,7 @@ public class ArticleController {
         if (article == null) {
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("不存在此文章");
-        } else if (article.getId() != user.getId()) {
+        } else if (!article.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             boolean needCheckName;
@@ -286,13 +285,13 @@ public class ArticleController {
             article.setDescription(articleInfo.getDescription());
             article.setUpdatedAt(time);
 
-            int code = articleService.modifyArticle(article, needCheckName, articleInfo.getTags());
-            if (code == 1) {
-                result.setCode(ResponseCode.SUCCEED);
-                result.setInfo("修改成功");
-            } else {
+            ArticleWrapper articleWrapper = articleService.modifyArticle(article, needCheckName, articleInfo.getTags(), user, articleService.getColumnById(article.getColumnId()));
+            if (articleWrapper == null) {
                 result.setCode(ResponseCode.DUPLICATE_NAME);
                 result.setInfo("修改失败，文章名字重复");
+            } else {
+                result.setCode(ResponseCode.SUCCEED);
+                result.setInfo("修改成功");
             }
         }
         return result;
@@ -354,7 +353,7 @@ public class ArticleController {
         if (article == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("不存在文章");
-        } else if (article.getUserId() != user.getId()) {
+        } else if (!article.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             articleService.deleteArticle(articleId);
@@ -423,6 +422,174 @@ public class ArticleController {
             result.setInfo("该文章暂无评论");
         }
 
+        return result;
+    }
+
+
+    /**
+     * 对文章点赞
+     * @param session
+     * @param articleId
+     * @param voteInfo
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/article/{articleId}/vote", method = RequestMethod.POST)
+    public Result voteArticle(HttpSession session, @PathVariable(value = "articleId") int articleId, @RequestBody VoteInfo voteInfo) {
+        User user = (User) session.getAttribute("user");
+        LocalDateTime time = LocalDateTime.now();
+        Result result = new Result();
+        Article article = articleService.getArticleById(articleId);
+        if (article == null){
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该文章不存在");
+        }
+
+        UserVoteArticle userVoteArticle = new UserVoteArticle();
+        userVoteArticle.setCreatedAt(time);
+        userVoteArticle.setArticleId(articleId);
+        userVoteArticle.setVoteType(voteInfo.getType());
+        userVoteArticle.setUserId(user.getId());
+        articleService.voteArticle(article, userVoteArticle);
+
+        result.setCode(ResponseCode.SUCCEED);
+        return result;
+
+    }
+
+    /**
+     * 查看对文章的点赞状态
+     * @param session
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/article/{articleId}/vote", method = RequestMethod.GET)
+    public ResultWrapper getVoteStatusByArticleId(HttpSession session, @PathVariable(value = "articleId") int articleId) {
+        ResultWrapper resultWrapper = new ResultWrapper();
+        User user = (User) session.getAttribute("user");
+
+        UserVoteArticle userVoteArticles = articleService.getVoteArticle(user.getId(), articleId);
+        resultWrapper.setCode(ResponseCode.SUCCEED);
+        resultWrapper.setPayload(userVoteArticles);
+        return resultWrapper;
+    }
+
+    /**
+     * 撤销对文章点赞
+     * @param session
+     * @param articleId
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/article/{articleId}/vote", method = RequestMethod.DELETE)
+    public Result undoVoteArticle(HttpSession session, @PathVariable(value = "articleId") int articleId) {
+        User user = (User) session.getAttribute("user");
+        Result result = new Result();
+        Article article = articleService.getArticleById(articleId);
+        if (article == null){
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该文章不存在");
+        }
+
+        articleService.undoVoteArticle(user.getId(), article);
+
+        result.setCode(ResponseCode.SUCCEED);
+        return result;
+    }
+
+
+    /**
+     * 获取收藏文章
+     * @param session
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/collectedArticles", method = RequestMethod.GET)
+    public Result getCollectArticle(HttpSession session,@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
+        User user = (User) session.getAttribute("user");
+        ResultWrapper resultWrapper = new ResultWrapper();
+
+        PageInfo<ArticleWrapper> articleWrappers = articleService.getCollectedArticles(user.getId(), pageNum, pageSize);
+        if (articleWrappers.getSize() > 0) {
+            resultWrapper.setCode(ResponseCode.SUCCEED);
+            resultWrapper.setPayload(articleWrappers);
+        } else {
+            resultWrapper.setCode(ResponseCode.NOT_FOUND);
+        }
+        return  resultWrapper;
+
+
+    }
+
+
+    /**
+     * 收藏文章
+     * @param session
+     * @param articleId
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/collectArticle/{articleId}", method = RequestMethod.POST)
+    public Result collectArticle(HttpSession session, @PathVariable(value = "articleId") int articleId) {
+        User user = (User) session.getAttribute("user");
+        LocalDateTime time = LocalDateTime.now();
+        Result result = new Result();
+        Article article = articleService.getArticleById(articleId);
+        if (article == null){
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该文章不存在");
+        }
+
+        UserCollectArticle userCollectArticle = new UserCollectArticle();
+        userCollectArticle.setCreatedAt(time);
+        userCollectArticle.setArticleId(articleId);
+        userCollectArticle.setUserId(user.getId());
+        articleService.collectArticle(article, userCollectArticle);
+
+        result.setCode(ResponseCode.SUCCEED);
+        return result;
+    }
+
+    /**
+     * 查看对文章 收藏状态
+     * @param session
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/collectArticle/{articleId}", method = RequestMethod.GET)
+    public ResultWrapper getCollectedStatucByArticleId(HttpSession session, @PathVariable(value = "articleId") int articleId) {
+        ResultWrapper resultWrapper = new ResultWrapper();
+        User user = (User) session.getAttribute("user");
+
+        UserCollectArticle userCollectArticle = articleService.getCollectArticle(user.getId(), articleId);
+        resultWrapper.setPayload(userCollectArticle);
+        resultWrapper.setCode(ResponseCode.SUCCEED);
+        return resultWrapper;
+    }
+
+
+    /**
+     * 撤销收藏文章
+     * @param session
+     * @param articleId
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/collectArticle/{articleId}", method = RequestMethod.DELETE)
+    public Result undoCollectArticle(HttpSession session, @PathVariable(value = "articleId") int articleId) {
+        User user = (User) session.getAttribute("user");
+        Result result = new Result();
+        Article article = articleService.getArticleById(articleId);
+        if (article == null){
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("该文章不存在");
+        }
+
+        articleService.undoCollectArticle(user.getId(), article);
+
+        result.setCode(ResponseCode.SUCCEED);
         return result;
     }
 

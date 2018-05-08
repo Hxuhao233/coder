@@ -43,6 +43,12 @@ public interface IChatService {
 
     ChatMessage chat(User user, ChatMessage chatMessage);
 
+    int addHistoryRoom(int userId, int roomId);
+
+    List<Room> getHistoryRoom(int userId);
+
+    int deleteHistoryRoom(int userId, int roomId);
+
     ChatMessage enterRoom(User user, ChatMessage chatMessage);
 
     ChatMessage exitRoom(User user, ChatMessage chatMessage);

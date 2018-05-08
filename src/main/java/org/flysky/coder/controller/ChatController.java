@@ -3,7 +3,7 @@ package org.flysky.coder.controller;
 import com.github.pagehelper.PageInfo;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.flysky.coder.ResponseCode;
+import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.entity.Home;
 import org.flysky.coder.entity.Room;
 import org.flysky.coder.entity.User;
@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 在线交流功能控制器
@@ -90,7 +91,7 @@ public class ChatController {
         if (home == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该社区不存在");
-        } else if (home.getUserId() != user.getId()) {
+        } else if (!home.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             boolean needCheckName;
@@ -155,7 +156,7 @@ public class ChatController {
         if (home == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该社区不存在");
-        } else if (home.getUserId() != user.getId()) {
+        } else if (!home.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             chatService.deleteHome(homeId);
@@ -172,6 +173,7 @@ public class ChatController {
      * @param pageSize
      * @return
      */
+    @RequiresRoles(value = "user")
     @ResponseBody
     @RequestMapping(value = "/home",method = RequestMethod.GET)
     public Result getHomes(HttpSession session, @RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
@@ -281,7 +283,7 @@ public class ChatController {
         if (room == null) {
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该房间不存在");
-        } else if (room.getId() != user.getId()) {
+        } else if (!room.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             boolean needCheckName;
@@ -346,7 +348,7 @@ public class ChatController {
         if (room == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该房间不存在");
-        } else if (room.getUserId() != user.getId()) {
+        } else if (!room.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         } else {
             chatService.deleteRoom(roomId);
@@ -355,7 +357,6 @@ public class ChatController {
 
         return result;
     }
-
 
 
     /**
@@ -378,6 +379,45 @@ public class ChatController {
         return result;
     }
 
+    /**
+     * 获取历史房间
+     * @param session
+     * @return
+     */
+    @ResponseBody
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/historyRooms", method = RequestMethod.GET)
+    public Result getHistoryRooms(HttpSession session){
+        User user = (User) session.getAttribute("user");
+        ResultWrapper result = new ResultWrapper();
+
+        List<Room> rooms = chatService.getHistoryRoom(user.getId());
+        if (rooms.size() > 0) {
+            result.setCode(ResponseCode.SUCCEED);
+            result.setPayload(rooms);
+        } else {
+            result.setCode(ResponseCode.NOT_FOUND);
+        }
+        return result;
+    }
+
+    /**
+     * 删除历史房间
+     * @param session
+     * @param roomId
+     * @return
+     */
+    @ResponseBody
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/historyRoom/{roomId}", method = RequestMethod.DELETE)
+    public Result deleteHistoryRoom(HttpSession session, @PathVariable(value = "roomId") int roomId){
+        User user = (User) session.getAttribute("user");
+        Result result = new Result();
+
+        chatService.deleteHistoryRoom(user.getId(), roomId);
+        result.setCode(ResponseCode.SUCCEED);
+        return result;
+    }
 
     /**
      * 加入聊天室
