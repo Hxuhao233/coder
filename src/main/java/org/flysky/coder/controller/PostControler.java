@@ -5,6 +5,8 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.flysky.coder.entity.Post;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.service.IPostService;
+import org.flysky.coder.service.IUserService;
+import org.flysky.coder.token.RedisTokenService;
 import org.flysky.coder.vo.PostSearchWrapper;
 import org.flysky.coder.vo.PostWrapper;
 import org.flysky.coder.vo.ResultWrapper;
@@ -13,12 +15,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionContext;
 import java.util.List;
 
 @RestController
 public class PostControler {
     @Autowired
     private IPostService postService;
+
+    @Autowired
+    private RedisTokenService redisTokenService;
+
+
 
     @RequestMapping("/forum/upvote/{postId}")
     public ResultWrapper upvote(@PathVariable int postId){
@@ -63,11 +71,10 @@ public class PostControler {
         return new ResultWrapper(result);
     }
 
-    @RequiresRoles("user")
-    @RequestMapping("/forum/collectPost/{postId}")
-    public ResultWrapper collectPost(@PathVariable int postId,HttpSession session){
-        User u=(User)session.getAttribute("user");
-        Integer uid=u.getId();
+    //@RequiresRoles("user")
+    @RequestMapping("/forum/collectPost/{postId}/{token}")
+    public ResultWrapper collectPost(@PathVariable int postId,@PathVariable String token){
+        Integer uid=redisTokenService.getIdByToken(token);
         Integer result=postService.collectPost(postId,uid);
         return new ResultWrapper(result);
     }

@@ -3,7 +3,10 @@ package org.flysky.coder.controller;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.service.IUserService;
 import org.flysky.coder.service.impl.UserService;
+import org.flysky.coder.token.RedisTokenService;
+import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
+import org.flysky.coder.vo.SessionWrapper;
 import org.flysky.coder.vo.mail.Mail;
 import org.flysky.coder.vo.user.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,11 @@ import javax.servlet.http.HttpSession;
 public class UserController {
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private RedisTokenService redisTokenService;
+
+
 
     @RequestMapping("/user/getUsernameByUid/{uid}")
     public String getUsernameByUid(@PathVariable Integer uid){
@@ -51,31 +59,54 @@ public class UserController {
 
 
     @RequestMapping(value = "/user/login")
-    public Integer login(HttpSession session) {
-//        boolean isLogin = userService.login(user);
-//        LoginData loginData = new LoginData();
-//
-//            if (isLogin) {// 如果用户名和密码正确
-//                User u = userService.getUserByEmailAndPassword(user);
-//                Integer type = u.getType();
-//                loginData.setType(type);
-//                if (u.getActivated()==0) {
-//                    loginData.setCode(Code.NOT_ACTIVATED);
-//                } else {
-//                    loginData.setCode(Code.SUCCEED);
-//                    loginData.setUsername(u.getUsername());
-        User u=new User();
-        u.setId(1);
-        session.setAttribute("user", u);
-        return 1;
-//                }
-//            } else {// 如果用户名或密码错误
-//                loginData.setCode(Code.WRONG_EMAIL_OR_PASSWORD);
-//            }
-//
-//        return loginData;
+    public LoginDataWithSessionID login(HttpSession session,@RequestBody User user) {
+        boolean isLogin = userService.login(user);
+        LoginDataWithSessionID loginData = new LoginDataWithSessionID();
+
+            if (isLogin) {// 如果用户名和密码正确
+                User u = userService.getUserByEmailAndPassword(user);
+                loginData.setSessionId(session.getId());
+                Integer type = u.getType();
+                loginData.setType(type);
+                if (u.getActivated()==0) {
+                    loginData.setCode(Code.NOT_ACTIVATED);
+                } else {
+                    loginData.setCode(Code.SUCCEED);
+                    loginData.setUsername(u.getUsername());
+               }
+            } else {
+                loginData.setCode(Code.WRONG_EMAIL_OR_PASSWORD);
+            }
+
+        return loginData;
     }
 
+    @RequestMapping(value = "/ff/login")
+    public Result login(HttpSession session) {
+//        boolean isLogin = userService.login(user);
+//        LoginDataWithSessionID loginData = new LoginDataWithSessionID();
+//
+//        if (isLogin) {// 如果用户名和密码正确
+//            User u = userService.getUserByEmailAndPassword(user);
+//            loginData.setSessionId(session.getId());
+//            Integer type = u.getType();
+//            loginData.setType(type);
+//            if (u.getActivated()==0) {
+//                loginData.setCode(Code.NOT_ACTIVATED);
+//            } else {
+//                loginData.setCode(Code.SUCCEED);
+//                loginData.setUsername(u.getUsername());
+//            }
+//        } else {
+//            loginData.setCode(Code.WRONG_EMAIL_OR_PASSWORD);
+//        }
+         User u=new User();
+         u.setId(1);
+         String res=redisTokenService.addToken(1);
+         Result result=new Result();
+         result.setInfo(res);
+         return result;
+    }
 
     @RequestMapping("/user/register")
     public ResultWrapper register(@RequestBody User user, HttpSession session,HttpServletRequest request) {
