@@ -17,6 +17,7 @@ import org.flysky.coder.vo.chat.HomeInfo;
 import org.flysky.coder.vo.chat.RecordPage;
 import org.flysky.coder.vo.chat.RoomInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -38,6 +39,9 @@ public class ChatController {
 
     @Autowired
     private IChatService chatService;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     /**
      * 创建社区
@@ -415,6 +419,22 @@ public class ChatController {
         Result result = new Result();
 
         chatService.deleteHistoryRoom(user.getId(), roomId);
+        result.setCode(ResponseCode.SUCCEED);
+        return result;
+    }
+
+    /**
+     * 获取房间在线用户
+     * @param roomId
+     * @return
+     */
+    @ResponseBody
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/room/{roomId}/onlineUsers", method = RequestMethod.GET)
+    public Result getOnlineUsers(@PathVariable(value = "roomId") int roomId){
+        ResultWrapper result = new ResultWrapper();
+
+        result.setPayload(chatService.getOnlineUsersByRoomId(roomId));
         result.setCode(ResponseCode.SUCCEED);
         return result;
     }

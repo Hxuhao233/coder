@@ -8,6 +8,7 @@ import org.flysky.coder.entity.wrapper.HomeWrapper;
 import org.flysky.coder.entity.wrapper.RecordWrapper;
 import org.flysky.coder.entity.wrapper.RoomWrapper;
 import org.flysky.coder.vo.chat.ChatMessage;
+import org.flysky.coder.vo.chat.OnlineUser;
 
 import java.util.List;
 
@@ -48,6 +49,8 @@ public interface IChatService {
     List<Room> getHistoryRoom(int userId);
 
     int deleteHistoryRoom(int userId, int roomId);
+
+    List<OnlineUser> getOnlineUsersByRoomId(int roomId);
 
     ChatMessage enterRoom(User user, ChatMessage chatMessage);
 

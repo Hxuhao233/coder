@@ -9,9 +9,9 @@ import org.flysky.coder.entity.wrapper.RoomWrapper;
 import org.flysky.coder.mapper.*;
 import org.flysky.coder.service.IChatService;
 import org.flysky.coder.vo.chat.ChatMessage;
+import org.flysky.coder.vo.chat.OnlineUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,9 +24,6 @@ import java.util.Set;
  */
 @Service
 public class ChatService implements IChatService{
-
-    @Autowired
-    private SimpMessagingTemplate template;
 
     @Autowired
     private RecordMapper recordMapper;
@@ -42,6 +39,9 @@ public class ChatService implements IChatService{
 
     @Autowired
     private RoomTagMapper roomTagMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -269,8 +269,25 @@ public class ChatService implements IChatService{
     }
 
     @Override
+    public List<OnlineUser> getOnlineUsersByRoomId(int roomId) {
+        List<OnlineUser> onlineUsers = new ArrayList<>();
+        Set<String> userIds = redisTemplate.opsForSet().members(roomId + ":onlineUsers");
+        for (String userId : userIds) {
+            User user = userMapper.selectByPrimaryKey(Integer.valueOf(userId));
+            OnlineUser onlineUser = new OnlineUser();
+            onlineUser.setId(user.getId());
+            onlineUser.setUsername(user.getUsername());
+            onlineUser.setIcon(user.getIcon());
+            onlineUsers.add(onlineUser);
+        }
+        return onlineUsers;
+    }
+
+    @Override
     public ChatMessage enterRoom(User user, ChatMessage enterRoomMessage) {
         addHistoryRoom(user.getId(), enterRoomMessage.getRoomId());
+
+        redisTemplate.opsForSet().add(enterRoomMessage.getRoomId() + ":onlineUsers",String.valueOf(user.getId()));
 
         enterRoomMessage.setCreatedAt(LocalDateTime.now());
         enterRoomMessage.setUsername(user.getUsername());
@@ -281,6 +298,8 @@ public class ChatService implements IChatService{
 
     @Override
     public ChatMessage exitRoom(User user, ChatMessage exitRoomMessage) {
+        redisTemplate.opsForSet().remove(exitRoomMessage.getRoomId() + ":onlineUsers",String.valueOf(user.getId()));
+
         exitRoomMessage.setCreatedAt(LocalDateTime.now());
         exitRoomMessage.setUsername(user.getUsername());
         exitRoomMessage.setType(ChatMessage.TYPE_EXIT);
