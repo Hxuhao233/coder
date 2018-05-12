@@ -8,6 +8,7 @@ public class ResponseCode {
     2:查询结果为空
     3:没有权限操作
     4:依赖的上一级不存在
+    5:重复操作(比如点两次赞、收藏)
     500:未知错误
     */
     public static final int DUPLICATE_NAME = 0;
@@ -19,6 +20,8 @@ public class ResponseCode {
     public static final int FORBIDDEN = 3;
 
     public static final int PREV_OBJECT_NOT_FOUND = 4;
+
+    public static final int DUPLICATE_ACTION = 5;
 
     public static final int UNKNOWN_ERROR = 500;
 }
