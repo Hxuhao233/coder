@@ -32,7 +32,7 @@ function connect() {
             function (response) {
                 var recordList = JSON.parse(response.body).list;
                 console.log(recordList);
-                for (var i=recordList.length-1;i>=0;i--){
+                for (var i=0;i<recordList.length;i++){
                     var message = recordList[i];
                     appendMsg(message.username + " : " + message.content + " at " + message.createdAt);
                 }
@@ -111,10 +111,10 @@ function handleMsg(message) {
 
 /* 显示消息 */
 function appendMsg(message) {
-    $("#contents").append("<tr><td>" + message + "</td></tr>");
+    $("#contents").prepend("<tr><td>" + message + "</td></tr>");
 }
 
-/* 清楚消息 */
+/* 清空消息 */
 function clearMsg(){
     $("#contents").html("");
 }
@@ -133,15 +133,31 @@ function sendMessage() {
     );
 }
 
+/* 查看消息记录 */
 function getMessageRecord(roomId,pageNum,pageSize) {
     stompClient.send(
-        "/app/getRecord",
+        "/app/getRecordByRoomIdAndPage",
         {},
         JSON.stringify(
             {
                 'roomId': roomId,
                 'pageNum':pageNum,
                 'pageSize': pageSize
+            }
+        )
+    );
+}
+
+/* 查看消息记录 */
+// datetime格式 : yyyy-MM-dd'T'HH:mm:ss
+function getMessageRecord2(roomId,datetime) {
+    stompClient.send(
+        "/app/getRecordByRoomIdAndLastTime",
+        {},
+        JSON.stringify(
+            {
+                'roomId': roomId,
+                'time': datetime
             }
         )
     );

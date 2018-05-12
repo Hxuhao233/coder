@@ -10,6 +10,7 @@ import org.flysky.coder.entity.wrapper.RoomWrapper;
 import org.flysky.coder.vo.chat.ChatMessage;
 import org.flysky.coder.vo.chat.OnlineUser;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -57,4 +58,6 @@ public interface IChatService {
     ChatMessage exitRoom(User user, ChatMessage chatMessage);
 
     PageInfo<RecordWrapper> getRecord(int roomId, int pageNum, int pageSize);
+
+    List<RecordWrapper> getRecord(int roomId, LocalDateTime time);
 }

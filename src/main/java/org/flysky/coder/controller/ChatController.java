@@ -12,10 +12,7 @@ import org.flysky.coder.entity.wrapper.RoomWrapper;
 import org.flysky.coder.service.IChatService;
 import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
-import org.flysky.coder.vo.chat.ChatMessage;
-import org.flysky.coder.vo.chat.HomeInfo;
-import org.flysky.coder.vo.chat.RecordPage;
-import org.flysky.coder.vo.chat.RoomInfo;
+import org.flysky.coder.vo.chat.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -26,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -484,10 +482,18 @@ public class ChatController {
         template.convertAndSend("/chat/" + response.getRoomId(), response);
     }
 
-    @MessageMapping("/getRecord")
-    public void getMessageRecord(SimpMessageHeaderAccessor headerAccessor, @RequestBody RecordPage recordPage) {
+    @MessageMapping("/getRecordByRoomIdAndPage")
+    public void getMessageRecordByPageNum(SimpMessageHeaderAccessor headerAccessor, @RequestBody RecordPage recordPage) {
         PageInfo<RecordWrapper> recordLists = chatService.getRecord(recordPage.getRoomId(), recordPage.getPageNum(), recordPage.getPageSize());
         template.convertAndSendToUser(headerAccessor.getSessionId(),"/self",recordLists);
+    }
+
+    @MessageMapping("/getRecordByRoomIdAndLastTime")
+    public void getMessageRecordByLastTime(SimpMessageHeaderAccessor headerAccessor, @RequestBody RecordDate recordDate) {
+        List<RecordWrapper> recordLists = chatService.getRecord(recordDate.getRoomId(), recordDate.getTime());
+        HashMap<String,Object> recordListsMap = new HashMap<>();
+        recordListsMap.put("list",recordLists);
+        template.convertAndSendToUser(headerAccessor.getSessionId(),"/self",recordListsMap);
     }
 
 

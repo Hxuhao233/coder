@@ -314,4 +314,10 @@ public class ChatService implements IChatService{
         List<RecordWrapper> recordList = recordMapper.getRecordWrapperByRoomId(roomId);
         return new PageInfo<>(recordList);
     }
+
+    @Override
+    public List<RecordWrapper> getRecord(int roomId, LocalDateTime time) {
+        List<RecordWrapper> recordList = recordMapper.getRecordWrapperByRoomIdAndLastTime(roomId,time);
+        return recordList;
+    }
 }

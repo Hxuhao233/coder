@@ -34,6 +34,13 @@
     WHERE r.room_id = #{roomId,jdbcType=INTEGER}
     ORDER BY r.created_at DESC
   </select>
+  <select id="getRecordWrapperByRoomIdAndLastTime" resultMap="RecordWrapperMap">
+    SELECT
+    <include refid="Record_Wrapper_Column_List"/>
+    FROM record r JOIN user u ON r.user_id = u.id
+    WHERE r.room_id = #{roomId,jdbcType=INTEGER} and  <![CDATA[ r.created_at < #{time}  ]]>
+    ORDER BY r.created_at DESC limit 10
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from record
     where id = #{id,jdbcType=INTEGER}
