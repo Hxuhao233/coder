@@ -46,7 +46,6 @@ public class CustomFormAuthenticationFilter extends FormAuthenticationFilter {
             session.setAttribute("user", user);
         }
 
-
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         out.println(objectMapper.writeValueAsString(loginData));

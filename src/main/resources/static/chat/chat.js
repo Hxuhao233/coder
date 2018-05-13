@@ -31,10 +31,9 @@ function connect() {
             '/user/' + sessionId + '/self',
             function (response) {
                 var recordList = JSON.parse(response.body).list;
-                console.log(recordList);
                 for (var i=0;i<recordList.length;i++){
-                    var message = recordList[i];
-                    appendMsg(message.username + " : " + message.content + " at " + message.createdAt);
+                    var record = recordList[i];
+                    prependMsg(record.username + " : " + record.content + " at " + record.createdAt);
                 }
             }
         );
@@ -102,16 +101,21 @@ function exitRoom() {
 
 /* 处理消息 */
 function handleMsg(message) {
+    console.log(message);
     if (message.type == 1) {
         appendMsg(message.username + " : " + message.content + " at " + message.createdAt);
-    } else {
-        console.log(message);
     }
 }
 
-/* 显示消息 */
-function appendMsg(message) {
+/* 往顶部添加消息 */
+function prependMsg(message) {
     $("#contents").prepend("<tr><td>" + message + "</td></tr>");
+}
+
+
+/* 往底部消息 */
+function appendMsg(message) {
+    $("#contents").append("<tr><td>" + message + "</td></tr>");
 }
 
 /* 清空消息 */
