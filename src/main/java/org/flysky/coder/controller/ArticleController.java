@@ -443,6 +443,13 @@ public class ArticleController {
         if (article == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该文章不存在");
+            return result;
+        }
+
+        if (articleService.getCollectArticle(user.getId(), articleId) != null) {
+            result.setCode(ResponseCode.DUPLICATE_ACTION);
+            result.setInfo("已经vote");
+            return result;
         }
 
         UserVoteArticle userVoteArticle = new UserVoteArticle();
@@ -489,6 +496,13 @@ public class ArticleController {
         if (article == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该文章不存在");
+            return result;
+        }
+
+        if (articleService.getCollectArticle(user.getId(), articleId) == null) {
+            result.setCode(ResponseCode.DUPLICATE_ACTION);
+            result.setInfo("已经撤销");
+            return result;
         }
 
         articleService.undoVoteArticle(user.getId(), article);
@@ -540,6 +554,13 @@ public class ArticleController {
         if (article == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该文章不存在");
+            return result;
+        }
+
+        if (articleService.getCollectArticle(user.getId(), articleId) == null) {
+            result.setCode(ResponseCode.DUPLICATE_ACTION);
+            result.setInfo("已经收藏");
+            return result;
         }
 
         UserCollectArticle userCollectArticle = new UserCollectArticle();
@@ -547,7 +568,6 @@ public class ArticleController {
         userCollectArticle.setArticleId(articleId);
         userCollectArticle.setUserId(user.getId());
         articleService.collectArticle(article, userCollectArticle);
-
         result.setCode(ResponseCode.SUCCEED);
         return result;
     }
@@ -559,7 +579,7 @@ public class ArticleController {
      */
     @RequiresRoles(value = "user")
     @RequestMapping(value = "/collectArticle/{articleId}", method = RequestMethod.GET)
-    public ResultWrapper getCollectedStatucByArticleId(HttpSession session, @PathVariable(value = "articleId") int articleId) {
+    public ResultWrapper getCollectedStatusByArticleId(HttpSession session, @PathVariable(value = "articleId") int articleId) {
         ResultWrapper resultWrapper = new ResultWrapper();
         User user = (User) session.getAttribute("user");
 
@@ -585,6 +605,13 @@ public class ArticleController {
         if (article == null){
             result.setCode(ResponseCode.NOT_FOUND);
             result.setInfo("该文章不存在");
+            return result;
+        }
+
+        if (articleService.getCollectArticle(user.getId(), articleId) == null) {
+            result.setCode(ResponseCode.DUPLICATE_ACTION);
+            result.setInfo("已经取消收藏");
+            return result;
         }
 
         articleService.undoCollectArticle(user.getId(), article);

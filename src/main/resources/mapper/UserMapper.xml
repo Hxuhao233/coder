@@ -9,9 +9,10 @@
     <result column="email" jdbcType="VARCHAR" property="email" />
     <result column="type" jdbcType="INTEGER" property="type" />
     <result column="info" jdbcType="VARCHAR" property="info" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, username, password, activated, email, type, info
+    id, username, password, activated, email, type, info, icon
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -39,10 +40,12 @@
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into user (username, password, activated, 
-      email, type, info)
-    values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{activated,jdbcType=INTEGER}, 
-      #{email,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{info,jdbcType=VARCHAR})
+    insert into user (username, password, activated,
+    email, type, info,
+    icon)
+    values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{activated,jdbcType=INTEGER},
+    #{email,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{info,jdbcType=VARCHAR},
+    #{icon,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="org.flysky.coder.entity.User">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
@@ -68,6 +71,9 @@
       <if test="info != null">
         info,
       </if>
+      <if test="icon != null">
+        icon,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="username != null">
@@ -87,6 +93,9 @@
       </if>
       <if test="info != null">
         #{info,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null">
+        #{icon,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -111,6 +120,9 @@
       <if test="info != null">
         info = #{info,jdbcType=VARCHAR},
       </if>
+      <if test="icon != null">
+        icon = #{icon,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -121,7 +133,8 @@
       activated = #{activated,jdbcType=INTEGER},
       email = #{email,jdbcType=VARCHAR},
       type = #{type,jdbcType=INTEGER},
-      info = #{info,jdbcType=VARCHAR}
+      info = #{info,jdbcType=VARCHAR},
+      icon = #{icon,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="isExistEmail" parameterType="java.lang.String" resultType="java.lang.Integer">
