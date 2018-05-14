@@ -51,4 +51,5 @@ public interface IPostService {
 
     public List<Post> getPostByTitleAndTimeAndType(String title, LocalDateTime time1,LocalDateTime time2,Integer type);
 
+    public List<Post> searchPost(String title,String content,String username,Integer type);
 }

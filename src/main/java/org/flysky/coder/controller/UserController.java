@@ -199,4 +199,12 @@ public class UserController {
             return resultWrapper;
         }
     }
+
+    @RequestMapping("/user/searchUserByUsername/{username}")
+    public ResultWrapper searchUserByUsername(@PathVariable String username){
+        ResultWrapper resultWrapper=new ResultWrapper();
+        resultWrapper.setPayload(userService.searchUserByUsername(username));
+        return resultWrapper;
+    }
+
 }

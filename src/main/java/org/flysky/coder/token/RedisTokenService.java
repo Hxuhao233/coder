@@ -19,6 +19,7 @@ public class RedisTokenService {
         if(keyList.isEmpty()){
             return null;
         }else{
+            redisTemplate.boundValueOps("token").expire(3600,TimeUnit.SECONDS);
             return Integer.parseInt(redisTemplate.opsForValue().get(keyList.get(0)));
         }
 

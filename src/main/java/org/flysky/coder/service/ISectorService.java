@@ -9,4 +9,5 @@ public interface ISectorService {
     Integer deleteSector(Integer sectorId);
     Integer updateSector(Integer sectorId,String sectorName);
     List<Sector> listAllSectors();
+    Sector getSectorById(Integer id);
 }

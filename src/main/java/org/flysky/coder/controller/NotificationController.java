@@ -3,6 +3,7 @@ package org.flysky.coder.controller;
 import org.flysky.coder.entity.Notification;
 import org.flysky.coder.entity.Reply;
 import org.flysky.coder.service.INotificationService;
+import org.flysky.coder.token.RedisTokenService;
 import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ import java.util.List;
 public class NotificationController {
     @Autowired
     private INotificationService notificationService;
+
+    @Autowired
+    private RedisTokenService redisTokenService;
 
     @RequestMapping("/notification/beforeViewMessageNotifications/{uid}")
     public void beforeViewMessageNotifications(@PathVariable int uid){
@@ -37,9 +41,9 @@ public class NotificationController {
         notificationService.beforeViewReplyNotifications(uid);
     }
 
-    @RequestMapping("/notification/viewReplyNotifications/{uid}")
-    public ResultWrapper viewReplyNotifications(@PathVariable int uid){
-        List<Reply> replyList=notificationService.viewReplyNotifications(uid);
+    @RequestMapping("/notification/viewReplyNotifications/{token}")
+    public ResultWrapper viewReplyNotifications(@PathVariable String token){
+        List<Reply> replyList=notificationService.viewReplyNotifications(redisTokenService.getIdByToken(token));
         ResultWrapper resultWrapper=new ResultWrapper();
         if(replyList.isEmpty()||replyList==null){
             resultWrapper.setCode(0);
@@ -51,9 +55,9 @@ public class NotificationController {
         return resultWrapper;
     }
 
-    @RequestMapping("/notification/viewPostDeletedNotifications/{uid}")
-    public ResultWrapper viewPostDeletedNotifications(@PathVariable int uid){
-        List<String> postDeletedInfoList=notificationService.viewPostDeletedNotifications(uid);
+    @RequestMapping("/notification/viewPostDeletedNotifications/{token}")
+    public ResultWrapper viewPostDeletedNotifications(@PathVariable String token){
+        List<String> postDeletedInfoList=notificationService.viewPostDeletedNotifications(redisTokenService.getIdByToken(token));
         ResultWrapper resultWrapper=new ResultWrapper();
         if(postDeletedInfoList.isEmpty()||postDeletedInfoList==null){
             resultWrapper.setCode(0);
@@ -65,9 +69,9 @@ public class NotificationController {
         return resultWrapper;
     }
 
-    @RequestMapping("/notification/viewPostRecoveredNotifications/{uid}")
-    public ResultWrapper viewPostRecoveredNotifications(@PathVariable int uid){
-        List<String> postRecoveredInfoList=notificationService.viewPostRecoveredNotifications(uid);
+    @RequestMapping("/notification/viewPostRecoveredNotifications/{token}")
+    public ResultWrapper viewPostRecoveredNotifications(@PathVariable String token){
+        List<String> postRecoveredInfoList=notificationService.viewPostRecoveredNotifications(redisTokenService.getIdByToken(token));
         ResultWrapper resultWrapper=new ResultWrapper();
         if(postRecoveredInfoList.isEmpty()||postRecoveredInfoList==null){
             resultWrapper.setCode(0);
@@ -79,23 +83,23 @@ public class NotificationController {
         return resultWrapper;
     }
 
-    @RequestMapping("/notification/getReplyNotificationNum/{uid}")
-    public Long getReplyNotificationNum(@PathVariable int uid){
-        return notificationService.getNewReplyNotificationNum(uid);
+    @RequestMapping("/notification/getReplyNotificationNum/{token}")
+    public Long getReplyNotificationNum(@PathVariable String token){
+        return notificationService.getNewReplyNotificationNum(redisTokenService.getIdByToken(token));
     }
 
-    @RequestMapping("/notification/getPostDeletedNotificationNum/{uid}")
-    public Long getPostDeletedNotificationNum(@PathVariable int uid){
-        return notificationService.getNewPostDeletedNotificationNum(uid);
+    @RequestMapping("/notification/getPostDeletedNotificationNum/{token}")
+    public Long getPostDeletedNotificationNum(@PathVariable String token){
+        return notificationService.getNewPostDeletedNotificationNum(redisTokenService.getIdByToken(token));
     }
 
-    @RequestMapping("/notification/getPostRecoveredNotificationNum/{uid}")
-    public Long getPostRecoveredNotificationNum(@PathVariable int uid){
-        return notificationService.getNewPostRecoveredNotificaionNum(uid);
+    @RequestMapping("/notification/getPostRecoveredNotificationNum/{token}")
+    public Long getPostRecoveredNotificationNum(@PathVariable String token){
+        return notificationService.getNewPostRecoveredNotificaionNum(redisTokenService.getIdByToken(token));
     }
 
-    @RequestMapping("/notification/getMessageNotificationNum/{uid}")
-    public Long getMessageNotificationNum(@PathVariable int uid){
-        return notificationService.getNewMessageNotificationNum(uid);
+    @RequestMapping("/notification/getMessageNotificationNum/{token}")
+    public Long getMessageNotificationNum(@PathVariable String token){
+        return notificationService.getNewMessageNotificationNum(redisTokenService.getIdByToken(token));
     }
 }

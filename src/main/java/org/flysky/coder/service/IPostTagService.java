@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface IPostTagService {
     List<PostTag> getPostTagByPostId(int postId);
+    PostTag getPostTagById(int id);
 }

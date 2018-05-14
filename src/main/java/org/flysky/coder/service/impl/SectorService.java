@@ -51,4 +51,9 @@ public class SectorService implements ISectorService{
     public List<Sector> listAllSectors() {
         return sectorMapper.selectAll();
     }
+
+    @Override
+    public Sector getSectorById(Integer id) {
+        return sectorMapper.selectByPrimaryKey(id);
+    }
 }

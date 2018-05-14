@@ -30,4 +30,7 @@ public interface PostMapper {
     List<Post> searchPostByUsernameAndType(@Param("username") String username,@Param("type") Integer type);
 
     List<Post> getPostByTitleAndTimeAndType(@Param("title")String title, @Param("time1") LocalDateTime time1, @Param("time2")LocalDateTime time2, @Param("type") Integer type);
+
+    List<Post> searchPost(@Param("title")String title,@Param("content") String content,@Param("username") String username,
+                          @Param("type") Integer type);
 }

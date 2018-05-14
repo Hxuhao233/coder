@@ -62,7 +62,7 @@ public class PostService implements IPostService {
                 post.setAnonymousName(anonymousName);
             } else {           //如果用户选择在匿名帖中使用真实名字
                 post.setAnonymous(0);
-                User user = userMapper.selectByPrimaryKey(uid);
+                /*User user = userMapper.selectByPrimaryKey(uid);
                 if (user != null) {
                     String username = user.getUsername();
                     if (username != null) {
@@ -72,8 +72,8 @@ public class PostService implements IPostService {
                     }
                 } else {
                     return 0;
-                }
-                post.setAnonymousName(null);
+                }*/
+                post.setAnonymousName(anonymousName);
             }
 
         } else { //如果不是匿名帖
@@ -86,7 +86,13 @@ public class PostService implements IPostService {
 
         postMapper.insert(post);
 
+        if(tagNameList==null){
+            return 1;
+        }
+
         List<String> newTagNames=new ArrayList<String>();
+
+
 
         //添加以前没有的Tag
         for(String s:tagNameList){
@@ -233,7 +239,7 @@ public class PostService implements IPostService {
     @Override
     public Integer removeRecommendedPost(Integer postId) {
         redisTemplate.opsForList().remove("RecommendedPost",0,String.valueOf(postId));
-        return null;
+        return 1;
     }
 
     @Override
@@ -328,6 +334,11 @@ public class PostService implements IPostService {
     @Override
     public List<Post> getPostByTitleAndTimeAndType(String title, LocalDateTime time1, LocalDateTime time2, Integer type) {
         return postMapper.getPostByTitleAndTimeAndType(title,time1,time2,type);
+    }
+
+    @Override
+    public List<Post> searchPost(String title, String content, String username,Integer type) {
+        return postMapper.searchPost(title,content,username,type);
     }
 
 

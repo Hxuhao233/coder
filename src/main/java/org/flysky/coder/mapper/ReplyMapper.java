@@ -28,4 +28,8 @@ public interface ReplyMapper {
     List<Reply> getRepliesByPostId(Integer postId);
 
     List<Reply> getReplyByContentAndTimeAndType(@Param("content")String content, @Param("time1") LocalDateTime time1, @Param("time2")LocalDateTime time2, @Param("type") Integer type);
+
+    List<Reply> searchForumPostReply(@Param("content")String content,@Param("username") String username,@Param("title")String title);
+
+    List<Reply> searchAnonymousPostReply(@Param("content")String content,@Param("title") String title);
 }
