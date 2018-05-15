@@ -1,5 +1,7 @@
 package org.flysky.coder.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 
 public class Post {
@@ -87,6 +89,7 @@ public class Post {
         this.anonymousName = anonymousName == null ? null : anonymousName.trim();
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -95,6 +98,7 @@ public class Post {
         this.createdAt = createdAt;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }

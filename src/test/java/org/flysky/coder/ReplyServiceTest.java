@@ -33,7 +33,7 @@ public class ReplyServiceTest {
 
     @Test
     public void getRepliesByPostId(){
-        List<ReplyWrapper> rp=replyService.getRepliesByPostId(16);
+        List<PostReplyWrapper> rp=replyService.getRepliesByPostId(16);
         rp.size();
     }*/
 

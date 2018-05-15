@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService implements IUserService{
     @Autowired
@@ -105,6 +107,11 @@ public class UserService implements IUserService{
         return userMapper.selectByEmailAndPassword(user);
     }
 
+    @Override
+    public List<User> searchUserByUsername(String username) {
+        return userMapper.searchUserByUsername(username);
+    }
+
     public void subscribeUser(int uid,int subscribedUid){
        String subscriptionListName="subscriptionlist-"+String.valueOf(uid);
        Long result1=redisTemplate.opsForList().leftPushIfPresent(subscriptionListName,String.valueOf(subscribedUid));
@@ -119,4 +126,6 @@ public class UserService implements IUserService{
         String subscriptionListName="subscriptionlist-"+String.valueOf(uid);
         redisTemplate.opsForList().remove(subscriptionListName,0,String.valueOf(subscribedUid));
     }
+
+
 }

@@ -164,4 +164,10 @@
     from user
     where type=0
   </select>
+  <select id="searchUserByUsername" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from user
+    where username LIKE CONCAT('%',#{username},'%')
+  </select>
 </mapper>

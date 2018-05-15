@@ -240,4 +240,20 @@
   <select id="getPostByTitleAndTimeAndType" resultMap="ResultMapWithBLOBs">
     select <include refid="Base_Column_List" />,<include refid="Blob_Column_List" /> from post where title LIKE CONCAT('%',#{title},'%') and type=#{type} and created_at BETWEEN #{time1} and #{time2}
   </select>
+
+  <select id="searchPost" resultMap="ResultMapWithBLOBs">
+    select DISTINCT (p.id), user_id, upvote, downvote, p.type, anonymous, anonymous_name, created_at, updated_at,
+    sector_id, title, is_deleted, floor_cnt,<include refid="Blob_Column_List" /> from post p,user u where
+    p.type=#{type} and is_deleted=0
+    <if test="title!=null">
+      and title LIKE CONCAT('%',#{title},'%')
+    </if>
+    <if test="content!=null">
+      and content LIKE CONCAT('%',#{content},'%')
+    </if>
+    <if test="username!=null">
+      and p.user_id=u.id and username LIKE CONCAT('%',#{username},'%')
+    </if>
+    order by created_at DESC
+  </select>
 </mapper>

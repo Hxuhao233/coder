@@ -1,4 +1,4 @@
-package org.flysky.coder.controller;
+package org.flysky.coder.controller.deprecated;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -9,6 +9,7 @@ import org.flysky.coder.service.IUserService;
 import org.flysky.coder.token.RedisTokenService;
 import org.flysky.coder.vo.PostSearchWrapper;
 import org.flysky.coder.vo.PostWrapper;
+import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
 import org.flysky.coder.vo.user.AnonymousNameGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,9 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 import java.util.List;
 
-@RestController
+//@RestController
 public class PostControler {
-    @Autowired
+    /*@Autowired
     private IPostService postService;
 
     @Autowired
@@ -40,11 +41,10 @@ public class PostControler {
         return new ResultWrapper(result);
     }
 
-    @RequiresRoles("user")
-    @RequestMapping(value="/forum/createPost",method = RequestMethod.POST)
-    public ResultWrapper createPost(@RequestBody PostWrapper postWrapper,HttpSession session){
-        User u=(User)session.getAttribute("user");
-        Integer uid=u.getId();
+    //@RequiresRoles("user")
+    @RequestMapping(value="/forum/createPost/{token}",method = RequestMethod.POST)
+    public ResultWrapper createPost(@RequestBody PostWrapper postWrapper,@PathVariable String token){
+        Integer uid=redisTokenService.getIdByToken(token);
         String title=postWrapper.getTitle();
         String content=postWrapper.getContent();
         Integer sectorId=postWrapper.getSectorId();
@@ -64,7 +64,7 @@ public class PostControler {
         return new ResultWrapper(result);
     }
 
-    @RequiresRoles("manager")
+    //@RequiresRoles("manager")
     @RequestMapping("/forum/deletePost/{postId}")
     public ResultWrapper deletePost(@PathVariable int postId){
         Integer result=postService.deletePost(postId);
@@ -79,44 +79,43 @@ public class PostControler {
         return new ResultWrapper(result);
     }
 
-    @RequiresRoles("user")
+    //@RequiresRoles("user")
     @RequestMapping("/forum/removeCollectedPost/{postId}")
-    public ResultWrapper removeCollectedPost(@PathVariable int postId,HttpSession session){
-        User u=(User)session.getAttribute("user");
-        Integer uid=u.getId();
+    public ResultWrapper removeCollectedPost(@PathVariable int postId,@PathVariable String token){
+        Integer uid=redisTokenService.getIdByToken(token);
         Integer result=postService.removeCollectedPost(postId,uid);
         return new ResultWrapper(result);
     }
 
-    @RequiresRoles("user")
+   // @RequiresRoles("user")
     @RequestMapping("/forum/showPostBySectorAndType/{page}/{sectorId}/{type}")
     public PageInfo<Post> showPostBySectorAndType(@PathVariable int sectorId, @PathVariable int type, @PathVariable int page){
         PageInfo<Post> postList=postService.viewPostBySectorAndType(sectorId,type,page);
         return postList;
     }
 
-    @RequiresRoles("manager")
+   // @RequiresRoles("manager")
     @RequestMapping("/forum/addStickyPost/{sectorId}/{postId}")
     public ResultWrapper addStickyPost(@PathVariable int sectorId,@PathVariable int postId){
         Integer result=postService.addStickyPost(postId,sectorId);
         return new ResultWrapper(result);
     }
 
-    @RequiresRoles("manager")
+   // @RequiresRoles("manager")
     @RequestMapping("/forum/removeStickyPost/{sectorId}/{postId}")
     public ResultWrapper removeStickyPost(@PathVariable int sectorId,@PathVariable int postId){
         Integer result=postService.removeStickyPost(postId,sectorId);
         return new ResultWrapper(result);
     }
 
-    @RequiresRoles("manager")
+    //@RequiresRoles("manager")
     @RequestMapping("/forum/recommendPost/{postId}")
     public ResultWrapper recommendPost(@PathVariable int postId){
         Integer result=postService.recommendPost(postId);
         return new ResultWrapper(result);
     }
 
-    @RequiresRoles("manager")
+    //@RequiresRoles("manager")
     @RequestMapping("/forum/removeRecommendedPost/{postId}")
     public ResultWrapper removeRecommendedPost(@PathVariable int postId){
         Integer result=postService.removeRecommendedPost(postId);
@@ -135,20 +134,20 @@ public class PostControler {
         return result;
     }
 
-    @RequiresRoles("user")
-    @RequestMapping("/usercenter/getCollectedPost")
-    public List<Post> getCollectedPost(HttpSession session){
-        User u=(User)session.getAttribute("user");
-        Integer uid=u.getId();
+    //@RequiresRoles("user")
+    @RequestMapping("/usercenter/getCollectedPost/{token}")
+    public List<Post> getCollectedPost(HttpSession session,@PathVariable String token){
+        Integer uid=redisTokenService.getIdByToken(token);
         List<Post> result=postService.showUserCollectionList(uid);
         return result;
     }
 
-    @RequestMapping("/forum/isCollectedPost/{postid}")
-    public Integer isPostCollected(@PathVariable Integer postid,HttpSession session){
-        User u=(User)session.getAttribute("user");
-        Integer uid=u.getId();
-        return postService.isPostCollected(uid,postid);
+    @RequestMapping("/forum/isCollectedPost/{postid}/{token}")
+    public Result isPostCollected(@PathVariable Integer postid,HttpSession session,@PathVariable String token){
+        Integer uid=redisTokenService.getIdByToken(token);
+        Result result=new Result();
+        result.setCode(postService.isPostCollected(uid,postid));
+        return result;
     }
 
     @RequestMapping("/forum/showStickyPostBySectorId/{sectorId}")
@@ -173,10 +172,15 @@ public class PostControler {
         return rw;
     }
 
+    @RequestMapping("/post/getPostById/{postId}")
+    public Post getPostById(@PathVariable Integer postId){
+        return postService.getPostByPostId(postId);
+    }
+
     @RequestMapping("/homexxxx/1")
     @ResponseBody
     public String home() {
         return "Hello sb";
     }
-
+*/
 }

@@ -17,4 +17,9 @@ public class PostTagService implements IPostTagService{
     public List<PostTag> getPostTagByPostId(int postId) {
         return postTagMapper.getPostTagByPostId(postId);
     }
+
+    @Override
+    public PostTag getPostTagById(int id) {
+        return postTagMapper.selectByPrimaryKey(id);
+    }
 }

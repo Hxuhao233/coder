@@ -2,6 +2,8 @@ package org.flysky.coder.service;
 
 import org.flysky.coder.entity.User;
 
+import java.util.List;
+
 public interface IUserService {
     String getUserNameById(Integer uid);
     int register(User user,String context);
@@ -11,4 +13,5 @@ public interface IUserService {
     boolean activate(User user);
     User getUserById(Integer id);
     User getUserByEmailAndPassword(User user);
+    List<User> searchUserByUsername(String username);
 }

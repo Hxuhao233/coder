@@ -36,4 +36,6 @@ public interface UserMapper {
 
     List<User> selectAllNormalUser();
 
+    List<User> searchUserByUsername(@Param("username") String username);
+
 }

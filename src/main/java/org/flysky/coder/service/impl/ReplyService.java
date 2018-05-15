@@ -8,8 +8,9 @@ import org.flysky.coder.mapper.ReplyMapper;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.service.INotificationService;
 import org.flysky.coder.service.IReplyService;
-import org.flysky.coder.vo.ReplyWrapper;
-import org.flysky.coder.vo.ResultWrapper;
+
+
+import org.flysky.coder.vo2.Response.ReplyWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ public class ReplyService implements IReplyService {
     private INotificationService notificationService;
 
     @Override
-    public Integer replyToPost(Integer postId, Integer uid, String content,boolean isAnonymous,String anonymousName) {
+    public Integer replyToPost(Integer postId, Integer uid, String content,boolean isAnonymous,String anonymousName,Integer type) {
         Reply reply=new Reply();
         Post post=postMapper.selectByPrimaryKey(postId);
         User u=userMapper.selectByPrimaryKey(uid);
@@ -42,10 +43,14 @@ public class ReplyService implements IReplyService {
             return 0;
         }
         int postType=post.getType();
-        if(isAnonymous){
-            reply.setAnonymous(1);
-            reply.setAnonymousName(anonymousName);
+        if(type==1){
             reply.setType(1);
+            reply.setAnonymousName(anonymousName);
+            if(isAnonymous) {
+                reply.setAnonymous(1);
+            }else{
+                reply.setAnonymous(0);
+            }
         }else{
             reply.setAnonymous(0);
             reply.setAnonymousName(u.getUsername());
@@ -63,11 +68,12 @@ public class ReplyService implements IReplyService {
         replyMapper.insert(reply);
         postMapper.updateByPrimaryKey(post);
         notificationService.newReplyNotification(post.getUserId(),reply.getId());
-        return null;
+
+        return 1;
     }
 
     @Override
-    public Integer createInnerReply(Integer postId, Integer uid, String content, Integer floorCount,boolean isAnonymous,String anonymousName) {
+    public Integer createInnerReply(Integer postId, Integer uid, String content, Integer floorCount,boolean isAnonymous,String anonymousName,Integer type) {
         Reply reply=new Reply();
         Post post=postMapper.selectByPrimaryKey(postId);
         User u=userMapper.selectByPrimaryKey(uid);
@@ -76,10 +82,14 @@ public class ReplyService implements IReplyService {
             return 0;
         }
         int postType=post.getType();
-        if(isAnonymous){
-            reply.setAnonymous(1);
-            reply.setAnonymousName(anonymousName);
+        if(type==1){
             reply.setType(1);
+            reply.setAnonymousName(anonymousName);
+            if(isAnonymous) {
+                reply.setAnonymous(1);
+            }else{
+                reply.setAnonymous(0);
+            }
         }else{
             reply.setAnonymous(0);
             reply.setAnonymousName(u.getUsername());
@@ -94,7 +104,7 @@ public class ReplyService implements IReplyService {
         reply.setPostid(postId);
 
         replyMapper.insert(reply);
-        return null;
+        return 1;
     }
 
     @Override
@@ -190,6 +200,21 @@ public class ReplyService implements IReplyService {
     @Override
     public List<Reply> getReplyByContentAndTimeAndType(String content, LocalDateTime time1, LocalDateTime time2, Integer type) {
         return replyMapper.getReplyByContentAndTimeAndType(content,time1,time2,type);
+    }
+
+    @Override
+    public List<Reply> searchForumPostReply(String content, String username,String title) {
+        return replyMapper.searchForumPostReply(content,username,title);
+    }
+
+    @Override
+    public List<Reply> searchAnonymousPostReply(String content, String title) {
+        return replyMapper.searchAnonymousPostReply(content,title);
+    }
+
+    @Override
+    public Reply getReplyById(Integer id) {
+        return replyMapper.selectByPrimaryKey(id);
     }
 
 

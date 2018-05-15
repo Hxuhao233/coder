@@ -39,4 +39,9 @@ public class SectorControler {
         List<Sector> sectorList=sectorService.listAllSectors();
         return sectorList;
     }
+
+    @RequestMapping("/sector/getSectorById/{id}")
+    public Sector getSectorById(@PathVariable Integer id){
+        return sectorService.getSectorById(id);
+    }
 }
