@@ -3,6 +3,7 @@ package org.flysky.coder.controller;
 
 import com.github.pagehelper.PageInfo;
 import org.flysky.coder.entity.Post;
+import org.flysky.coder.entity.User;
 import org.flysky.coder.service.IPostService;
 import org.flysky.coder.service.IUserService;
 import org.flysky.coder.token.RedisTokenService;
@@ -101,9 +102,10 @@ public class PostController {
     /*
     需求108.A 收藏帖子
      */
-    @RequestMapping("/forum/collectPost/{postId}/{token}")
-    public ResultWrapper collectPost(@PathVariable int postId,@PathVariable String token){
-        Integer uid=redisTokenService.getIdByToken(token);
+    @RequestMapping("/forum/collectPost/{postId}")
+    public ResultWrapper collectPost(HttpSession session, @PathVariable int postId){
+        User user = (User) session.getAttribute("user");
+        Integer uid=user.getId();
         Integer result=postService.collectPost(postId,uid);
         return new ResultWrapper(result);
     }

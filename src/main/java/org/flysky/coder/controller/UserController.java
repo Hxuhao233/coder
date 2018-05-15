@@ -1,5 +1,6 @@
 package org.flysky.coder.controller;
 
+import org.flysky.coder.config.PMConfig;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.service.IUserService;
 import org.flysky.coder.service.impl.UserService;
@@ -123,9 +124,9 @@ public class UserController {
         ResultWrapper resultWrapper=new ResultWrapper();
         if (u == null) {
             resultWrapper.setCode(Code.NOT_LOGGED);
-            return  resultWrapper;
+            return resultWrapper;
         } else {
-            if (EncodeUtil.string2MD5(pwdUtil.getOldPassword() + PMConfig.SALT).equals(u.getPassword())) {
+            if (PMConfig.encrypt(pwdUtil.getOldPassword()).equals(u.getPassword())) {
                 int status = userService.updatePassword(u, pwdUtil.getNewPassword());
                 resultWrapper.setCode(status);
                 return resultWrapper;
