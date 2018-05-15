@@ -33,6 +33,12 @@
     from article
     where id = #{id,jdbcType=INTEGER} and is_deleted = 0
   </select>
+  <select id="getArticleWrapperByUserId" parameterType="java.lang.Integer" resultMap="ArticleWrapperResultMap">
+    select
+    a.id,a.name,a.description,a.content,a.user_id,a.created_at,a.updated_at,a.column_id,a.is_deleted,parse_type, a.upvote_count, a.collect_count, a.downvote_count, u.username
+    from article a JOIN user u on a.user_id = u.id
+    where a.user_id = #{userId} and a.is_deleted = 0
+  </select>
   <select id="getArticleWrapperById" parameterType="java.lang.Integer" resultMap="ArticleWrapperResultMap">
     select
     <include refid="ArticleWrapper_Column_List" />

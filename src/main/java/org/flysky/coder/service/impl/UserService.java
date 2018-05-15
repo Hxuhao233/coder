@@ -1,12 +1,12 @@
 package org.flysky.coder.service.impl;
 
+import org.flysky.coder.config.PMConfig;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.service.IUserService;
 import org.flysky.coder.vo.mail.Mail;
 import org.flysky.coder.vo.user.Code;
 import org.flysky.coder.vo.user.EncodeUtil;
-import org.flysky.coder.vo.user.PMConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -37,16 +37,16 @@ public class UserService implements IUserService{
         }else if(isExistNickname!=null){
             return Code.OCCUPIED_NICKNAME;
         } else {
-            // user.setActivated(false);
+            user.setActivated(0);
             String pwd = user.getPassword();
-            user.setPassword(EncodeUtil.string2MD5(pwd + PMConfig.SALT));
+            user.setPassword(PMConfig.encrypt(pwd));
             int status = userMapper.insertSelective(user);
             if (status != 1) {
                 return Code.SYSTEM_ERROR;
             } else {
                 try {
                     System.out.println("nmb");
-                    Mail.sendMail("18813299326@163.com", "ll86417738", "smtp.163.com", user.getEmail(), user.getId(),
+                    Mail.sendMail("13710685836@163.com", "hxh211517", "smtp.163.com", user.getEmail(), user.getId(),
                             context);
                     System.out.println("nmb");
                 } catch (Exception e) {

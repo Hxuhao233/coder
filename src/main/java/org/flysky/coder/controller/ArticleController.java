@@ -207,6 +207,30 @@ public class ArticleController {
         return result;
     }
 
+    /**
+     * 查看个人文章列表
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @ResponseBody
+    @RequestMapping(value = "/myArticles", method = RequestMethod.GET)
+    public Result getArticleByUserId(HttpSession session, @RequestParam(value = "pageNum", defaultValue = "1")int pageNum, @RequestParam(value = "pageSize", defaultValue = "10")int pageSize) {
+        User user = (User) session.getAttribute("user");
+        ResultWrapper result = new ResultWrapper();
+
+        PageInfo<ArticleWrapper> articles = articleService.getArticleWrappersByUserId(user.getId(), pageNum, pageSize);
+        if (articles.getSize() > 0) {
+            result.setCode(ResponseCode.SUCCEED);
+            result.setPayload(articles);
+        } else {
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("您还没有创建文章");
+        }
+        return result;
+    }
+
 
     /**
      * 创建文章
@@ -222,11 +246,13 @@ public class ArticleController {
         User user = (User) session.getAttribute("user");
         ResultWrapper result = new ResultWrapper();
 
+        /*
         if (articleService.getColumnById(articleInfo.getColumnId()) == null){
             result.setCode(4);
             result.setInfo("创建文章失败，该专栏不存在");
             return result;
         }
+        */
 
         Article article = new Article();
         article.setName(articleInfo.getName());
@@ -236,7 +262,7 @@ public class ArticleController {
         article.setCreatedAt(time);
         article.setUpdatedAt(time);
         article.setIsDeleted(false);
-        article.setColumnId(articleInfo.getColumnId());
+        //article.setColumnId(articleInfo.getColumnId());
         article.setUserId(user.getId());
         int code = articleService.createArticle(article, articleInfo.getTags());
 

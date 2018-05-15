@@ -271,6 +271,23 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
+    public PageInfo<ArticleWrapper> getArticleWrappersByUserId(int userId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+
+        List<ArticleWrapper> articleWrappers = articleMapper.getArticleWrapperByUserId(userId);
+        for (ArticleWrapper articleWrapper : articleWrappers) {
+            List<ArticleTag> articleTags = articleTagMapper.getTagsByArticleId(articleWrapper.getId());
+            List<String> tagNames = new ArrayList<>();
+            for (ArticleTag articleTag : articleTags) {
+                tagNames.add(tagMapper.selectByPrimaryKey(articleTag.getTagid()).getName());
+            }
+            articleWrapper.setTags(tagNames);
+        }
+
+        return new PageInfo<>(articleWrappers);
+    }
+
+    @Override
     public int undoVoteArticle(int userId, Article article) {
         UserVoteArticle userVoteArticle = userVoteArticleMapper.getUserVoteArticleByUserIdAndArticleId(userId, article.getId());
         if (userVoteArticle == null) {

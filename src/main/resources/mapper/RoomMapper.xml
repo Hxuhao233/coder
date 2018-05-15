@@ -45,6 +45,12 @@
     from (room r JOIN user u on r.user_id = u.id) JOIN home h on r.home_id = h.id
     where r.name LIKE "%"#{info}"%" and r.is_deleted = 0
   </select>
+  <select id="getRoomWrappersByUserId" parameterType="java.lang.Integer" resultMap="RoomWrapperResultMap">
+    select
+    r.id, r.name, r.description, r.home_id, r.created_at, r.updated_at, r.user_id, r.is_deleted , u.username
+    from room r JOIN user u on r.user_id = u.id
+    where r.user_id = #{userId} and r.is_deleted = 0
+  </select>
   <select id="getAllRoomsByHomeId" parameterType="java.lang.Integer" resultMap="RoomWrapperResultMap">
     select
     <include refid="Base_Column_List" />

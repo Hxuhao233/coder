@@ -320,4 +320,20 @@ public class ChatService implements IChatService{
         List<RecordWrapper> recordList = recordMapper.getRecordWrapperByRoomIdAndLastTime(roomId,time);
         return recordList;
     }
+
+    @Override
+    public PageInfo<RoomWrapper> getRoomWrappersByUserId(Integer userId, int pageNum, int pageSize) {
+        PageInfo<RoomWrapper> roomWrappers = new PageInfo<>(roomMapper.getRoomWrappersByUserId(userId));
+        List<RoomWrapper> roomWrapperList = roomWrappers.getList();
+        for (RoomWrapper roomWrapper : roomWrapperList) {
+            List<Integer> tagIds = roomTagMapper.getTagIdsByRoomId(roomWrapper.getId());
+            List<String> tagNames = new ArrayList<>();
+            for (Integer tagId : tagIds) {
+                tagNames.add(tagMapper.selectByPrimaryKey(tagId).getName());
+            }
+            roomWrapper.setTags(tagNames);
+        }
+
+        return roomWrappers;
+    }
 }

@@ -29,4 +29,6 @@ public interface ArticleMapper {
     List<ArticleWrapper> getArticleWrapperByColumnId(int columnId);
 
     List<ArticleWrapper> getCollectedArticleWrapperByUserId(int userId);
+
+    List<ArticleWrapper> getArticleWrapperByUserId(int userId);
 }

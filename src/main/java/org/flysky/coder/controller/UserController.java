@@ -160,9 +160,9 @@ public class UserController {
 
 
 
-    @RequestMapping("/activate")
-    public ResultWrapper activate(@RequestParam String uid, @RequestParam String timestamp,
-                                  @RequestParam String encodedContent, HttpServletRequest request) {
+    @RequestMapping("/activate/{uid}/{timestamp}/{encodedContent}")
+    public ResultWrapper activate(@PathVariable(value = "uid") String uid,@PathVariable(value = "timestamp")String timestamp,
+                                  @PathVariable(value = "encodedContent") String encodedContent, HttpServletRequest request) {
         System.out.print(uid);
         // System.out.print(timestamp);
         // System.out.print(encodedContent);

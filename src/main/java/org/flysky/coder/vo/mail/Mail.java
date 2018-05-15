@@ -39,7 +39,7 @@ public class Mail {
         long currentTime=System.currentTimeMillis();
         String content=String.valueOf(userid)+String.valueOf(currentTime)+ PMConfig.SALT;
         String encodedContent= EncodeUtil.string2MD5(content);
-        String c=context+"/emailValid.html?"+String.valueOf(userid)+"&"+String.valueOf(currentTime)+"&"+encodedContent;
+        String c=context+"/activate/"+String.valueOf(userid)+"/"+String.valueOf(currentTime)+"/"+encodedContent;
         String b="<a href=http://"+c+">激活链接</a>";
         //String a="<a href=http://www.baidu.com>baidu</a>";
         System.out.print("MSG"+b);
