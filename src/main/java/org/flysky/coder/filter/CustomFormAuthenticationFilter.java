@@ -43,6 +43,7 @@ public class CustomFormAuthenticationFilter extends FormAuthenticationFilter {
             loginData.setCode(Code.SUCCEED);
             loginData.setUsername(user.getUsername());
             loginData.setType(user.getType());
+            loginData.setSessionId(session.getId());
             session.setAttribute("user", user);
         }
 

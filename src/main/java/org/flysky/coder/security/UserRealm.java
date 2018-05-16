@@ -1,15 +1,14 @@
 package org.flysky.coder.security;
 
-import org.apache.coyote.http2.ByteUtil;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
+import org.flysky.coder.config.SecurityUtil;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.UserMapper;
-import org.flysky.coder.vo.user.PMConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -70,7 +69,7 @@ public class UserRealm extends AuthorizingRealm {
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
                 user, //用户
                 user.getPassword(), //密码
-                ByteSource.Util.bytes(PMConfig.SALT),//salt
+                ByteSource.Util.bytes(SecurityUtil.SALT),//salt
                 getName()  //realm name
         );
         return authenticationInfo;

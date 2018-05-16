@@ -1,19 +1,25 @@
 package org.flysky.coder;
 
 import org.flysky.coder.filter.CustomSessionMangerFilter;
-import org.flysky.coder.listener.CustomSessionListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 @EnableCaching
 @SpringBootApplication
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1800)
 public class CoderApplication extends SpringBootServletInitializer {
+
+
+	@Autowired
+	private RedisOperationsSessionRepository sessionRepository;
 
 	// to run in outer tomcat
 	@Override
@@ -22,15 +28,11 @@ public class CoderApplication extends SpringBootServletInitializer {
 	}
 
 	@Bean
-	public ServletListenerRegistrationBean customSessionListenerRegistration() {
-		ServletListenerRegistrationBean servletListenerRegistrationBean = new ServletListenerRegistrationBean();
-		servletListenerRegistrationBean.setListener(new CustomSessionListener());
-		return servletListenerRegistrationBean;
-	}
-
-	@Bean
 	public FilterRegistrationBean indexFilterRegistration() {
-		FilterRegistrationBean registration = new FilterRegistrationBean(new CustomSessionMangerFilter());
+		CustomSessionMangerFilter filter = new CustomSessionMangerFilter();
+		FilterRegistrationBean registration = new FilterRegistrationBean();
+		filter.setSessionRepository(sessionRepository);
+		registration.setFilter(filter);
 		registration.addUrlPatterns("/*");
 		return registration;
 	}

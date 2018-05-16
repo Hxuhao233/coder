@@ -1,6 +1,8 @@
 package org.flysky.coder.vo.user;
 
 public class LoginData {
+	private String sessionId;
+
 	private int code;
 
 	private int type;
@@ -30,5 +32,12 @@ public class LoginData {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-    
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
 }

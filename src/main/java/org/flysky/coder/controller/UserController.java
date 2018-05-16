@@ -1,21 +1,17 @@
 package org.flysky.coder.controller;
 
-import org.flysky.coder.config.PMConfig;
+import org.flysky.coder.config.SecurityUtil;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.service.IUserService;
-import org.flysky.coder.service.impl.UserService;
 import org.flysky.coder.token.RedisTokenService;
 import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
-import org.flysky.coder.vo.SessionWrapper;
 import org.flysky.coder.vo.mail.Mail;
 import org.flysky.coder.vo.user.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @RestController
@@ -126,7 +122,7 @@ public class UserController {
             resultWrapper.setCode(Code.NOT_LOGGED);
             return resultWrapper;
         } else {
-            if (PMConfig.encrypt(pwdUtil.getOldPassword()).equals(u.getPassword())) {
+            if (SecurityUtil.encrypt(pwdUtil.getOldPassword()).equals(u.getPassword())) {
                 int status = userService.updatePassword(u, pwdUtil.getNewPassword());
                 resultWrapper.setCode(status);
                 return resultWrapper;
@@ -176,7 +172,7 @@ public class UserController {
             resultWrapper.setCode(Code.SYSTEM_ERROR);
             return resultWrapper;
         }
-        if (!EncodeUtil.string2MD5(uid + String.valueOf(timestamp) + PMConfig.SALT).equals(encodedContent)) {
+        if (!SecurityUtil.encrypt(uid + String.valueOf(timestamp)).equals(encodedContent)) {
             resultWrapper.setCode(Code.ILLEGAL_ACTIVATE_LINK);
             return resultWrapper;
         }

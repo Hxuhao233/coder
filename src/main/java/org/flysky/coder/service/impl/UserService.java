@@ -1,6 +1,6 @@
 package org.flysky.coder.service.impl;
 
-import org.flysky.coder.config.PMConfig;
+import org.flysky.coder.config.SecurityUtil;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.service.IUserService;
@@ -41,7 +41,7 @@ public class UserService implements IUserService{
         } else {
             user.setActivated(0);
             String pwd = user.getPassword();
-            user.setPassword(PMConfig.encrypt(pwd));
+            user.setPassword(SecurityUtil.encrypt(pwd));
             int status = userMapper.insertSelective(user);
             if (status != 1) {
                 return Code.SYSTEM_ERROR;
@@ -62,7 +62,7 @@ public class UserService implements IUserService{
     @Override
     public boolean login(User user) {
         String pwd = user.getPassword();
-        user.setPassword(EncodeUtil.string2MD5(pwd + PMConfig.SALT));
+        user.setPassword(EncodeUtil.string2MD5(pwd + SecurityUtil.SALT));
         User u = userMapper.selectByEmailAndPassword(user);
         // 如果返回的u不为null，u没有被封，u被激活
         if (u == null) {
@@ -76,7 +76,7 @@ public class UserService implements IUserService{
     public int updatePassword(User user, String newPassword) {
         User u = new User();
         u.setId(user.getId());
-        u.setPassword(EncodeUtil.string2MD5(newPassword + PMConfig.SALT));
+        u.setPassword(EncodeUtil.string2MD5(newPassword + SecurityUtil.SALT));
         // user.setPassword(EncodeUtil.string2MD5(newPassword+PMConfig.SALT));
         return userMapper.updateByPrimaryKeySelective(u) == 1 ? Code.SUCCEED : Code.SYSTEM_ERROR;
     }

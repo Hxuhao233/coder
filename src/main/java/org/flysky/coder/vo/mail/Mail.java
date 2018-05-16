@@ -1,7 +1,6 @@
 package org.flysky.coder.vo.mail;
 
-import org.flysky.coder.vo.user.EncodeUtil;
-import org.flysky.coder.vo.user.PMConfig;
+import org.flysky.coder.config.SecurityUtil;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -36,9 +35,9 @@ public class Mail {
         message.setFrom(new InternetAddress(sendMail, "XXX", "UTF-8"));
         message.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(receiveMail, "用户", "UTF-8"));
         message.setSubject("激活链接", "UTF-8");
-        long currentTime=System.currentTimeMillis();
-        String content=String.valueOf(userid)+String.valueOf(currentTime)+ PMConfig.SALT;
-        String encodedContent= EncodeUtil.string2MD5(content);
+        long currentTime = System.currentTimeMillis();
+        String content = String.valueOf(userid)+String.valueOf(currentTime);
+        String encodedContent = SecurityUtil.encrypt(content);
         String c=context+"/activate/"+String.valueOf(userid)+"/"+String.valueOf(currentTime)+"/"+encodedContent;
         String b="<a href=http://"+c+">激活链接</a>";
         //String a="<a href=http://www.baidu.com>baidu</a>";
