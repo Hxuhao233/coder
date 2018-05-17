@@ -14,4 +14,6 @@ public interface IUserService {
     User getUserById(Integer id);
     User getUserByEmailAndPassword(User user);
     List<User> searchUserByUsername(String username);
+
+    int updateUser(User u, boolean needCheckName);
 }

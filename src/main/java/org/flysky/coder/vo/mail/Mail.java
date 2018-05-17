@@ -1,6 +1,6 @@
 package org.flysky.coder.vo.mail;
 
-import org.flysky.coder.config.SecurityUtil;
+import org.flysky.coder.security.SecurityUtil;
 
 import javax.mail.Session;
 import javax.mail.Transport;

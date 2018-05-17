@@ -1,7 +1,9 @@
 package org.flysky.coder.controller;
 
-import org.flysky.coder.config.SecurityUtil;
+import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.entity.User;
+import org.flysky.coder.security.SecurityUtil;
 import org.flysky.coder.service.IUserService;
 import org.flysky.coder.token.RedisTokenService;
 import org.flysky.coder.vo.Result;
@@ -35,17 +37,17 @@ public class UserController {
      * @param session
      * @return
      */
-
     @RequestMapping(value="/user/checkIfLogged",method= RequestMethod.GET)
-    public LoginData checkIfLogger(HttpSession session){
+    public UserData checkIfLogger(HttpSession session){
 
         User u = (User) session.getAttribute("user");
-        LoginData loginData = new LoginData();
+        UserData loginData = new UserData();
 
         if(u!=null){
             loginData.setCode(Code.SUCCEED);
             loginData.setUsername(u.getUsername());
             loginData.setType(u.getType());
+            loginData.setIcon(u.getIcon());
         }else{
             loginData.setCode(Code.NOT_LOGGED);
         }
@@ -53,9 +55,33 @@ public class UserController {
 
     }
 
+    /**
+     * 查看用户
+     * @param userId
+     * @return
+     */
+    @RequestMapping(value="/user/{userId}", method = RequestMethod.GET)
+    public ResultWrapper getUserById(@PathVariable(value="userId")int userId) {
+        User u = userService.getUserById(userId);
+        ResultWrapper result = new ResultWrapper();
+        UserData userData = new UserData();
+        if(u != null){
+            userData.setUsername(u.getUsername());
+            userData.setType(u.getType());
+            userData.setIcon(u.getIcon());
+            userData.setInfo(u.getInfo());
+
+            result.setCode(ResponseCode.SUCCEED);
+            result.setPayload(userData);
+        } else {
+            result.setCode(ResponseCode.NOT_FOUND);
+        }
+        return result;
+    }
 
 
-    @RequestMapping(value = "/user/login")
+
+    //@RequestMapping(value = "/user/login")
     public LoginDataWithSessionID login(HttpSession session,@RequestBody User user) {
         boolean isLogin = userService.login(user);
         LoginDataWithSessionID loginData = new LoginDataWithSessionID();
@@ -105,7 +131,7 @@ public class UserController {
          return result;
     }
 
-    @RequestMapping("/user/register")
+    @RequestMapping(value = "/user/register", method = RequestMethod.POST)
     public ResultWrapper register(@RequestBody User user, HttpSession session,HttpServletRequest request) {
         ResultWrapper resultWrapper=new ResultWrapper();
         int status = userService.register(user,request.getServerName()+":"+request.getServerPort()+request.getContextPath());
@@ -149,6 +175,29 @@ public class UserController {
         }
     }
 
+    /**
+     * 修改用户信息 username inco info
+     * @param user
+     * @param session
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @RequestMapping(value = "/user", method = RequestMethod.PUT)
+    public ResultWrapper changeUserInfo(@RequestBody User user, HttpSession session) {
+        User u = (User) session.getAttribute("user");
+        ResultWrapper resultWrapper = new ResultWrapper();
+
+        boolean needCheckName = user.getUsername().equals(u.getUsername())? false :true;
+        u.setUsername(user.getUsername());
+        u.setInfo(user.getInfo());
+        u.setIcon(user.getIcon());
+        int code = userService.updateUser(u, needCheckName);
+
+        session.setAttribute("user", u);
+        resultWrapper.setCode(code);
+        return resultWrapper;
+    }
+
 
     @RequestMapping("/user/logoff")
     public void logoff(HttpSession session) {
@@ -183,7 +232,7 @@ public class UserController {
 
         if (currentTime - tstmp > 60 * 60 * 1000 * 24) {
             try {
-                Mail.sendMail("reao123@163.com", "1a2s3d4f", "smtp.163.com", u.getEmail(), u.getId(),request.getServerName()+":"+request.getServerPort()+request.getContextPath());
+                Mail.sendMail("13710685836@163.com", "hxh211517", "smtp.163.com", u.getEmail(), u.getId(),request.getServerName()+":"+request.getServerPort()+request.getContextPath());
             } catch (Exception e) {
                 resultWrapper.setCode(Code.SYSTEM_ERROR);
                 return resultWrapper;

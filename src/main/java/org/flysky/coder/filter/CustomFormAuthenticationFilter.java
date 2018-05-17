@@ -7,9 +7,10 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
 import org.apache.shiro.web.util.WebUtils;
+import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.vo.user.Code;
-import org.flysky.coder.vo.user.LoginData;
+import org.flysky.coder.vo.user.UserData;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
@@ -35,12 +36,12 @@ public class CustomFormAuthenticationFilter extends FormAuthenticationFilter {
         //获取session
         HttpServletRequest httpServletRequest = WebUtils.toHttp(request);
         HttpSession session = httpServletRequest.getSession();
-        LoginData loginData = new LoginData();
+        UserData loginData = new UserData();
 
         if (user.getActivated()==0) {
-            loginData.setCode(Code.NOT_ACTIVATED);
+            loginData.setCode(ResponseCode.NOT_ACTIVATED);
         } else {
-            loginData.setCode(Code.SUCCEED);
+            loginData.setCode(ResponseCode.SUCCEED);
             loginData.setUsername(user.getUsername());
             loginData.setType(user.getType());
             loginData.setSessionId(session.getId());
@@ -68,8 +69,8 @@ public class CustomFormAuthenticationFilter extends FormAuthenticationFilter {
             e1.printStackTrace();
         }
 
-        LoginData loginData = new LoginData();
-        loginData.setCode(Code.WRONG_EMAIL_OR_PASSWORD);
+        UserData loginData = new UserData();
+        loginData.setCode(ResponseCode.WRONG_EMAIL_OR_PASSWORD);
 
         try {
             out.println(objectMapper.writeValueAsString(loginData));

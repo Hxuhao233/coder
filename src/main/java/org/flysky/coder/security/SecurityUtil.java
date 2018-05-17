@@ -1,4 +1,4 @@
-package org.flysky.coder.config;
+package org.flysky.coder.security;
 
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.util.ByteSource;
