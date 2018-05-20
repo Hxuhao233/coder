@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface IUserService {
     String getUserNameById(Integer uid);
-    int register(User user,String context);
+    int register(User user,String context) throws Exception;
     boolean login(User user);
     int updatePassword(User user,String newPassword);
     int updateNickName(User user,String newNickname);

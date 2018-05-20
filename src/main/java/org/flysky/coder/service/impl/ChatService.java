@@ -239,6 +239,7 @@ public class ChatService implements IChatService{
 
         chatMessage.setCreatedAt(time);
         chatMessage.setUsername(user.getUsername());
+        chatMessage.setUserId(user.getId());
         chatMessage.setType(ChatMessage.TYPE_CHAT);
         return chatMessage;
     }

@@ -132,7 +132,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/user/register", method = RequestMethod.POST)
-    public ResultWrapper register(@RequestBody User user, HttpSession session,HttpServletRequest request) {
+    public ResultWrapper register(@RequestBody User user, HttpSession session,HttpServletRequest request) throws Exception{
         ResultWrapper resultWrapper=new ResultWrapper();
         int status = userService.register(user,request.getServerName()+":"+request.getServerPort()+request.getContextPath());
         resultWrapper.setCode(status);

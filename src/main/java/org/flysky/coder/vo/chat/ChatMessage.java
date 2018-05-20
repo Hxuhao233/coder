@@ -16,6 +16,8 @@ public class ChatMessage {
 
     private LocalDateTime createdAt;
 
+    private int userId;
+
     private String username;
 
     private int type = TYPE_CHAT;
@@ -32,6 +34,14 @@ public class ChatMessage {
 
     public ChatMessage(String message) {
         content = message;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public String getContent() {

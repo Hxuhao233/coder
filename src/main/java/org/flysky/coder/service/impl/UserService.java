@@ -33,7 +33,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public int register(User user, String context) {
+    public int register(User user, String context) throws Exception{
         Integer isExistEmail=userMapper.isExistEmail(user.getEmail());
         Integer isExistNickname=userMapper.isExistNickname(user.getUsername());
         if(isExistEmail!=null){
@@ -49,12 +49,9 @@ public class UserService implements IUserService{
             if (status != 1) {
                 return ResponseCode.UNKNOWN_ERROR;
             } else {
-                try {
-                    Mail.sendMail("13710685836@163.com", "hxh211517", "smtp.163.com", user.getEmail(), user.getId(),
+                Mail.sendMail("13710685836@163.com", "hxh211517", "smtp.163.com", user.getEmail(), user.getId(),
                             context);
-                } catch (Exception e) {
-                    return ResponseCode.UNKNOWN_ERROR;
-                }
+
                 return ResponseCode.SUCCEED;
             }
         }
