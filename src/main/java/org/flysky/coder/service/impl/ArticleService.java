@@ -9,9 +9,14 @@ import org.flysky.coder.entity.wrapper.CommentWrapper;
 import org.flysky.coder.mapper.*;
 import org.flysky.coder.service.IArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.cache.RedisCache;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -43,6 +48,9 @@ public class ArticleService implements IArticleService {
 
     @Autowired
     private UserCollectArticleMapper userCollectArticleMapper;
+
+    @Autowired
+    private RedisCacheManager cacheManager;
 
     @Override
     public boolean hasColumnName(String name) {
@@ -158,7 +166,7 @@ public class ArticleService implements IArticleService {
             articleTagMapper.insertSelective(articleTag);
         }
 
-        return ArticleWrapper.build(article, tags, user.getUsername(), column.getName());
+        return ArticleWrapper.build(article, tags, user, null);
     }
 
     @Override
@@ -171,7 +179,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    @Cacheable(value = "article", key = "#article.id")
+    //@Cacheable(value = "article", key = "#article.id")
     public PageInfo<ArticleWrapper> getArticleWrapperByInfo(String info, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
@@ -189,7 +197,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    @Cacheable("article")
+    //@Cacheable("article")
     public PageInfo<ArticleWrapper> getArticleByColumnId(int columnId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
@@ -241,36 +249,6 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public PageInfo<ArticleWrapper> getCollectedArticles(int userId, int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        return new PageInfo<>(articleMapper.getCollectedArticleWrapperByUserId(userId));
-    }
-
-    @Override
-    public int voteArticle(Article article, UserVoteArticle userVoteArticle) {
-
-        // 删除以前的
-        UserVoteArticle prevVoteArticle = userVoteArticleMapper.getUserVoteArticleByUserIdAndArticleId(userVoteArticle.getUserId(), article.getId());
-        if (prevVoteArticle != null) {
-            if (prevVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
-                article.setUpvoteCount(article.getUpvoteCount() - 1);
-            } else if (prevVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_DOWN_VOTE)) {
-                article.setDownvoteCount(article.getDownvoteCount() - 1);
-            }
-            userVoteArticleMapper.deleteByPrimaryKey(prevVoteArticle.getId());
-        }
-
-        if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
-            article.setUpvoteCount(article.getUpvoteCount() + 1);
-        } else if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_DOWN_VOTE)){
-            article.setDownvoteCount(article.getDownvoteCount() + 1);
-        }
-        articleMapper.updateByPrimaryKeySelective(article);
-
-        return userVoteArticleMapper.insertSelective(userVoteArticle);
-    }
-
-    @Override
     public PageInfo<ArticleWrapper> getArticleWrappersByUserId(int userId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
@@ -281,10 +259,34 @@ public class ArticleService implements IArticleService {
             for (ArticleTag articleTag : articleTags) {
                 tagNames.add(tagMapper.selectByPrimaryKey(articleTag.getTagid()).getName());
             }
+
             articleWrapper.setTags(tagNames);
         }
 
         return new PageInfo<>(articleWrappers);
+    }
+
+    @Override
+    public PageInfo<ArticleWrapper> getCollectedArticles(int userId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        return new PageInfo<>(articleMapper.getCollectedArticleWrapperByUserId(userId));
+    }
+
+    @Override
+    public int voteArticle(Article article, UserVoteArticle userVoteArticle) {
+
+        if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
+            article.setVoteCount(article.getVoteCount() + 1);
+        }
+        articleMapper.updateByPrimaryKeySelective(article);
+
+        // 更新缓存
+        ArticleWrapper articleWrapper = cacheManager.getCache("article").get(article.getId(), ArticleWrapper.class);
+        if (articleWrapper != null) {
+            articleWrapper.setVoteCount(article.getVoteCount());
+            cacheManager.getCache("article").put(articleWrapper.getId(), articleWrapper);
+        }
+        return userVoteArticleMapper.insertSelective(userVoteArticle);
     }
 
     @Override
@@ -295,11 +297,15 @@ public class ArticleService implements IArticleService {
         }
 
         if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
-            article.setUpvoteCount(article.getUpvoteCount() - 1);
-        } else if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_DOWN_VOTE)) {
-            article.setDownvoteCount(article.getDownvoteCount() - 1);
+            article.setVoteCount(article.getVoteCount() - 1);
         }
         articleMapper.updateByPrimaryKeySelective(article);
+
+        ArticleWrapper articleWrapper = cacheManager.getCache("article").get(article.getId(), ArticleWrapper.class);
+        if (articleWrapper != null) {
+            articleWrapper.setVoteCount(article.getVoteCount());
+            cacheManager.getCache("article").put(articleWrapper.getId(), articleWrapper);
+        }
 
         return userVoteArticleMapper.deleteByPrimaryKey(article.getId());
     }
@@ -314,6 +320,12 @@ public class ArticleService implements IArticleService {
         article.setCollectCount(article.getCollectCount() + 1);
         articleMapper.updateByPrimaryKeySelective(article);
 
+        ArticleWrapper articleWrapper = cacheManager.getCache("article").get(article.getId(), ArticleWrapper.class);
+        if (articleWrapper != null) {
+            articleWrapper.setCollectCount(article.getCollectCount());
+            cacheManager.getCache("article").put(articleWrapper.getId(), articleWrapper);
+        }
+
         return userCollectArticleMapper.insertSelective(userCollectArticle);
     }
 
@@ -325,6 +337,12 @@ public class ArticleService implements IArticleService {
         }
         article.setCollectCount(article.getCollectCount() - 1);
         articleMapper.updateByPrimaryKeySelective(article);
+
+        ArticleWrapper articleWrapper = cacheManager.getCache("article").get(article.getId(), ArticleWrapper.class);
+        if (articleWrapper != null) {
+            articleWrapper.setCollectCount(article.getCollectCount());
+            cacheManager.getCache("article").put(articleWrapper.getId(), articleWrapper);
+        }
 
         return userCollectArticleMapper.deleteByPrimaryKey(userCollectArticle.getId());
     }

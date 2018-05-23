@@ -9,6 +9,8 @@ import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
 import org.apache.shiro.web.util.WebUtils;
 import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.entity.User;
+import org.flysky.coder.vo.Result;
+import org.flysky.coder.vo.ResultWrapper;
 import org.flysky.coder.vo.user.Code;
 import org.flysky.coder.vo.user.UserData;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -36,21 +38,24 @@ public class CustomFormAuthenticationFilter extends FormAuthenticationFilter {
         //获取session
         HttpServletRequest httpServletRequest = WebUtils.toHttp(request);
         HttpSession session = httpServletRequest.getSession();
+
+        ResultWrapper resultWrapper = new ResultWrapper();
         UserData loginData = new UserData();
 
         if (user.getActivated()==0) {
-            loginData.setCode(ResponseCode.NOT_ACTIVATED);
+            resultWrapper.setCode(ResponseCode.NOT_ACTIVATED);
         } else {
-            loginData.setCode(ResponseCode.SUCCEED);
+            resultWrapper.setCode(ResponseCode.SUCCEED);
             loginData.setUsername(user.getUsername());
             loginData.setType(user.getType());
             loginData.setSessionId(session.getId());
+            resultWrapper.setPayload(loginData);
             session.setAttribute("user", user);
         }
 
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
-        out.println(objectMapper.writeValueAsString(loginData));
+        out.println(objectMapper.writeValueAsString(resultWrapper));
         out.flush();
         out.close();
 
@@ -69,11 +74,11 @@ public class CustomFormAuthenticationFilter extends FormAuthenticationFilter {
             e1.printStackTrace();
         }
 
-        UserData loginData = new UserData();
-        loginData.setCode(ResponseCode.WRONG_EMAIL_OR_PASSWORD);
+        ResultWrapper resultWrapper = new ResultWrapper();
+        resultWrapper.setCode(ResponseCode.WRONG_EMAIL_OR_PASSWORD);
 
         try {
-            out.println(objectMapper.writeValueAsString(loginData));
+            out.println(objectMapper.writeValueAsString(resultWrapper));
         } catch (JsonProcessingException e1) {
             e1.printStackTrace();
         }

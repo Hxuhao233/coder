@@ -472,7 +472,7 @@ public class ArticleController {
             return result;
         }
 
-        if (articleService.getCollectArticle(user.getId(), articleId) != null) {
+        if (articleService.getVoteArticle(user.getId(), articleId) != null) {
             result.setCode(ResponseCode.DUPLICATE_ACTION);
             result.setInfo("已经vote");
             return result;
@@ -571,7 +571,7 @@ public class ArticleController {
      * @return
      */
     @RequiresRoles(value = "user")
-    @RequestMapping(value = "/collectArticle/{articleId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/collectedArticle/{articleId}", method = RequestMethod.POST)
     public Result collectArticle(HttpSession session, @PathVariable(value = "articleId") int articleId) {
         User user = (User) session.getAttribute("user");
         LocalDateTime time = LocalDateTime.now();
@@ -583,7 +583,7 @@ public class ArticleController {
             return result;
         }
 
-        if (articleService.getCollectArticle(user.getId(), articleId) == null) {
+        if (articleService.getCollectArticle(user.getId(), articleId) != null) {
             result.setCode(ResponseCode.DUPLICATE_ACTION);
             result.setInfo("已经收藏");
             return result;

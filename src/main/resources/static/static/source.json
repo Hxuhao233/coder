@@ -1,0 +1,52 @@
+{
+	"code": 1,
+	"info": null,
+	"payload": {
+		"pageNum": 1,
+		"pageSize": 10,
+		"size": 2,
+		"startRow": 1,
+		"endRow": 2,
+		"total": 2,
+		"pages": 1,
+		"list": [{
+				"id": 2,
+				"userId": 1,
+				"name": "asdasdas",
+				"addr": "3bd576d6-69b5-43fb-af6d-dde829501f70.png",
+				"createdAt": "2018-04-21 12:17:33",
+				"updatedAt": "2018-04-21 12:17:33",
+				"description": "啊啊啊啊啊啊哈哈哈哈",
+				"type": 1,
+				"isDeleted": false,
+				"username": "hxh"
+			},
+			{
+				"id": 3,
+				"userId": 1,
+				"name": "我的图片",
+				"addr": "3f5a1569-43fc-4b1c-b155-c23ba4e94e73.png",
+				"createdAt": "2018-04-22 17:33:07",
+				"updatedAt": "2018-04-22 17:33:07",
+				"description": "啊啊啊啊啊啊哈哈哈哈",
+				"type": 1,
+				"isDeleted": false,
+				"username": "hxh"
+			}
+		],
+		"prePage": 0,
+		"nextPage": 0,
+		"isFirstPage": true,
+		"isLastPage": true,
+		"hasPreviousPage": false,
+		"hasNextPage": false,
+		"navigatePages": 8,
+		"navigatepageNums": [
+			1
+		],
+		"navigateFirstPage": 1,
+		"navigateLastPage": 1,
+		"lastPage": 1,
+		"firstPage": 1
+	}
+}

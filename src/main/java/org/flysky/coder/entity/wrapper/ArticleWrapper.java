@@ -1,6 +1,7 @@
 package org.flysky.coder.entity.wrapper;
 
 import org.flysky.coder.entity.Article;
+import org.flysky.coder.entity.User;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,18 +16,19 @@ public class ArticleWrapper extends Article implements Serializable {
 
     private String username;
 
+    private String icon;
+
     public ArticleWrapper() {
 
     }
 
-    public static ArticleWrapper build(Article article, List<String> tags, String username, String column) {
+    public static ArticleWrapper build(Article article, List<String> tags, User user, String column) {
         ArticleWrapper articleWrapper = new ArticleWrapper();
         articleWrapper.setTags(tags);
-        articleWrapper.setcolumn(column);
-        articleWrapper.setUsername(username);
-        articleWrapper.setDownvoteCount(article.getDownvoteCount());
+        articleWrapper.setColumn(column);
+        articleWrapper.setUsername(user.getUsername());
         articleWrapper.setCollectCount(article.getCollectCount());
-        articleWrapper.setUpvoteCount(article.getUpvoteCount());
+        articleWrapper.setVoteCount(article.getVoteCount());
         articleWrapper.setContent(article.getContent());
         articleWrapper.setDescription(article.getDescription());
         articleWrapper.setIsDeleted(article.getIsDeleted());
@@ -37,6 +39,7 @@ public class ArticleWrapper extends Article implements Serializable {
         articleWrapper.setCreatedAt(article.getCreatedAt());
         articleWrapper.setId(article.getId());
         articleWrapper.setUserId(article.getUserId());
+        articleWrapper.setIcon(user.getIcon());
 
         return articleWrapper;
     }
@@ -57,11 +60,19 @@ public class ArticleWrapper extends Article implements Serializable {
         this.username = username;
     }
 
-    public String getcolumn() {
+    public String getColumn() {
         return column;
     }
 
-    public void setcolumn(String column) {
+    public void setColumn(String column) {
         this.column = column;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

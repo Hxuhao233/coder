@@ -19,7 +19,7 @@
     id, name, description, home_id, created_at, updated_at, user_id, is_deleted
   </sql>
   <sql id="RoomWrapper_Column_List">
-    r.id, r.name, r.description, r.home_id, r.created_at, r.updated_at, r.user_id, r.is_deleted , u.username, h.name 'homename'
+    r.id, r.name, r.description, r.home_id, r.created_at, r.updated_at, r.user_id, r.is_deleted , u.username
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -30,19 +30,19 @@
   <select id="getRoomWrapperById" parameterType="java.lang.Integer" resultMap="RoomWrapperResultMap">
     select
     <include refid="RoomWrapper_Column_List" />
-    from (room r JOIN user u on r.user_id = u.id) JOIN home h on r.home_id = h.id
+    from room r JOIN user u on r.user_id = u.id
     where r.id = #{id,jdbcType=INTEGER} and r.is_deleted = 0
   </select>
   <select id="getRoomWrappersByHomeId" parameterType="java.lang.Integer" resultMap="RoomWrapperResultMap">
     select
     <include refid="RoomWrapper_Column_List" />
-    from (room r JOIN user u on r.user_id = u.id) JOIN home h on r.home_id = h.id
+    from room r JOIN user u on r.user_id = u.id
     where r.home_id = #{homeId,jdbcType=INTEGER} and r.is_deleted = 0
   </select>
   <select id="getRoomWrappersByInfo" parameterType="java.lang.String" resultMap="RoomWrapperResultMap">
     select
     <include refid="RoomWrapper_Column_List" />
-    from (room r JOIN user u on r.user_id = u.id) JOIN home h on r.home_id = h.id
+    from room r JOIN user u on r.user_id = u.id
     where r.name LIKE "%"#{info}"%" and r.is_deleted = 0
   </select>
   <select id="getRoomWrappersByUserId" parameterType="java.lang.Integer" resultMap="RoomWrapperResultMap">
