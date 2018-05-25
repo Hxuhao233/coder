@@ -1,17 +1,19 @@
 package org.flysky.coder.service.impl;
 
+import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.UserMapper;
+import org.flysky.coder.security.SecurityUtil;
 import org.flysky.coder.service.IUserService;
 import org.flysky.coder.vo.mail.Mail;
 import org.flysky.coder.vo.user.Code;
 import org.flysky.coder.vo.user.EncodeUtil;
-import org.flysky.coder.vo.user.PMConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class UserService implements IUserService{
@@ -31,30 +33,26 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public int register(User user, String context) {
+    public int register(User user, String context) throws Exception{
         Integer isExistEmail=userMapper.isExistEmail(user.getEmail());
         Integer isExistNickname=userMapper.isExistNickname(user.getUsername());
         if(isExistEmail!=null){
-            return Code.OCCUPIED_EMAIL;
+            return ResponseCode.DUPLICATE_EMAIL;
         }else if(isExistNickname!=null){
-            return Code.OCCUPIED_NICKNAME;
+            return ResponseCode.DUPLICATE_NAME;
         } else {
-            // user.setActivated(false);
+            user.setActivated(0);
             String pwd = user.getPassword();
-            user.setPassword(EncodeUtil.string2MD5(pwd + PMConfig.SALT));
+            user.setPassword(SecurityUtil.encrypt(pwd));
+            user.setIcon(String.valueOf(new Random().nextInt(4)+1));     // 随机默认头像
             int status = userMapper.insertSelective(user);
             if (status != 1) {
-                return Code.SYSTEM_ERROR;
+                return ResponseCode.UNKNOWN_ERROR;
             } else {
-                try {
-                    System.out.println("nmb");
-                    Mail.sendMail("18813299326@163.com", "ll86417738", "smtp.163.com", user.getEmail(), user.getId(),
+                Mail.sendMail("13710685836@163.com", "hxh211517", "smtp.163.com", user.getEmail(), user.getId(),
                             context);
-                    System.out.println("nmb");
-                } catch (Exception e) {
-                    return Code.SYSTEM_ERROR;
-                }
-                return Code.SUCCEED;
+
+                return ResponseCode.SUCCEED;
             }
         }
     }
@@ -62,7 +60,7 @@ public class UserService implements IUserService{
     @Override
     public boolean login(User user) {
         String pwd = user.getPassword();
-        user.setPassword(EncodeUtil.string2MD5(pwd + PMConfig.SALT));
+        user.setPassword(EncodeUtil.string2MD5(pwd + SecurityUtil.SALT));
         User u = userMapper.selectByEmailAndPassword(user);
         // 如果返回的u不为null，u没有被封，u被激活
         if (u == null) {
@@ -76,7 +74,7 @@ public class UserService implements IUserService{
     public int updatePassword(User user, String newPassword) {
         User u = new User();
         u.setId(user.getId());
-        u.setPassword(EncodeUtil.string2MD5(newPassword + PMConfig.SALT));
+        u.setPassword(EncodeUtil.string2MD5(newPassword + SecurityUtil.SALT));
         // user.setPassword(EncodeUtil.string2MD5(newPassword+PMConfig.SALT));
         return userMapper.updateByPrimaryKeySelective(u) == 1 ? Code.SUCCEED : Code.SYSTEM_ERROR;
     }
@@ -110,6 +108,14 @@ public class UserService implements IUserService{
     @Override
     public List<User> searchUserByUsername(String username) {
         return userMapper.searchUserByUsername(username);
+    }
+
+    @Override
+    public int updateUser(User u, boolean needCheckName) {
+        if (needCheckName && userMapper.isExistNickname(u.getUsername()) != null){
+            return ResponseCode.DUPLICATE_NAME;
+        }
+        return userMapper.updateByPrimaryKeySelective(u);
     }
 
     public void subscribeUser(int uid,int subscribedUid){

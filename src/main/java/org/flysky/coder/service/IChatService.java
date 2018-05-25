@@ -60,4 +60,6 @@ public interface IChatService {
     PageInfo<RecordWrapper> getRecord(int roomId, int pageNum, int pageSize);
 
     List<RecordWrapper> getRecord(int roomId, LocalDateTime time);
+
+    PageInfo<RoomWrapper> getRoomWrappersByUserId(Integer id, int pageNum, int pageSize);
 }

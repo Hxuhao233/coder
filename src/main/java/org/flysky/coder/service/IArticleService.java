@@ -59,4 +59,6 @@ public interface IArticleService {
     UserVoteArticle getVoteArticle(int userId, int articleId);
 
     int voteArticle(Article article, UserVoteArticle userVoteArticle);
+
+    PageInfo<ArticleWrapper> getArticleWrappersByUserId(int userid, int pageNum, int pageSize);
 }

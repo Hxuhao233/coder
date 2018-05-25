@@ -29,4 +29,6 @@ public interface RoomMapper {
     List<RoomWrapper> getRoomWrappersByInfo(String info);
 
     List<Room> getAllRoomsByHomeId(int homeId);
+
+    List<RoomWrapper> getRoomWrappersByUserId(Integer userId);
 }

@@ -26,9 +26,7 @@ public class Article implements Serializable {
 
     private Integer parseType;
 
-    private Integer upvoteCount;
-
-    private Integer downvoteCount;
+    private Integer voteCount;
 
     private Integer collectCount;
 
@@ -114,20 +112,12 @@ public class Article implements Serializable {
         this.parseType = parseType;
     }
 
-    public Integer getUpvoteCount() {
-        return upvoteCount;
+    public Integer getVoteCount() {
+        return voteCount;
     }
 
-    public void setUpvoteCount(Integer upvoteCount) {
-        this.upvoteCount = upvoteCount;
-    }
-
-    public Integer getDownvoteCount() {
-        return downvoteCount;
-    }
-
-    public void setDownvoteCount(Integer downvoteCount) {
-        this.downvoteCount = downvoteCount;
+    public void setVoteCount(Integer voteCount) {
+        this.voteCount = voteCount;
     }
 
     public Integer getCollectCount() {

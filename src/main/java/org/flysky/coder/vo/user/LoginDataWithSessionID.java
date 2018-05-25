@@ -1,6 +1,6 @@
 package org.flysky.coder.vo.user;
 
-public class LoginDataWithSessionID extends LoginData{
+public class LoginDataWithSessionID extends UserData {
     private String sessionId;
 
     public LoginDataWithSessionID(){

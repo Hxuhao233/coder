@@ -239,6 +239,7 @@ public class ChatService implements IChatService{
 
         chatMessage.setCreatedAt(time);
         chatMessage.setUsername(user.getUsername());
+        chatMessage.setUserId(user.getId());
         chatMessage.setType(ChatMessage.TYPE_CHAT);
         return chatMessage;
     }
@@ -319,5 +320,21 @@ public class ChatService implements IChatService{
     public List<RecordWrapper> getRecord(int roomId, LocalDateTime time) {
         List<RecordWrapper> recordList = recordMapper.getRecordWrapperByRoomIdAndLastTime(roomId,time);
         return recordList;
+    }
+
+    @Override
+    public PageInfo<RoomWrapper> getRoomWrappersByUserId(Integer userId, int pageNum, int pageSize) {
+        PageInfo<RoomWrapper> roomWrappers = new PageInfo<>(roomMapper.getRoomWrappersByUserId(userId));
+        List<RoomWrapper> roomWrapperList = roomWrappers.getList();
+        for (RoomWrapper roomWrapper : roomWrapperList) {
+            List<Integer> tagIds = roomTagMapper.getTagIdsByRoomId(roomWrapper.getId());
+            List<String> tagNames = new ArrayList<>();
+            for (Integer tagId : tagIds) {
+                tagNames.add(tagMapper.selectByPrimaryKey(tagId).getName());
+            }
+            roomWrapper.setTags(tagNames);
+        }
+
+        return roomWrappers;
     }
 }

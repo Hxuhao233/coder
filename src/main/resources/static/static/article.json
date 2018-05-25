@@ -1,0 +1,22 @@
+{
+	"code": 1,
+	"info": null,
+	"payload": {
+		"id": 1,
+		"name": "22谷歌gg",
+		"description": "s水水水水sssss水",
+		"content": "### 开发机器学习应用的步骤\n#### 1. 收集数据（Collect data）\n网络、API、各种方法收集数据\n\n#### 2. 准备输入数据（Prepare the input data）\n基于算法，语言对数据进行格式化\n\n#### 3. 分析输入数据（Analyze the input data）\n数据预处理，确保前两部的数据有效\n非空判断\n一些明显异常的数据处理\n\n#### 4. 人为的介入(可无)（human involvement）\n人工的调整\n确保没有垃圾数据(don’t have garbage coming in)\n\n#### 5. 训练算法（Train the algorithm）\n机器学习开始\n给算法提供干净良好的数据，来提取信息\n\n#### 6. 测试算法（Test the algorithm）\n对算法进行评估\n对监督学习：可以跟一些公认、已知的值进行比较\n对非监督学习：其他指标\n如果不满意可以回到步骤4对算法进行调整\n\n#### 7. 使用(Use it)\n投入使用\n可能会遇到新数据，需要重新调整算法\n",
+		"userId": 1,
+		"createdAt": "2018-04-19 13:29:41",
+		"updatedAt": "2018-04-19 13:38:19",
+		"columnId": 1,
+		"isDeleted": false,
+		"parseType": 1,
+		"column": "22谷歌2gg专栏",
+		"tags": [
+			"aaa",
+			"gga"
+		],
+		"username": "hxh"
+	}
+}

@@ -47,6 +47,12 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 
+		<!-- redis session -->
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-data-redis</artifactId>
+		</dependency>
+
 		<!-- spring cache -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -107,13 +113,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- session -->
-		<!--<dependency>-->
-			<!--<groupId>org.springframework.session</groupId>-->
-			<!--<artifactId>spring-session-core</artifactId>-->
-			<!--<version>2.0.2.RELEASE</version>-->
-		<!--</dependency>-->
-
 		<!-- websocket -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -138,7 +137,6 @@
 			<artifactId>shiro-ehcache</artifactId>
 			<version>1.2.2</version>
 		</dependency>
-
 
 		<!-- webjar -->
 		<dependency>
@@ -178,9 +176,14 @@
 			<artifactId>javax.mail </artifactId>
 			<version>1.5.4 </version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>8.5.27</version>
+        </dependency>
 
 
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>

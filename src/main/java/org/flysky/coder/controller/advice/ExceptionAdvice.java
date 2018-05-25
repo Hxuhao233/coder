@@ -4,6 +4,7 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.vo.Result;
+import org.flysky.coder.vo.ResultWrapper;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,16 +17,17 @@ public class ExceptionAdvice {
 
     /**
      * 运行时异常
-     * @param runtimeException
+     * @param exception
      * @return
      */
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler(Exception.class)
     @ResponseBody
-    public Result runtimeExceptionHandler(RuntimeException runtimeException) {
-        System.out.println(runtimeException);
-        Result result = new Result();
+    public ResultWrapper runtimeExceptionHandler(Exception exception) {
+        System.out.println(exception);
+        ResultWrapper result = new ResultWrapper();
         result.setCode(ResponseCode.UNKNOWN_ERROR);
         result.setInfo("boom");
+        result.setPayload(exception.getStackTrace());
         return result;
     }
 

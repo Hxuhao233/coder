@@ -194,7 +194,7 @@ public class ChatController {
     }
 
     /**
-     * 查看房间列表
+     * 查看房间列表（某社区下）
      * @param homeId
      * @param pageNum
      * @param pageSize
@@ -224,6 +224,32 @@ public class ChatController {
     }
 
 
+    /**
+     * 查看个人房间列表
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @ResponseBody
+    @RequestMapping(value = "/myRooms", method = RequestMethod.GET)
+    public Result getRoomsWrapperByUserId(HttpSession session, @RequestParam(value = "pageNum", defaultValue = "1")int pageNum, @RequestParam(value = "pageSize", defaultValue = "10")int pageSize) {
+        ResultWrapper result = new ResultWrapper();
+        User user = (User) session.getAttribute("user");
+
+
+        PageInfo<RoomWrapper> rooms = chatService.getRoomWrappersByUserId(user.getId(), pageNum, pageSize);
+        if (rooms.getSize() > 0) {
+            result.setCode(ResponseCode.SUCCEED);
+            result.setPayload(rooms);
+        } else {
+            result.setCode(ResponseCode.NOT_FOUND);
+            result.setInfo("你还没有创建房间");
+        }
+
+        return result;
+    }
+
 
     /**
      * 创建房间
@@ -238,20 +264,20 @@ public class ChatController {
         LocalDateTime time = LocalDateTime.now();
         User user = (User) session.getAttribute("user");
         ResultWrapper result = new ResultWrapper();
-
+        /*
         if (chatService.getHomeById(roomInfo.getHomeId()) == null){
             result.setCode(4);
             result.setInfo("创建房间失败，该交流室不存在");
             return result;
         }
-
+        */
         Room room = new Room();
         room.setName(roomInfo.getName());
         room.setDescription(roomInfo.getDescription());
         room.setCreatedAt(time);
         room.setUpdatedAt(time);
         room.setIsDeleted(false);
-        room.setHomeId(roomInfo.getHomeId());
+        //room.setHomeId(roomInfo.getHomeId());
         room.setUserId(user.getId());
         int code = chatService.createRoom(room, roomInfo.getTags());
 

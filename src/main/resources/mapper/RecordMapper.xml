@@ -11,6 +11,7 @@
 
   <resultMap id="RecordWrapperMap" type="org.flysky.coder.entity.wrapper.RecordWrapper" extends="BaseResultMap">
     <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
   </resultMap>
 
   <sql id="Base_Column_List">
@@ -18,7 +19,7 @@
   </sql>
 
   <sql id="Record_Wrapper_Column_List">
-    r.id, r.user_id, r.room_id, r.content, r.created_at, u.username
+    r.id, r.user_id, r.room_id, r.content, r.created_at, u.username, u.icon
   </sql>
 
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">

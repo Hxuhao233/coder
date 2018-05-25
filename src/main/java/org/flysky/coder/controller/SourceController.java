@@ -188,7 +188,7 @@ public class SourceController {
      */
     @ResponseBody
     @RequiresRoles(value = "user")
-    @RequestMapping(value = "/mysource", method = RequestMethod.GET)
+    @RequestMapping(value = "/mySources", method = RequestMethod.GET)
     public Result getSourceWrapperByUserId(HttpSession session, @RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
         ResultWrapper result = new ResultWrapper();
         User user = (User) session.getAttribute("user");
