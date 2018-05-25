@@ -9,4 +9,6 @@ public interface IMessageService {
     Integer createMessage(Integer fromUid,Integer toUid,String content);
     List<Message> showConversations(Integer uid1,Integer uid2);
     List<Message> getMessageByContentAndTime(String content,LocalDateTime time1,LocalDateTime time2);
+    Integer deleteMessage(Integer id);
+    Message getMessageById(Integer id);
 }

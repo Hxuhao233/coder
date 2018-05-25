@@ -1,31 +1,40 @@
 package org.flysky.coder.controller;
 
 import org.flysky.coder.entity.Message;
+import org.flysky.coder.entity.User;
 import org.flysky.coder.service.IMessageService;
 import org.flysky.coder.token.RedisTokenService;
 import org.flysky.coder.vo.MessageWrapper;
+import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
 import org.flysky.coder.vo.message.SearchMessageWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.session.SessionProperties;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
-public class MessageControler {
+public class MessageController {
     @Autowired
     private IMessageService messageService;
 
     @Autowired
     private RedisTokenService redisTokenService;
 
-    @RequestMapping("/message/createMessage/{token}")
-    public ResultWrapper createMessage(@RequestBody MessageWrapper msgWrapper,@PathVariable String token){
-        Integer fromUid=redisTokenService.getIdByToken(token);
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    @RequestMapping("/message/createMessage")
+    public ResultWrapper createMessage(@RequestBody MessageWrapper msgWrapper,HttpSession session){
+        User u=(User) session.getAttribute("user");
+        //Integer fromUid=u.getId();
+        Integer fromUid=1;
         Integer toUid=msgWrapper.getToUid();
         String content=msgWrapper.getContent();
         if(fromUid==null||toUid==null||content==null){
@@ -37,9 +46,12 @@ public class MessageControler {
         return new ResultWrapper(result);
     }
 
-    @RequestMapping("/message/viewConversations/{fromUid}/{toUid}")
-    public ResultWrapper viewConversations(@PathVariable Integer fromUid, @PathVariable Integer toUid){
-        if(fromUid==null||toUid==null){
+    @RequestMapping("/message/viewConversations/{toUid}")
+    public ResultWrapper viewConversations(@PathVariable Integer toUid,HttpSession session){
+        User u=(User) session.getAttribute("user");
+       // Integer fromUid=u.getId();
+        Integer fromUid=1;
+        if(toUid==null){
             return null;
         }
         ResultWrapper rw=new ResultWrapper();
@@ -48,8 +60,9 @@ public class MessageControler {
     }
 
     @RequestMapping("/message/viewConversations/{toUid}/{token}")
-    public ResultWrapper viewConversationsWithToUid(@PathVariable Integer toUid,@PathVariable String token){
-        Integer fromUid=redisTokenService.getIdByToken(token);
+    public ResultWrapper viewConversationsWithToUid(@PathVariable Integer toUid,HttpSession session){
+        User u=(User) session.getAttribute("user");
+        Integer fromUid=u.getId();
         if(fromUid==null||toUid==null){
             return null;
         }
@@ -64,4 +77,17 @@ public class MessageControler {
         rw.setPayload(messageService.getMessageByContentAndTime(smw.getContent(),smw.getTime1(),smw.getTime2()));
         return rw;
     }
+
+    @RequestMapping("/message/deleteMessage/{id}")
+    public Result deleteMessage(@PathVariable int id){
+        Result result=new Result();
+        result.setCode(messageService.deleteMessage(id));
+        return result;
+    }
+
+    @RequestMapping("/message/getMessageById/{id}")
+    public Message getMessageById(@PathVariable int id){
+        return messageService.getMessageById(id);
+    }
+
 }

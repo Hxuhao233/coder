@@ -127,8 +127,10 @@ public class PostService implements IPostService {
     @Override
     public Integer upvotePost(Integer postId) {
         Post post=postMapper.selectByPrimaryKey(postId);
+        //String upvoteRedisKey="upvote-"+postId;
         Integer upvote=null;
         if(post!=null){
+            //redisTemplate.opsForSet().add()
             upvote=post.getUpvote();
             upvote++;
             post.setUpvote(upvote);

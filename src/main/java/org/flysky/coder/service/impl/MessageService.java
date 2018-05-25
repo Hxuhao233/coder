@@ -66,5 +66,15 @@ public class MessageService implements IMessageService{
         return messageMapper.getMessageByContentAndTime(content,time1,time2);
     }
 
+    @Override
+    public Integer deleteMessage(Integer id) {
+        return messageMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public Message getMessageById(Integer id) {
+        return messageMapper.selectByPrimaryKey(id);
+    }
+
 
 }

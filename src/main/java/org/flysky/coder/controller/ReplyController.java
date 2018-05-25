@@ -3,10 +3,10 @@ package org.flysky.coder.controller;
 
 
 import org.flysky.coder.entity.Reply;
+import org.flysky.coder.entity.User;
 import org.flysky.coder.service.INotificationService;
 import org.flysky.coder.service.IReplyService;
 import org.flysky.coder.service.IUserService;
-import org.flysky.coder.token.RedisTokenService;
 import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
 
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
@@ -35,17 +36,15 @@ public class ReplyController {
     private INotificationService notificationService;
 
     @Autowired
-    private RedisTokenService redisTokenService;
-
-    @Autowired
     private IUserService userService;
 
     /*
     需求104 用户在论坛回复帖子
      */
-    @RequestMapping("/reply/replyToForumPost/{token}")
-    public Result replyToForumPost(@RequestBody PostReplyWrapper replyWrapper, @PathVariable String token){
-        Integer uid=redisTokenService.getIdByToken(token);
+    @RequestMapping("/reply/replyToForumPost")
+    public Result replyToForumPost(@RequestBody PostReplyWrapper replyWrapper,HttpSession session){
+        User u=(User)session.getAttribute("user");
+        Integer uid=u.getId();
         Integer resultI=replyService.replyToPost(replyWrapper.getPostId(),uid,replyWrapper.getContent(),false,null,0);
         Result result=new Result();
         result.setCode(resultI);
@@ -56,9 +55,10 @@ public class ReplyController {
     /*
     需求303 用户在匿名区回复帖子
      */
-    @RequestMapping("/reply/replyToAnonymousPost/{token}")
-    public Result replyToAnonymousPost(@RequestBody AnonymousReplyWrapper anonymousReplyWrapper, @PathVariable String token){
-        Integer uid=redisTokenService.getIdByToken(token);
+    @RequestMapping("/reply/replyToAnonymousPost")
+    public Result replyToAnonymousPost(@RequestBody AnonymousReplyWrapper anonymousReplyWrapper,HttpSession session){
+        User u=(User)session.getAttribute("user");
+        Integer uid=u.getId();
 
         boolean isAnonymous=anonymousReplyWrapper.getIsAnonymous()==1?true:false;
 
@@ -78,9 +78,11 @@ public class ReplyController {
     /*
     需求105 用户在论坛中回复其他用户的回复
      */
-    @RequestMapping("/reply/innerReplyToPost/{token}")
-    public Result innerReplyToPost(@RequestBody InnerReplyWrapper innerReplyWrapper, @PathVariable String token){
-        Integer uid=redisTokenService.getIdByToken(token);
+    @RequestMapping("/reply/innerReplyToPost")
+    public Result innerReplyToPost(@RequestBody InnerReplyWrapper innerReplyWrapper,HttpSession session){
+        User u=(User)session.getAttribute("user");
+        Integer uid=u.getId();
+
         Integer resultI=replyService.createInnerReply(innerReplyWrapper.getPostId(), uid, innerReplyWrapper.getContent(), innerReplyWrapper.getFloorCnt()
                 , false, null,0);
         Result result=new Result();
@@ -120,7 +122,7 @@ public class ReplyController {
     /*
     需求B 搜索匿名区帖子回复
      */
-    @RequestMapping("reply/searchAnonymousPostReply")
+    @RequestMapping("/reply/searchAnonymousPostReply")
     public ResultWrapper searchAnonymousPostReply(@RequestBody SearchAnonymousReplyWrapper searchAnonymousReplyWrapper){
         ResultWrapper resultWrapper=new ResultWrapper();
         resultWrapper.setPayload(replyService.searchAnonymousPostReply(searchAnonymousReplyWrapper.getContent(),searchAnonymousReplyWrapper.getTitle()));
