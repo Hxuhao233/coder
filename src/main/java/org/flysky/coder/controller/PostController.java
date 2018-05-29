@@ -2,12 +2,11 @@ package org.flysky.coder.controller;
 
 
 import com.github.pagehelper.PageInfo;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.flysky.coder.entity.Post;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.service.IPostService;
 import org.flysky.coder.service.IUserService;
-import org.flysky.coder.token.RedisTokenService;
-import org.flysky.coder.vo.PostWrapper;
 import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
 import org.flysky.coder.vo.user.AnonymousNameGenerator;
@@ -27,11 +26,11 @@ public class PostController {
     @Autowired
     private IPostService postService;
 
-    @Autowired
-    private RedisTokenService redisTokenService;
+//    @Autowired
+//    private RedisTokenService redisTokenService;
 
-    @Autowired
-    private IUserService userService;
+//    @Autowired
+//    private IUserService userService;
 
     /*
     需求101.A 论坛分类浏览
@@ -54,9 +53,10 @@ public class PostController {
     /*
     需求103 用户在论坛发帖
      */
-    @RequestMapping(value="/forum/createForumPost/{token}",method = RequestMethod.POST)
-    public ResultWrapper createForumPost(@RequestBody ForumPostWrapper forumPostWrapper, @PathVariable String token){
-        Integer uid=redisTokenService.getIdByToken(token);
+    @RequestMapping(value="/forum/createForumPost",method = RequestMethod.POST)
+    public ResultWrapper createForumPost(HttpSession session,@RequestBody ForumPostWrapper forumPostWrapper){
+        User u=(User)session.getAttribute("user");
+        Integer uid=u.getId();
 
         String title=forumPostWrapper.getTitle();
         String content=forumPostWrapper.getContent();
@@ -71,9 +71,10 @@ public class PostController {
     /*
     需求301 用户在匿名区发帖
      */
-    @RequestMapping(value="/anonymous/createAnonymousPost/{token}",method = RequestMethod.POST)
-    public ResultWrapper createAnonymousPost(@RequestBody AnonymousPostWrapper postWrapper, @PathVariable String token){
-        Integer uid=redisTokenService.getIdByToken(token);
+    @RequestMapping(value="/anonymous/createAnonymousPost",method = RequestMethod.POST)
+    public ResultWrapper createAnonymousPost(HttpSession session,@RequestBody AnonymousPostWrapper postWrapper){
+        User u=(User)session.getAttribute("user");
+        Integer uid=u.getId();
 
         String title=postWrapper.getTitle();
         String content=postWrapper.getContent();
@@ -103,9 +104,9 @@ public class PostController {
     需求108.A 收藏帖子
      */
     @RequestMapping("/forum/collectPost/{postId}")
-    public ResultWrapper collectPost(HttpSession session, @PathVariable int postId){
-        User user = (User) session.getAttribute("user");
-        Integer uid=user.getId();
+    public ResultWrapper collectPost(@PathVariable int postId,HttpSession session){
+        User u=(User)session.getAttribute("user");
+        Integer uid=u.getId();
         Integer result=postService.collectPost(postId,uid);
         return new ResultWrapper(result);
     }
@@ -114,8 +115,9 @@ public class PostController {
     需求108.B 取消收藏帖子
      */
     @RequestMapping("/forum/removeCollectedPost/{postId}")
-    public ResultWrapper removeCollectedPost(@PathVariable int postId,@PathVariable String token){
-        Integer uid=redisTokenService.getIdByToken(token);
+    public ResultWrapper removeCollectedPost(@PathVariable int postId,HttpSession session){
+        User u=(User)session.getAttribute("user");
+        Integer uid=u.getId();
         Integer result=postService.removeCollectedPost(postId,uid);
         return new ResultWrapper(result);
     }
@@ -123,13 +125,20 @@ public class PostController {
     /*
     需求108.C 查看帖子是否被收藏
      */
-    @RequestMapping("/forum/isPostCollected/{postid}/{token}")
-    public Result isPostCollected(@PathVariable Integer postid, HttpSession session, @PathVariable String token){
-        Integer uid=redisTokenService.getIdByToken(token);
+    @RequestMapping("/forum/isPostCollected/{postid}")
+    public Result isPostCollected(@PathVariable Integer postid, HttpSession session){
+        User u=(User)session.getAttribute("user");
+        Integer uid=u.getId();
         Result result=new Result();
         result.setCode(postService.isPostCollected(uid,postid));
         return result;
     }
+
+    /*
+    需求108.D 获取收藏列表
+     */
+//    @RequestMapping("/forum/getCollectionList/{id}")
+//    public Result
 
     /*
     需求109 用户在论坛关注其他用户
@@ -145,11 +154,13 @@ public class PostController {
     @RequestMapping("/forum/deletePost/{postId}")
     public ResultWrapper deletePost(@PathVariable int postId){
         Integer result=postService.deletePost(postId);
+        postService.removeRecommendedPost(postId);
+        postService.removeStickyPost(postId,postService.getPostByPostId(postId).getSectorId());
         return new ResultWrapper(result);
     }
 
     /*
-    需求113 论坛管理员推荐帖子
+    需求113 论坛管理员推荐帖子F
      */
 
     @RequestMapping("/forum/recommendPost/{postId}")
@@ -185,6 +196,7 @@ public class PostController {
     /*
     需求115 论坛管理员置顶某版块帖子
      */
+    @RequiresRoles("manager")
     @RequestMapping("/forum/addStickyPost/{postId}")
     public ResultWrapper addStickyPost(@PathVariable int postId){
         Post p=postService.getPostByPostId(postId);
@@ -195,6 +207,7 @@ public class PostController {
     /*
     需求116 论坛管理员取消置顶某版块帖子
      */
+    @RequiresRoles("manager")
     @RequestMapping("/forum/removeStickyPost/{postId}")
     public ResultWrapper removeStickyPost(@PathVariable int postId){
         Post p=postService.getPostByPostId(postId);
@@ -223,7 +236,7 @@ public class PostController {
     @RequestMapping("/forum/searchPostByTitle/{title}")
     public ResultWrapper searchPostByTitle(@PathVariable String title){
         ResultWrapper rw=new ResultWrapper();
-        rw.setPayload(postService.searchPost(title,null,null,0));
+        rw.setPayload(postService.searchPost(title,null,null,0,1,1000).getList());
         return rw;
     }
 
@@ -233,27 +246,31 @@ public class PostController {
     @RequestMapping("/forum/searchAnonymousPostByTitle")
     public ResultWrapper searchAnonymousPostByTitle(@RequestBody SearchAnonymousPostWrapper sapw){
         ResultWrapper rw=new ResultWrapper();
-        rw.setPayload(postService.searchPost(sapw.getTitle(),null,null,1));
+        rw.setPayload(postService.searchPost(sapw.getTitle(),null,null,1,1,1000).getList());
         return rw;
     }
 
     /*
     需求117.B 管理员按照发帖人 发贴内容 发贴标题等搜索帖子
      */
+    @RequiresRoles("manager")
     @RequestMapping("/forum/searchPostByUsernameAndContentAndTitle")
-    public ResultWrapper searchPostByUsernameAndContentAndTitle(@RequestBody SearchPostWrapper searchPostWrapper){
+    public ResultWrapper searchPostByUsernameAndContentAndTitle(@RequestBody SearchPostWrapper searchPostWrapper,
+                                                                @RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
         ResultWrapper rw=new ResultWrapper();
-        rw.setPayload(postService.searchPost(searchPostWrapper.getTitle(),searchPostWrapper.getContent(),searchPostWrapper.getUsername(),0));
+        rw.setPayload(postService.searchPost(searchPostWrapper.getTitle(),searchPostWrapper.getContent(),searchPostWrapper.getUsername(),0,pageNum,pageSize));
         return rw;
     }
 
     /*
     需求117.C 管理员按照 发贴内容 发贴标题等搜索匿名区帖子
      */
+    @RequiresRoles("manager")
     @RequestMapping("/forum/searchAnonymousPostByUsernameAndContentAndTitle")
-    public ResultWrapper searchAnonymousPostByUsernameAndContentAndTitle(@RequestBody SearchPostWrapper searchPostWrapper){
+    public ResultWrapper searchAnonymousPostByUsernameAndContentAndTitle(@RequestBody SearchPostWrapper searchPostWrapper,
+                                                                         @RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
         ResultWrapper rw=new ResultWrapper();
-        rw.setPayload(postService.searchPost(searchPostWrapper.getTitle(),searchPostWrapper.getContent(),null,1));
+        rw.setPayload(postService.searchPost(searchPostWrapper.getTitle(),searchPostWrapper.getContent(),null,1,pageNum,pageSize));
         return rw;
     }
 

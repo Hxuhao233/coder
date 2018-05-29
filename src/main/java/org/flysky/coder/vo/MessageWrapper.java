@@ -1,7 +1,6 @@
 package org.flysky.coder.vo;
 
 public class MessageWrapper {
-    private Integer fromUid;
 
     private Integer toUid;
 
@@ -9,20 +8,6 @@ public class MessageWrapper {
 
     public MessageWrapper(){
 
-    }
-
-    public MessageWrapper(Integer fromUid, Integer toUid, String content) {
-        this.fromUid = fromUid;
-        this.toUid = toUid;
-        this.content = content;
-    }
-
-    public Integer getFromUid() {
-        return fromUid;
-    }
-
-    public void setFromUid(Integer fromUid) {
-        this.fromUid = fromUid;
     }
 
     public String getContent() {

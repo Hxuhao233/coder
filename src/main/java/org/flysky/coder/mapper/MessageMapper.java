@@ -24,4 +24,6 @@ public interface MessageMapper {
     List<Message> viewConversations(@Param("fromUid")Integer fromUid, @Param("toUid") Integer toUid);
 
     List<Message> getMessageByContentAndTime(@Param("content")String content, @Param("time1") LocalDateTime time1, @Param("time2")LocalDateTime time2);
+
+    List<Message> getMessageByContentAndUsername(@Param("content") String content,@Param("username1") String username1,@Param("username2") String username2);
 }

@@ -101,7 +101,7 @@ public class ReplyControllerlll {
     }
 
     @RequestMapping("/reply/getReplyByContentAndTimeAndType")
-    public ResultWrapper getReplyByContentAndTimeAndType(@RequestBody SearchReplyWrapper srw){
+    public ResultWrapper getReplyByContentAndTimeAndType(@RequestBody SearchReplyResult srw){
         ResultWrapper resultWrapper=new ResultWrapper();
         List<Reply> replyList=replyService.getReplyByContentAndTimeAndType(srw.getContent(),srw.getTime1(),srw.getTime2(),srw.getType());
         resultWrapper.setPayload(replyList);
