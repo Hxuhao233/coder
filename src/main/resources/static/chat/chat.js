@@ -1,4 +1,4 @@
-var sessionId = null;
+//var sessionId = null;
 var stompClient = null;
 var msgSubscription = null;     // 订阅房间
 var recordSubscription = null;  // 订阅消息记录
@@ -26,17 +26,19 @@ function connect() {
     stompClient = Stomp.over(socket); //用Stomp将SockJS进行协议封装
     stompClient.connect({}, function (frame) {
         setConnected(true);
-        console.log('Connected: ' + sessionId);
+        console.log('Connected: ' + socket.sessionId);
         recordSubscription = stompClient.subscribe(
             '/user/' + sessionId + '/self',
             function (response) {
                 var recordList = JSON.parse(response.body).list;
                 for (var i=0;i<recordList.length;i++){
                     var record = recordList[i];
+                    console.log(record);
                     prependMsg(record.username + " : " + record.content + " at " + record.createdAt);
                 }
             }
         );
+        stompClient.send("/app/init");
     });
 }
 
@@ -69,7 +71,7 @@ function enterRoom() {
         JSON.stringify(
             {
                 'content': $("#name").val(),
-                'roomId': $("#room").val()
+                'toId': $("#room").val()
             }
         )
     );
@@ -87,7 +89,7 @@ function exitRoom() {
         JSON.stringify(
             {
                 'content': $("#name").val(),
-                'roomId': $("#room").val()
+                'toId': $("#room").val()
             }
         )
     );
@@ -130,23 +132,25 @@ function sendMessage() {
         {},
         JSON.stringify(
             {
-                'roomId': $("#room").val(),
-                'content': $("#mysend").val()
+                'toId': $("#room").val(),
+                'content': $("#mysend").val(),
+                'type':1
             }
         )
     );
 }
 
 /* 查看消息记录 */
-function getMessageRecord(roomId,pageNum,pageSize) {
+function getMessageRecord(toId,pageNum,pageSize) {
     stompClient.send(
-        "/app/getRecordByRoomIdAndPage",
+        "/app/getRecordByToIdAndPage",
         {},
         JSON.stringify(
             {
-                'roomId': roomId,
+                'toId': toId,
                 'pageNum':pageNum,
-                'pageSize': pageSize
+                'pageSize': pageSize,
+                'type':1
             }
         )
     );
@@ -154,14 +158,15 @@ function getMessageRecord(roomId,pageNum,pageSize) {
 
 /* 查看消息记录 */
 // datetime格式 : yyyy-MM-dd'T'HH:mm:ss
-function getMessageRecord2(roomId,datetime) {
+function getMessageRecord2(toId,datetime) {
     stompClient.send(
-        "/app/getRecordByRoomIdAndLastTime",
+        "/app/getRecordByToIdAndLastTime",
         {},
         JSON.stringify(
             {
-                'roomId': roomId,
-                'time': datetime
+                'toId': toId,
+                'time': datetime,
+                'type':1
             }
         )
     );

@@ -3,15 +3,18 @@ package org.flysky.coder.controller;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
+import org.flysky.coder.constant.ResponseCode;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.service.impl.UserService;
+import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import javax.xml.ws.Response;
 import java.security.Principal;
 
 /**
@@ -79,10 +82,11 @@ public class TestController {
 
     @RequestMapping("/test/logout")
     @ResponseBody
-    public String exit(HttpSession session){
+    public ResultWrapper logout(){
         Subject subject = SecurityUtils.getSubject();
-        subject.logout();
-        return "bye";
+        if (subject != null)
+            subject.logout();
+        return new ResultWrapper(ResponseCode.SUCCEED);
     }
 
 }

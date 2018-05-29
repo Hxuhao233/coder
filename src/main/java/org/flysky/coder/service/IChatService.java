@@ -57,9 +57,9 @@ public interface IChatService {
 
     ChatMessage exitRoom(User user, ChatMessage chatMessage);
 
-    PageInfo<RecordWrapper> getRecord(int roomId, int pageNum, int pageSize);
+    PageInfo<RecordWrapper> getRecord(int toId, int type, int pageNum, int pageSize);
 
-    List<RecordWrapper> getRecord(int roomId, LocalDateTime time);
+    List<RecordWrapper> getRecord(int toId, int roomId, LocalDateTime time);
 
     PageInfo<RoomWrapper> getRoomWrappersByUserId(Integer id, int pageNum, int pageSize);
 }

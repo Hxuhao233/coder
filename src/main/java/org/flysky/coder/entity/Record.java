@@ -7,13 +7,25 @@ import java.time.LocalDateTime;
 public class Record {
     private Integer id;
 
-    private Integer userId;
+    private Integer fromId;
 
-    private Integer roomId;
+    private Integer toId;
 
     private String content;
 
     private LocalDateTime createdAt;
+
+    private Integer type;
+
+    private Integer contentType;
+
+    public static int TYPE_ROOM_CHAT = 1;
+
+    public static int TYPE_USER_CHAT = 2;
+
+    public static int CONTENT_TYPE_TEXT = 1;
+
+    public static int CONTENT_TYPE_IMG = 2;
 
     public Integer getId() {
         return id;
@@ -23,20 +35,20 @@ public class Record {
         this.id = id;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public Integer getFromId() {
+        return fromId;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setFromId(Integer fromId) {
+        this.fromId = fromId;
     }
 
-    public Integer getRoomId() {
-        return roomId;
+    public Integer getToId() {
+        return toId;
     }
 
-    public void setRoomId(Integer roomId) {
-        this.roomId = roomId;
+    public void setToId(Integer toId) {
+        this.toId = toId;
     }
 
     public String getContent() {
@@ -54,5 +66,21 @@ public class Record {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public Integer getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(Integer content_type) {
+        this.contentType = content_type;
     }
 }

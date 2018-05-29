@@ -3,10 +3,12 @@
 <mapper namespace="org.flysky.coder.mapper.RecordMapper">
   <resultMap id="BaseResultMap" type="org.flysky.coder.entity.Record">
     <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="user_id" jdbcType="INTEGER" property="userId" />
-    <result column="room_id" jdbcType="INTEGER" property="roomId" />
+    <result column="from_id" jdbcType="INTEGER" property="fromId" />
+    <result column="to_id" jdbcType="INTEGER" property="toId" />
     <result column="content" jdbcType="VARCHAR" property="content" />
     <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="content_type" jdbcType="INTEGER" property="contentType" />
   </resultMap>
 
   <resultMap id="RecordWrapperMap" type="org.flysky.coder.entity.wrapper.RecordWrapper" extends="BaseResultMap">
@@ -15,11 +17,11 @@
   </resultMap>
 
   <sql id="Base_Column_List">
-    id, user_id, room_id, content, created_at
+    id, from_id, to_id, created_at, type, content_type
   </sql>
 
   <sql id="Record_Wrapper_Column_List">
-    r.id, r.user_id, r.room_id, r.content, r.created_at, u.username, u.icon
+    r.id, r.from_id, r.to_id, r.type, r.content, r.created_at, r.content_type, u.username, u.icon
   </sql>
 
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -28,18 +30,18 @@
     from record
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="getRecordWrapperByRoomId" parameterType="java.lang.Integer" resultMap="RecordWrapperMap">
+  <select id="getRecordWrapperByToId" parameterType="java.lang.Integer" resultMap="RecordWrapperMap">
     SELECT
     <include refid="Record_Wrapper_Column_List"/>
-    FROM record r JOIN user u ON r.user_id = u.id
-    WHERE r.room_id = #{roomId,jdbcType=INTEGER}
+    FROM record r JOIN user u ON r.from_id = u.id
+    WHERE r.to_id = #{toId,jdbcType=INTEGER} and r.type = #{type}
     ORDER BY r.created_at DESC
   </select>
-  <select id="getRecordWrapperByRoomIdAndLastTime" resultMap="RecordWrapperMap">
+  <select id="getRecordWrapperByToIdAndLastTime" resultMap="RecordWrapperMap">
     SELECT
     <include refid="Record_Wrapper_Column_List"/>
-    FROM record r JOIN user u ON r.user_id = u.id
-    WHERE r.room_id = #{roomId,jdbcType=INTEGER} and  <![CDATA[ r.created_at < #{time}  ]]>
+    FROM record r JOIN user u ON r.from_id = u.id
+    WHERE r.to_id = #{toId,jdbcType=INTEGER} and  <![CDATA[ r.created_at < #{time}  ]]> and r.type = #{type}
     ORDER BY r.created_at DESC limit 10
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
@@ -50,10 +52,12 @@
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into record (user_id, room_id, content, 
-      created_at)
-    values (#{userId,jdbcType=INTEGER}, #{roomId,jdbcType=INTEGER}, #{content,jdbcType=VARCHAR}, 
-      #{createdAt,jdbcType=TIMESTAMP})
+    insert into record (from_id, to_id, created_at,
+    type, content_type, content
+    )
+    values (#{fromId,jdbcType=INTEGER}, #{toId,jdbcType=INTEGER}, #{createdAt,jdbcType=TIMESTAMP},
+    #{type,jdbcType=INTEGER}, #{contentType,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR}
+    )
   </insert>
   <insert id="insertSelective" parameterType="org.flysky.coder.entity.Record">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
@@ -61,58 +65,87 @@
     </selectKey>
     insert into record
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="userId != null">
-        user_id,
+      <if test="fromId != null">
+        from_id,
       </if>
-      <if test="roomId != null">
-        room_id,
-      </if>
-      <if test="content != null">
-        content,
+      <if test="toId != null">
+        to_id,
       </if>
       <if test="createdAt != null">
         created_at,
       </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="userId != null">
-        #{userId,jdbcType=INTEGER},
+      <if test="type != null">
+        type,
       </if>
-      <if test="roomId != null">
-        #{roomId,jdbcType=INTEGER},
+      <if test="contentType != null">
+        content_type,
       </if>
       <if test="content != null">
-        #{content,jdbcType=VARCHAR},
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="fromId != null">
+        #{fromId,jdbcType=INTEGER},
+      </if>
+      <if test="toId != null">
+        #{toId,jdbcType=INTEGER},
       </if>
       <if test="createdAt != null">
         #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="contentType != null">
+        #{contentType,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="org.flysky.coder.entity.Record">
     update record
     <set>
-      <if test="userId != null">
-        user_id = #{userId,jdbcType=INTEGER},
+      <if test="fromId != null">
+        from_id = #{fromId,jdbcType=INTEGER},
       </if>
-      <if test="roomId != null">
-        room_id = #{roomId,jdbcType=INTEGER},
-      </if>
-      <if test="content != null">
-        content = #{content,jdbcType=VARCHAR},
+      <if test="toId != null">
+        to_id = #{toId,jdbcType=INTEGER},
       </if>
       <if test="createdAt != null">
         created_at = #{createdAt,jdbcType=TIMESTAMP},
       </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="contentType != null">
+        content_type = #{contentType,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.flysky.coder.entity.Record">
+    update record
+    set from_id = #{fromId,jdbcType=INTEGER},
+    to_id = #{toId,jdbcType=INTEGER},
+    created_at = #{createdAt,jdbcType=TIMESTAMP},
+    type = #{type,jdbcType=INTEGER},
+    content_type = #{contentType,jdbcType=INTEGER},
+    content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="org.flysky.coder.entity.Record">
     update record
-    set user_id = #{userId,jdbcType=INTEGER},
-      room_id = #{roomId,jdbcType=INTEGER},
-      content = #{content,jdbcType=VARCHAR},
-      created_at = #{createdAt,jdbcType=TIMESTAMP}
+    set from_id = #{fromId,jdbcType=INTEGER},
+      to_id = #{toId,jdbcType=INTEGER},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      type = #{type,jdbcType=INTEGER},
+      content_type = #{contentType,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

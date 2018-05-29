@@ -13,6 +13,8 @@ public class UserData {
 
 	private String info;
 
+	private int userId;
+
 	public int getCode() {
 		return code;
 	}
@@ -59,5 +61,13 @@ public class UserData {
 
 	public void setInfo(String info) {
 		this.info = info;
+	}
+
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 }
