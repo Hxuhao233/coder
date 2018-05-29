@@ -2,9 +2,12 @@ package org.flysky.coder.controller;
 
 
 
+import com.github.pagehelper.PageInfo;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.flysky.coder.entity.Reply;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.service.INotificationService;
+import org.flysky.coder.service.IPostService;
 import org.flysky.coder.service.IReplyService;
 import org.flysky.coder.service.IUserService;
 import org.flysky.coder.vo.Result;
@@ -18,19 +21,22 @@ import org.flysky.coder.vo2.Request.Reply.Forum.InnerReplyWrapper;
 import org.flysky.coder.vo2.Request.Reply.Forum.PostReplyWrapper;
 import org.flysky.coder.vo2.Request.Reply.Forum.SearchReplyWrapper;
 import org.flysky.coder.vo2.Response.ReplyWrapper;
+import org.flysky.coder.vo2.Response.SearchReplyResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 public class ReplyController {
     @Autowired
     private IReplyService replyService;
+
+    @Autowired
+    private IPostService postService;
+
 
     @Autowired
     private INotificationService notificationService;
@@ -112,20 +118,48 @@ public class ReplyController {
     /*
     需求A 搜索论坛帖子回复
      */
+    @RequiresRoles("manager")
     @RequestMapping("/reply/searchForumPostReply")
-    public ResultWrapper searchForumPostReply(@RequestBody SearchReplyWrapper searchReplyWrapper){
+    public ResultWrapper searchForumPostReply(@RequestBody SearchReplyWrapper searchReplyWrapper,
+                                              @RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
         ResultWrapper resultWrapper=new ResultWrapper();
-        resultWrapper.setPayload(replyService.searchForumPostReply(searchReplyWrapper.getContent(),searchReplyWrapper.getUsername(),searchReplyWrapper.getTitle()));
+        PageInfo replyPageInfo=replyService.searchForumPostReply(searchReplyWrapper.getContent(),searchReplyWrapper.getUsername(),searchReplyWrapper.getTitle(),pageNum,pageSize);
+        List<Reply> replyList=replyPageInfo.getList();
+        List<SearchReplyResult> searchReplyResultList=new ArrayList<>();
+        for(Reply r:replyList){
+            SearchReplyResult searchReplyResult=new SearchReplyResult();
+            searchReplyResult.setContent(r.getContent());
+            searchReplyResult.setTime(r.getCreatedAt());
+            searchReplyResult.setTitle(postService.getPostByPostId(r.getPostid()).getTitle());
+            searchReplyResult.setUsername(userService.getUserById(r.getUserId()).getUsername());
+            searchReplyResultList.add(searchReplyResult);
+        }
+        replyPageInfo.setList(searchReplyResultList);
+        resultWrapper.setPayload(replyPageInfo);
         return resultWrapper;
     }
 
     /*
     需求B 搜索匿名区帖子回复
      */
+    @RequiresRoles("manager")
     @RequestMapping("/reply/searchAnonymousPostReply")
-    public ResultWrapper searchAnonymousPostReply(@RequestBody SearchAnonymousReplyWrapper searchAnonymousReplyWrapper){
+    public ResultWrapper searchAnonymousPostReply(@RequestBody SearchAnonymousReplyWrapper searchAnonymousReplyWrapper,
+                                                  @RequestParam(value = "pageNum", defaultValue = "1") int pageNum, @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
         ResultWrapper resultWrapper=new ResultWrapper();
-        resultWrapper.setPayload(replyService.searchAnonymousPostReply(searchAnonymousReplyWrapper.getContent(),searchAnonymousReplyWrapper.getTitle()));
+        PageInfo replyPageInfo=replyService.searchAnonymousPostReply(searchAnonymousReplyWrapper.getContent(),searchAnonymousReplyWrapper.getTitle(),pageNum,pageSize);
+        List<Reply> replyList=replyPageInfo.getList();
+        List<SearchReplyResult> searchReplyResultList=new ArrayList<>();
+        for(Reply r:replyList){
+            SearchReplyResult searchReplyResult=new SearchReplyResult();
+            searchReplyResult.setContent(r.getContent());
+            searchReplyResult.setTime(r.getCreatedAt());
+            searchReplyResult.setTitle(postService.getPostByPostId(r.getPostid()).getTitle());
+            searchReplyResult.setUsername("x");
+            searchReplyResultList.add(searchReplyResult);
+        }
+        replyPageInfo.setList(searchReplyResultList);
+        resultWrapper.setPayload(replyPageInfo);
         return resultWrapper;
     }
 

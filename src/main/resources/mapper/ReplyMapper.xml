@@ -163,27 +163,27 @@
     select <include refid="Base_Column_List"/> from reply r and post p where p.type=#{type} and content LIKE CONCAT('%',#{content},'%') and created_at BETWEEN #{time1} and #{time2}
   </select>
   <select id="searchForumPostReply" resultMap="BaseResultMap">
-    select DISTINCT (r.id) , user_id, r.type, postid, floor_cnt, created_at, inner_reply_floor, content, anonymous,
-    anonymous_name from reply r and user u and post p where r.type=0
+    select DISTINCT (r.id) , r.user_id, r.type, r.postid, r.floor_cnt, r.created_at, r.inner_reply_floor, r.content, r.anonymous,
+    r.anonymous_name from reply r,user u,post p where r.type=0
     <if test="content!=null">
-      and content LIKE CONCAT('%',#{content},'%')
+      and r.content LIKE CONCAT('%',#{content},'%')
     </if>
     <if test="username!=null">
       and r.user_id=u.id and username LIKE CONCAT('%',#{username},'%')
     </if>
     <if test="title!=null">
-      and postid=p.id and r.title LIKE CONCAT('%',#{title},'%')
+      and r.postid=p.id and p.title LIKE CONCAT('%',#{title},'%')
     </if>
     order by created_at DESC
   </select>
   <select id="searchAnonymousPostReply" resultMap="BaseResultMap">
-    select DISTINCT (r.id) , user_id, r.type, postid, floor_cnt, created_at, inner_reply_floor, content, anonymous,
-    anonymous_name from reply r and post p where r.type=1
+    select DISTINCT (r.id) , r.user_id, r.type, r.postid, r.floor_cnt, r.created_at, r.inner_reply_floor, r.content, r.anonymous,
+    r.anonymous_name from reply r,post p where r.type=1
     <if test="content!=null">
-      and content LIKE CONCAT('%',#{content},'%')
+      and r.content LIKE CONCAT('%',#{content},'%')
     </if>
     <if test="title!=null">
-      and postid=p.id and r.title LIKE CONCAT('%',#{title},'%')
+      and r.postid=p.id and p.title LIKE CONCAT('%',#{title},'%')
     </if>
     order by created_at DESC
   </select>

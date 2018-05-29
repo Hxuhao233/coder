@@ -339,9 +339,8 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public List<Post> searchPost(String title, String content, String username,Integer type) {
-        return postMapper.searchPost(title,content,username,type);
+    public PageInfo<Post> searchPost(String title, String content, String username,Integer type,Integer page,Integer pageSize) {
+        PageHelper.startPage(page,pageSize);
+        return new PageInfo<>(postMapper.searchPost(title,content,username,type));
     }
-
-
 }

@@ -1,5 +1,7 @@
 package org.flysky.coder.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.flysky.coder.entity.Post;
 import org.flysky.coder.entity.Reply;
 import org.flysky.coder.entity.User;
@@ -104,6 +106,7 @@ public class ReplyService implements IReplyService {
         reply.setPostid(postId);
 
         replyMapper.insert(reply);
+        notificationService.newReplyNotification(post.getUserId(),reply.getId());
         return 1;
     }
 
@@ -203,13 +206,15 @@ public class ReplyService implements IReplyService {
     }
 
     @Override
-    public List<Reply> searchForumPostReply(String content, String username,String title) {
-        return replyMapper.searchForumPostReply(content,username,title);
+    public PageInfo<Reply> searchForumPostReply(String content, String username, String title,Integer page,Integer pageSize) {
+        PageHelper.startPage(page,pageSize);
+        return new PageInfo<>(replyMapper.searchForumPostReply(content,username,title));
     }
 
     @Override
-    public List<Reply> searchAnonymousPostReply(String content, String title) {
-        return replyMapper.searchAnonymousPostReply(content,title);
+    public PageInfo<Reply> searchAnonymousPostReply(String content, String title,Integer page,Integer pageSize) {
+        PageHelper.startPage(page,pageSize);
+        return new PageInfo<>(replyMapper.searchAnonymousPostReply(content,title));
     }
 
     @Override

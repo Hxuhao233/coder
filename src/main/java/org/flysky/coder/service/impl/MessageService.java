@@ -1,5 +1,7 @@
 package org.flysky.coder.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.flysky.coder.entity.Message;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.mapper.MessageMapper;
@@ -74,6 +76,12 @@ public class MessageService implements IMessageService{
     @Override
     public Message getMessageById(Integer id) {
         return messageMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public PageInfo<Message> searchMessage(String content, String username1, String username2, Integer page, Integer pageNum) {
+        PageHelper.startPage(page,pageNum);
+        return new PageInfo<>(messageMapper.getMessageByContentAndUsername(content,username1,username2));
     }
 
 

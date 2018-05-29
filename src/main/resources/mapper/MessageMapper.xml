@@ -97,4 +97,17 @@
   <select id="getMessageByContentAndTime" resultMap="BaseResultMap">
     select <include refid="Base_Column_List"/> from message where content LIKE CONCAT('%',#{content},'%') and created_at BETWEEN #{time1} and #{time2}
   </select>
+  <select id="getMessageByContentAndUsername" resultMap="BaseResultMap">
+    select DISTINCT (m.id), m.from_uid, m.to_uid, m.content, m.created_at from message m , user u1,user u2 where
+    <if test="content!=null">
+      content LIKE CONCAT('%',#{content},'%') and
+    </if>
+    <if test="username1!=null">
+      (u1.username LIKE CONCAT('%',#{username1},'%') and u1.id= from_uid)  and
+    </if>
+    <if test="username2!=null">
+      (u2.username LIKE CONCAT('%',#{username2},'%') and u2.id= to_uid) and
+    </if>
+    1=1
+  </select>
 </mapper>
