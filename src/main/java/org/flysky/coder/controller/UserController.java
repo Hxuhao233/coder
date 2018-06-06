@@ -56,6 +56,33 @@ public class UserController {
     }
 
     /**
+     * 获取当前用户
+     * @param session
+     * @return
+     */
+    @RequiresRoles(value = "user")
+    @RequestMapping(value="/currentUser",method= RequestMethod.GET)
+    public ResultWrapper getCurrentUser(HttpSession session){
+        ResultWrapper resultWrapper = new ResultWrapper();
+        User u = (User) session.getAttribute("user");
+        UserData userData = new UserData();
+
+        if(u!=null){
+            resultWrapper.setCode(ResponseCode.SUCCEED);
+            userData.setUsername(u.getUsername());
+            userData.setType(u.getType());
+            userData.setIcon(u.getIcon());
+            userData.setSessionId(session.getId());
+            userData.setUserId(u.getId());
+            resultWrapper.setPayload(userData);
+        }else{
+            resultWrapper.setCode(ResponseCode.NOT_FOUND);
+        }
+        return resultWrapper;
+
+    }
+
+    /**
      * 查看用户
      * @param userId
      * @return
@@ -70,7 +97,7 @@ public class UserController {
             userData.setType(u.getType());
             userData.setIcon(u.getIcon());
             userData.setInfo(u.getInfo());
-
+            userData.setUserId(u.getId());
             result.setCode(ResponseCode.SUCCEED);
             result.setPayload(userData);
         } else {

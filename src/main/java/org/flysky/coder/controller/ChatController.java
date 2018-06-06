@@ -22,9 +22,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 在线交流功能控制器
@@ -37,6 +39,8 @@ public class ChatController {
 
     @Autowired
     private IChatService chatService;
+
+    //private ConcurrentHashMap<Integer,String> wsSessionIdMap = new ConcurrentHashMap<>();
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -464,7 +468,18 @@ public class ChatController {
     }
 
     /**
-     * 加入聊天室
+     * 初始化，保存sessionId
+     * @param headerAccessor
+     * @throws Exception
+     */
+    //@MessageMapping("/init")
+    public void init(SimpMessageHeaderAccessor headerAccessor) throws Exception {
+        User user = (User) headerAccessor.getSessionAttributes().get("user");
+        //wsSessionIdMap.put(user.getId(), String.valueOf(user.getId()));
+    }
+
+    /**
+     * 加入聊天
      * @param headerAccessor
      * @param enterRoomMessage
      * @throws Exception
@@ -474,16 +489,16 @@ public class ChatController {
         User user = (User) headerAccessor.getSessionAttributes().get("user");
 
         ChatMessage response = chatService.enterRoom(user,enterRoomMessage);
-        template.convertAndSend("/chat/" + response.getRoomId(),response);
+        template.convertAndSend("/chat/" + response.getToId(),response);
 
         // 获取最近10条聊天记录
-        PageInfo<RecordWrapper> recordLists = chatService.getRecord(enterRoomMessage.getRoomId(),1,10);
-        template.convertAndSendToUser(headerAccessor.getSessionId(),"/self",recordLists);
+        //PageInfo<RecordWrapper> recordLists = chatService.getRecord(enterRoomMessage.getToId(), enterRoomMessage.getToId(),1,10);
+        //template.convertAndSendToUser(user.getId(),"/self",recordLists);
     }
 
 
     /**
-     * 退出聊天室
+     * 退出聊天
      * @param headerAccessor
      * @param exitRoomMessage
      * @throws Exception
@@ -493,7 +508,7 @@ public class ChatController {
         User user = (User) headerAccessor.getSessionAttributes().get("user");
 
         ChatMessage response = chatService.exitRoom(user,exitRoomMessage);
-        template.convertAndSend("/chat/" + response.getRoomId(),response);
+        template.convertAndSend("/chat/" + response.getToId(),response);
     }
 
     /**
@@ -505,21 +520,27 @@ public class ChatController {
         User user = (User) headerAccessor.getSessionAttributes().get("user");
 
         ChatMessage response = chatService.chat(user,chatMessage);
-        template.convertAndSend("/chat/" + response.getRoomId(), response);
+        if (chatMessage.getType()==ChatMessage.TYPE_ROOM_CHAT)
+            template.convertAndSend("/chat/" + response.getToId(), response);
+        //else if (wsSessionIdMap.get(chatMessage.getToId())!=null)
+        //    template.convertAndSendToUser(String.valueOf(user.getId()),"/self",response);
     }
 
-    @MessageMapping("/getRecordByRoomIdAndPage")
+    @MessageMapping("/getRecordByToIdAndPage")
     public void getMessageRecordByPageNum(SimpMessageHeaderAccessor headerAccessor, @RequestBody RecordPage recordPage) {
-        PageInfo<RecordWrapper> recordLists = chatService.getRecord(recordPage.getRoomId(), recordPage.getPageNum(), recordPage.getPageSize());
-        template.convertAndSendToUser(headerAccessor.getSessionId(),"/self",recordLists);
+        User user = (User) headerAccessor.getSessionAttributes().get("user");
+
+        PageInfo<RecordWrapper> recordLists = chatService.getRecord(recordPage.getToId(), recordPage.getType(), recordPage.getPageNum(), recordPage.getPageSize());
+        template.convertAndSendToUser(String.valueOf(user.getId()),"/self",recordLists);
     }
 
-    @MessageMapping("/getRecordByRoomIdAndLastTime")
+    @MessageMapping("/getRecordByToIdAndLastTime")
     public void getMessageRecordByLastTime(SimpMessageHeaderAccessor headerAccessor, @RequestBody RecordDate recordDate) {
-        List<RecordWrapper> recordLists = chatService.getRecord(recordDate.getRoomId(), recordDate.getTime());
+        User user = (User) headerAccessor.getSessionAttributes().get("user");
+        List<RecordWrapper> recordLists = chatService.getRecord(recordDate.getToId(), recordDate.getType(), recordDate.getTime());
         HashMap<String,Object> recordListsMap = new HashMap<>();
         recordListsMap.put("list",recordLists);
-        template.convertAndSendToUser(headerAccessor.getSessionId(),"/self",recordListsMap);
+        template.convertAndSendToUser(String.valueOf(user.getId()),"/self",recordListsMap);
     }
 
 

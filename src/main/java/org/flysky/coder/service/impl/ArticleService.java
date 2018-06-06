@@ -297,7 +297,9 @@ public class ArticleService implements IArticleService {
         }
 
         if (userVoteArticle.getVoteType().equals(UserVoteArticle.TYPE_UP_VOTE)) {
-            article.setVoteCount(article.getVoteCount() - 1);
+            if (article.getVoteCount() > 0) {
+                article.setVoteCount(article.getVoteCount() - 1);
+            }
         }
         articleMapper.updateByPrimaryKeySelective(article);
 
@@ -307,7 +309,7 @@ public class ArticleService implements IArticleService {
             cacheManager.getCache("article").put(articleWrapper.getId(), articleWrapper);
         }
 
-        return userVoteArticleMapper.deleteByPrimaryKey(article.getId());
+        return userVoteArticleMapper.deleteByPrimaryKey(userVoteArticle.getId());
     }
 
     @Override

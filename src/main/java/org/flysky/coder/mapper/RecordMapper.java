@@ -22,7 +22,7 @@ public interface RecordMapper {
 
     int updateByPrimaryKey(Record record);
 
-    List<RecordWrapper> getRecordWrapperByRoomId(int roomId);
+    List<RecordWrapper> getRecordWrapperByToId(@Param("toId")int toId, @Param("type")int type);
 
-    List<RecordWrapper> getRecordWrapperByRoomIdAndLastTime(@Param("roomId") int roomId, @Param("time")LocalDateTime time);
+    List<RecordWrapper> getRecordWrapperByToIdAndLastTime(@Param("toId") int toId, @Param("type")int type, @Param("time") LocalDateTime time);
 }

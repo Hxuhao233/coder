@@ -67,7 +67,7 @@
     select
     <include refid="ArticleWrapper_Column_List" />
     from (user_collect_article ca JOIN article a on ca.article_id = a.id) JOIN user u on a.user_id = u.id
-    where uc.user_id = #{userId} and a.is_deleted = 0
+    where ca.user_id = #{userId} and a.is_deleted = 0
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from article

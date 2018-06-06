@@ -231,16 +231,16 @@ public class ChatService implements IChatService{
         LocalDateTime time = LocalDateTime.now();
 
         Record record = new Record();
-        record.setRoomId(chatMessage.getRoomId());
-        record.setUserId(user.getId());
+        record.setToId(chatMessage.getToId());
+        record.setFromId(user.getId());
         record.setCreatedAt(time);
         record.setContent(chatMessage.getContent());
         recordMapper.insertSelective(record);
 
         chatMessage.setCreatedAt(time);
         chatMessage.setUsername(user.getUsername());
-        chatMessage.setUserId(user.getId());
-        chatMessage.setType(ChatMessage.TYPE_CHAT);
+        chatMessage.setFromId(user.getId());
+        chatMessage.setIcon(user.getIcon());
         return chatMessage;
     }
 
@@ -286,9 +286,9 @@ public class ChatService implements IChatService{
 
     @Override
     public ChatMessage enterRoom(User user, ChatMessage enterRoomMessage) {
-        addHistoryRoom(user.getId(), enterRoomMessage.getRoomId());
+        addHistoryRoom(user.getId(), enterRoomMessage.getToId());
 
-        redisTemplate.opsForSet().add(enterRoomMessage.getRoomId() + ":onlineUsers",String.valueOf(user.getId()));
+        redisTemplate.opsForSet().add(enterRoomMessage.getToId() + ":onlineUsers",String.valueOf(user.getId()));
 
         enterRoomMessage.setCreatedAt(LocalDateTime.now());
         enterRoomMessage.setUsername(user.getUsername());
@@ -299,7 +299,7 @@ public class ChatService implements IChatService{
 
     @Override
     public ChatMessage exitRoom(User user, ChatMessage exitRoomMessage) {
-        redisTemplate.opsForSet().remove(exitRoomMessage.getRoomId() + ":onlineUsers",String.valueOf(user.getId()));
+        redisTemplate.opsForSet().remove(exitRoomMessage.getToId() + ":onlineUsers",String.valueOf(user.getId()));
 
         exitRoomMessage.setCreatedAt(LocalDateTime.now());
         exitRoomMessage.setUsername(user.getUsername());
@@ -309,16 +309,16 @@ public class ChatService implements IChatService{
     }
 
     @Override
-    public PageInfo<RecordWrapper> getRecord(int roomId, int pageNum, int pageSize) {
+    public PageInfo<RecordWrapper> getRecord(int toId, int type, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
 
-        List<RecordWrapper> recordList = recordMapper.getRecordWrapperByRoomId(roomId);
+        List<RecordWrapper> recordList = recordMapper.getRecordWrapperByToId(toId, type);
         return new PageInfo<>(recordList);
     }
 
     @Override
-    public List<RecordWrapper> getRecord(int roomId, LocalDateTime time) {
-        List<RecordWrapper> recordList = recordMapper.getRecordWrapperByRoomIdAndLastTime(roomId,time);
+    public List<RecordWrapper> getRecord(int toId, int type, LocalDateTime time) {
+        List<RecordWrapper> recordList = recordMapper.getRecordWrapperByToIdAndLastTime(toId, type, time);
         return recordList;
     }
 

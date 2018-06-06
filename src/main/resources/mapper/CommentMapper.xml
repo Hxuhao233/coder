@@ -11,12 +11,13 @@
   </resultMap>
   <resultMap id="CommentWrapperResultMap" type="org.flysky.coder.entity.wrapper.CommentWrapper" extends="BaseResultMap">
     <result column="username" property="username"/>
+    <result column="icon" property="icon"/>
   </resultMap>
   <sql id="Base_Column_List">
     id, uid, commented_id, commented_type, content, created_at
   </sql>
   <sql id="CommentWrapper_Column_List">
-    c.id, c.uid, c.commented_id, c.commented_type, c.content, c.created_at ,u.username
+    c.id, c.uid, c.commented_id, c.commented_type, c.content, c.created_at , u.username, u.icon
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 

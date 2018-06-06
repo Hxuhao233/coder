@@ -464,7 +464,7 @@ public class ArticleController {
     public Result voteArticle(HttpSession session, @PathVariable(value = "articleId") int articleId, @RequestBody VoteInfo voteInfo) {
         User user = (User) session.getAttribute("user");
         LocalDateTime time = LocalDateTime.now();
-        Result result = new Result();
+        ResultWrapper result = new ResultWrapper();
         Article article = articleService.getArticleById(articleId);
         if (article == null){
             result.setCode(ResponseCode.NOT_FOUND);
@@ -486,6 +486,7 @@ public class ArticleController {
         articleService.voteArticle(article, userVoteArticle);
 
         result.setCode(ResponseCode.SUCCEED);
+        result.setPayload(article.getVoteCount());
         return result;
 
     }
@@ -517,7 +518,7 @@ public class ArticleController {
     @RequestMapping(value = "/article/{articleId}/vote", method = RequestMethod.DELETE)
     public Result undoVoteArticle(HttpSession session, @PathVariable(value = "articleId") int articleId) {
         User user = (User) session.getAttribute("user");
-        Result result = new Result();
+        ResultWrapper result = new ResultWrapper();
         Article article = articleService.getArticleById(articleId);
         if (article == null){
             result.setCode(ResponseCode.NOT_FOUND);
@@ -525,7 +526,7 @@ public class ArticleController {
             return result;
         }
 
-        if (articleService.getCollectArticle(user.getId(), articleId) == null) {
+        if (articleService.getVoteArticle(user.getId(), articleId) == null) {
             result.setCode(ResponseCode.DUPLICATE_ACTION);
             result.setInfo("已经撤销");
             return result;
@@ -534,6 +535,7 @@ public class ArticleController {
         articleService.undoVoteArticle(user.getId(), article);
 
         result.setCode(ResponseCode.SUCCEED);
+        result.setPayload(article.getVoteCount());
         return result;
     }
 
@@ -575,7 +577,7 @@ public class ArticleController {
     public Result collectArticle(HttpSession session, @PathVariable(value = "articleId") int articleId) {
         User user = (User) session.getAttribute("user");
         LocalDateTime time = LocalDateTime.now();
-        Result result = new Result();
+        ResultWrapper result = new ResultWrapper();
         Article article = articleService.getArticleById(articleId);
         if (article == null){
             result.setCode(ResponseCode.NOT_FOUND);
@@ -595,6 +597,8 @@ public class ArticleController {
         userCollectArticle.setUserId(user.getId());
         articleService.collectArticle(article, userCollectArticle);
         result.setCode(ResponseCode.SUCCEED);
+        result.setPayload(article.getCollectCount());
+
         return result;
     }
 
@@ -604,7 +608,7 @@ public class ArticleController {
      * @return
      */
     @RequiresRoles(value = "user")
-    @RequestMapping(value = "/collectArticle/{articleId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/collectedArticle/{articleId}", method = RequestMethod.GET)
     public ResultWrapper getCollectedStatusByArticleId(HttpSession session, @PathVariable(value = "articleId") int articleId) {
         ResultWrapper resultWrapper = new ResultWrapper();
         User user = (User) session.getAttribute("user");
@@ -623,10 +627,10 @@ public class ArticleController {
      * @return
      */
     @RequiresRoles(value = "user")
-    @RequestMapping(value = "/collectArticle/{articleId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/collectedArticle/{articleId}", method = RequestMethod.DELETE)
     public Result undoCollectArticle(HttpSession session, @PathVariable(value = "articleId") int articleId) {
         User user = (User) session.getAttribute("user");
-        Result result = new Result();
+        ResultWrapper result = new ResultWrapper();
         Article article = articleService.getArticleById(articleId);
         if (article == null){
             result.setCode(ResponseCode.NOT_FOUND);
@@ -643,6 +647,7 @@ public class ArticleController {
         articleService.undoCollectArticle(user.getId(), article);
 
         result.setCode(ResponseCode.SUCCEED);
+        result.setPayload(article.getCollectCount());
         return result;
     }
 

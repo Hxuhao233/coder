@@ -145,7 +145,7 @@ public class SourceController {
             return result;
         }
 
-        if (source.getUserId() != user.getId()) {
+        if (!source.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         }
 

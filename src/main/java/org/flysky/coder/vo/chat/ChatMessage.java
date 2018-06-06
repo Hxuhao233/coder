@@ -12,21 +12,31 @@ public class ChatMessage {
 
     private String content;
 
-    private int roomId;
+    private int toId;
 
     private LocalDateTime createdAt;
 
-    private int userId;
+    private int fromId;
 
     private String username;
 
-    private int type = TYPE_CHAT;
+    private String icon;
 
-    public static int TYPE_CHAT = 1;
+    private int type;
+
+    private int contentType;
+
+    public static int TYPE_ROOM_CHAT = 1;
+
+    public static int TYPE_USER_CHAT = 2;
 
     public static int TYPE_ENTER = 2;
 
     public static int TYPE_EXIT = 3;
+
+    public static int CONTENT_TYPE_TEXT = 1;
+
+    public static int CONTENT_TYPE_IMG = 2;
 
     public ChatMessage() {
 
@@ -36,12 +46,12 @@ public class ChatMessage {
         content = message;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getFromId() {
+        return fromId;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setFromId(int userId) {
+        this.fromId = userId;
     }
 
     public String getContent() {
@@ -52,12 +62,12 @@ public class ChatMessage {
         this.content = content;
     }
 
-    public int getRoomId() {
-        return roomId;
+    public int getToId() {
+        return toId;
     }
 
-    public void setRoomId(int room) {
-        this.roomId = room;
+    public void setToId(int toId) {
+        this.toId = toId;
     }
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -83,5 +93,21 @@ public class ChatMessage {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public int getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(int content_type) {
+        this.contentType = content_type;
     }
 }
