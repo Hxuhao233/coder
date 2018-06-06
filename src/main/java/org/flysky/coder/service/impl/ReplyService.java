@@ -2,6 +2,7 @@ package org.flysky.coder.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.tomcat.jni.Local;
 import org.flysky.coder.entity.Post;
 import org.flysky.coder.entity.Reply;
 import org.flysky.coder.entity.User;
@@ -67,9 +68,12 @@ public class ReplyService implements IReplyService {
         reply.setPostid(postId);
 
         post.setFloorCnt(post.getFloorCnt()+1);
+        post.setUpdatedAt(LocalDateTime.now());
         replyMapper.insert(reply);
         postMapper.updateByPrimaryKey(post);
-        notificationService.newReplyNotification(post.getUserId(),reply.getId());
+        if(!isAnonymous&&post.getUserId()!=uid) {
+            notificationService.newReplyNotification(post.getUserId(), reply.getId());
+        }
 
         return 1;
     }
@@ -104,6 +108,8 @@ public class ReplyService implements IReplyService {
         reply.setInnerReplyFloor(replyMapper.getInnerReplyCountByPostIdAndFloor(postId,floorCount)+1);
         reply.setUserId(uid);
         reply.setPostid(postId);
+
+        post.setUpdatedAt(LocalDateTime.now());
 
         replyMapper.insert(reply);
         notificationService.newReplyNotification(post.getUserId(),reply.getId());
@@ -220,6 +226,11 @@ public class ReplyService implements IReplyService {
     @Override
     public Reply getReplyById(Integer id) {
         return replyMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public Integer getReplyNumByPostId(Integer postId) {
+        return replyMapper.getReplyNumByPostId(postId);
     }
 
 

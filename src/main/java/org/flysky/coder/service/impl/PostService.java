@@ -14,10 +14,12 @@ import org.flysky.coder.mapper.TagMapper;
 import org.flysky.coder.mapper.UserMapper;
 import org.flysky.coder.service.INotificationService;
 import org.flysky.coder.service.IPostService;
+import org.flysky.coder.vo2.Response.ResponsePostWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.xml.ws.Response;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,8 +94,6 @@ public class PostService implements IPostService {
 
         List<String> newTagNames=new ArrayList<String>();
 
-
-
         //添加以前没有的Tag
         for(String s:tagNameList){
             Tag tag=tagMapper.getTagByTagNameAndType(s,type);
@@ -125,7 +125,7 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public Integer upvotePost(Integer postId) {
+    public Integer upvotePost(Integer postId,Integer userId) {
         Post post=postMapper.selectByPrimaryKey(postId);
         //String upvoteRedisKey="upvote-"+postId;
         Integer upvote=null;
@@ -135,13 +135,15 @@ public class PostService implements IPostService {
             upvote++;
             post.setUpvote(upvote);
             postMapper.updateByPrimaryKey(post);
+            String key="PostUpvote"+postId;
+            redisTemplate.opsForSet().add(key,String.valueOf(userId));
             return 1;
         }
         return 0;
     }
 
     @Override
-    public Integer downvotePost(Integer postId) {
+    public Integer downvotePost(Integer postId,Integer userId) {
         Post post=postMapper.selectByPrimaryKey(postId);
         Integer downvote=null;
         if(post!=null){
@@ -149,9 +151,21 @@ public class PostService implements IPostService {
             downvote++;
             post.setDownvote(downvote);
             postMapper.updateByPrimaryKey(post);
+            String key="PostDownvote"+postId;
+            redisTemplate.opsForSet().remove(key,String.valueOf(userId));
             return 1;
         }
         return 0;
+    }
+
+    public Integer isUpvoted(Integer postId,Integer userId){
+        String key="PostUpvote"+postId;
+        return redisTemplate.opsForSet().isMember(key,String.valueOf(userId))?1:0;
+    }
+
+    public Integer isDownvoted(Integer postId,Integer userId){
+        String key="PostDownvote"+postId;
+        return redisTemplate.opsForSet().isMember(key,String.valueOf(userId))?1:0;
     }
 
     @Override
@@ -246,7 +260,7 @@ public class PostService implements IPostService {
 
     @Override
     public PageInfo<Post> searchPostByTitleAndContentAndType(String title, String content,Integer type,Integer page) {
-        PageHelper.startPage(page,20);
+        PageHelper.startPage(page,10);
         List<Post> postList=postMapper.searchPostByTitleAndContentAndType(title,content,type);
         return new PageInfo<Post>(postList);
     }
@@ -290,6 +304,17 @@ public class PostService implements IPostService {
     public PageInfo<Post> searchPostByUsername(String username,Integer type,Integer page){
         PageHelper.startPage(page,20);
         List<Post> postList=postMapper.searchPostByUsernameAndType(username,type);
+        List<ResponsePostWrapper> rpwList=new ArrayList<>();
+        PageInfo pi=new PageInfo<Post>(postList);
+        List<Post> pagePostList=pi.getList();
+        for(Post p:pagePostList){
+            ResponsePostWrapper rpw=new ResponsePostWrapper();
+            rpw.setUsername(userMapper.selectByPrimaryKey(p.getUserId()).getUsername());
+            rpw.setTitle(p.getTitle());
+            rpw.setTime(p.getUpdatedAt());
+            rpw.setContent(p.getContent());
+        }
+        pi.setList(rpwList);
         return new PageInfo<Post>(postList);
     }
 
@@ -341,6 +366,21 @@ public class PostService implements IPostService {
     @Override
     public PageInfo<Post> searchPost(String title, String content, String username,Integer type,Integer page,Integer pageSize) {
         PageHelper.startPage(page,pageSize);
-        return new PageInfo<>(postMapper.searchPost(title,content,username,type));
+        //return new PageInfo<>(postMapper.searchPost(title,content,username,type));
+        List<Post> postList=postMapper.searchPost(title,content,username,type);
+        List<ResponsePostWrapper> rpwList=new ArrayList<>();
+        PageInfo pi=new PageInfo<Post>(postList);
+        List<Post> pagePostList=pi.getList();
+        for(Post p:pagePostList){
+            ResponsePostWrapper rpw=new ResponsePostWrapper();
+            rpw.setUsername(userMapper.selectByPrimaryKey(p.getUserId()).getUsername());
+            rpw.setTitle(p.getTitle());
+            rpw.setTime(p.getUpdatedAt());
+            rpw.setContent(p.getContent());
+            rpw.setId(p.getId());
+            rpwList.add(rpw);
+        }
+        pi.setList(rpwList);
+        return pi;
     }
 }

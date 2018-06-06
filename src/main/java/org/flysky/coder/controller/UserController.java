@@ -81,27 +81,21 @@ public class UserController {
 
 
 
-    //@RequestMapping(value = "/user/login")
-    public LoginDataWithSessionID login(HttpSession session,@RequestBody User user) {
+    @RequestMapping(value = "/user/xlogin")
+    public Result login(@RequestBody User user,HttpSession session) {
+        //user.setPassword(SecurityUtil.encrypt(user.getPassword()));
         boolean isLogin = userService.login(user);
-        LoginDataWithSessionID loginData = new LoginDataWithSessionID();
-
+        Result result=new Result();
             if (isLogin) {// 如果用户名和密码正确
                 User u = userService.getUserByEmailAndPassword(user);
-                loginData.setSessionId(session.getId());
                 Integer type = u.getType();
-                loginData.setType(type);
-                if (u.getActivated()==0) {
-                    loginData.setCode(Code.NOT_ACTIVATED);
-                } else {
-                    loginData.setCode(Code.SUCCEED);
-                    loginData.setUsername(u.getUsername());
-               }
-            } else {
-                loginData.setCode(Code.WRONG_EMAIL_OR_PASSWORD);
+                result.setCode(type);
+                session.setAttribute("user",u);
+            }else{
+                result.setCode(0);
             }
 
-        return loginData;
+        return result;
     }
 
     @RequestMapping(value = "/ff/login")

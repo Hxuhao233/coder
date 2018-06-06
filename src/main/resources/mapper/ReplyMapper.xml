@@ -187,4 +187,7 @@
     </if>
     order by created_at DESC
   </select>
+  <select id="getReplyNumByPostId" resultType="java.lang.Integer">
+    select count(*) from reply r where r.postid=#{postId}
+  </select>
 </mapper>

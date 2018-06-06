@@ -51,6 +51,7 @@ public class ReplyController {
     public Result replyToForumPost(@RequestBody PostReplyWrapper replyWrapper,HttpSession session){
         User u=(User)session.getAttribute("user");
         Integer uid=u.getId();
+        //Integer uid=2;
         Integer resultI=replyService.replyToPost(replyWrapper.getPostId(),uid,replyWrapper.getContent(),false,null,0);
         Result result=new Result();
         result.setCode(resultI);
@@ -64,15 +65,15 @@ public class ReplyController {
     @RequestMapping("/reply/replyToAnonymousPost")
     public Result replyToAnonymousPost(@RequestBody AnonymousReplyWrapper anonymousReplyWrapper,HttpSession session){
         User u=(User)session.getAttribute("user");
-        Integer uid=u.getId();
-
+       Integer uid=u.getId();
+        //Integer uid=17;
         boolean isAnonymous=anonymousReplyWrapper.getIsAnonymous()==1?true:false;
 
         Integer resultI=null;
         if(isAnonymous) {
-            replyService.replyToPost(anonymousReplyWrapper.getPostId(), uid, anonymousReplyWrapper.getContent(), true, AnonymousNameGenerator.autoGenerate(),1);
+            resultI=replyService.replyToPost(anonymousReplyWrapper.getPostId(), uid, anonymousReplyWrapper.getContent(), true, AnonymousNameGenerator.autoGenerate(),1);
         }else{
-            replyService.replyToPost(anonymousReplyWrapper.getPostId(), uid, anonymousReplyWrapper.getContent(), false, userService.getUserNameById(uid),1);
+            resultI=replyService.replyToPost(anonymousReplyWrapper.getPostId(), uid, anonymousReplyWrapper.getContent(), false, userService.getUserNameById(uid),1);
         }
 
         Result result=new Result();
@@ -87,8 +88,8 @@ public class ReplyController {
     @RequestMapping("/reply/innerReplyToPost")
     public Result innerReplyToPost(@RequestBody InnerReplyWrapper innerReplyWrapper,HttpSession session){
         User u=(User)session.getAttribute("user");
-        Integer uid=u.getId();
-
+        //Integer uid=u.getId();
+        Integer uid=17;
         Integer resultI=replyService.createInnerReply(innerReplyWrapper.getPostId(), uid, innerReplyWrapper.getContent(), innerReplyWrapper.getFloorCnt()
                 , false, null,0);
         Result result=new Result();
@@ -100,6 +101,7 @@ public class ReplyController {
     /*
     需求111 305 管理员删除回复
      */
+    @RequiresRoles("manager")
     @RequestMapping("/reply/deleteReply/{replyId}")
     public Result deleteReply(@PathVariable Integer replyId){
         Result result=new Result();
@@ -132,6 +134,7 @@ public class ReplyController {
             searchReplyResult.setTime(r.getCreatedAt());
             searchReplyResult.setTitle(postService.getPostByPostId(r.getPostid()).getTitle());
             searchReplyResult.setUsername(userService.getUserById(r.getUserId()).getUsername());
+            searchReplyResult.setId(r.getId());
             searchReplyResultList.add(searchReplyResult);
         }
         replyPageInfo.setList(searchReplyResultList);
@@ -156,6 +159,7 @@ public class ReplyController {
             searchReplyResult.setTime(r.getCreatedAt());
             searchReplyResult.setTitle(postService.getPostByPostId(r.getPostid()).getTitle());
             searchReplyResult.setUsername("x");
+            searchReplyResult.setId(r.getId());
             searchReplyResultList.add(searchReplyResult);
         }
         replyPageInfo.setList(searchReplyResultList);

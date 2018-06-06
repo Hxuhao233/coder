@@ -52,7 +52,7 @@ public class NotificationService implements INotificationService{
         redisTemplate.opsForList().leftPush(unreadPostRecoveredNotificationPrefix+String.valueOf(uid),postName);
     }
 
-    public void beforeViewMessageNoticications(int uid) {
+    public void afterViewMessageNoticications(int uid) {
         String unreadMessageQueueName=unreadMessageNotificationPrefix+String.valueOf(uid);
         String oldMessageQueueName=oldMessageNotificationPrefix+String.valueOf(uid);
 
@@ -65,7 +65,7 @@ public class NotificationService implements INotificationService{
     }
 
 
-    public void beforeViewReplyNotifications(int uid) {
+    public void afterViewReplyNotifications(int uid) {
         String unreadReplyQueueName=unreadReplyNotificationPrefix+String.valueOf(uid);
         String oldReplyQueueName=oldReplyNotificationPrefix+String.valueOf(uid);
 
@@ -164,5 +164,29 @@ public class NotificationService implements INotificationService{
     @Override
     public Long getNewPostRecoveredNotificaionNum(int uid) {
         return redisTemplate.opsForList().size(unreadPostRecoveredNotificationPrefix+String.valueOf(uid));
+    }
+
+    @Override
+    public List<Message> getNewMessageNotifications(int uid) {
+        List<String> newMessageIdStringList=redisTemplate.opsForList().range(unreadMessageNotificationPrefix+String.valueOf(uid),0,-1);
+        List<Message> msgList=new ArrayList<Message>();
+        for(String s:newMessageIdStringList){
+            Integer mid=Integer.parseInt(s);
+            Message message=messageMapper.selectByPrimaryKey(mid);
+            msgList.add(message);
+        }
+        return msgList;
+    }
+
+    @Override
+    public List<Reply> getReplyNotifications(int uid) {
+        List<String> newReplyIdStringList=redisTemplate.opsForList().range(unreadReplyNotificationPrefix+String.valueOf(uid),0,-1);
+        List<Reply> replyList=new ArrayList<>();
+        for(String s:newReplyIdStringList){
+            Integer rid=Integer.parseInt(s);
+            Reply reply=replyMapper.selectByPrimaryKey(rid);
+            replyList.add(reply);
+        }
+        return replyList;
     }
 }

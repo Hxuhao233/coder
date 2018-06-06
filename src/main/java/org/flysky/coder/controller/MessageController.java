@@ -38,8 +38,10 @@ public class MessageController {
     @RequestMapping("/message/createMessage")
     public ResultWrapper createMessage(@RequestBody MessageWrapper msgWrapper,HttpSession session){
         User u=(User) session.getAttribute("user");
-        Integer fromUid=u.getId();
-        Integer toUid=msgWrapper.getToUid();
+//        Integer fromUid=u.getId();
+//        Integer toUid=msgWrapper.getToUid();
+        Integer fromUid=1;
+        Integer toUid=2;
         String content=msgWrapper.getContent();
         if(fromUid==null||toUid==null||content==null){
             return new ResultWrapper(0);
@@ -58,8 +60,17 @@ public class MessageController {
         if(toUid==null){
             return null;
         }
+        List<Message> msg=messageService.showConversations(fromUid,toUid);
+        List<MessageResponseWrapper> messageResponseWrappers=new ArrayList<>();
+        for(Message m:msg){
+            MessageResponseWrapper mrw=new MessageResponseWrapper();
+            mrw.setId(m.getId());
+            mrw.setTime(m.getCreatedAt());
+            mrw.setSender(userService.getUserNameById(m.getFromUid()));
+            mrw.setReceiver(userService.getUserNameById(m.getToUid()));
+        }
         ResultWrapper rw=new ResultWrapper();
-        rw.setPayload(messageService.showConversations(fromUid,toUid));
+        rw.setPayload(messageResponseWrappers);
         return rw;
     }
 

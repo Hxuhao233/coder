@@ -3,8 +3,17 @@ package org.flysky.coder.vo2.Request.Reply.Anonymous;
 public class SearchAnonymousReplyWrapper {
     private String title;
     private String content;
+    private Integer id;
 
     public SearchAnonymousReplyWrapper() {
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getTitle() {

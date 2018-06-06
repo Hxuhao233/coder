@@ -2,41 +2,24 @@ package org.flysky.coder.vo2.Response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class SearchReplyResult {
-    private String username;
-    private String title;
+public class MessageNotificationWrapper {
+    private int id;
     private String content;
     private LocalDateTime time;
-    private Integer id;
+    private String fromUsername;
+    private Long newNotificationNum;
 
-    public SearchReplyResult() {
+    public MessageNotificationWrapper() {
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getContent() {
@@ -54,5 +37,21 @@ public class SearchReplyResult {
 
     public void setTime(LocalDateTime time) {
         this.time = time;
+    }
+
+    public String getFromUsername() {
+        return fromUsername;
+    }
+
+    public void setFromUsername(String fromUsername) {
+        this.fromUsername = fromUsername;
+    }
+
+    public Long getNewNotificationNum() {
+        return newNotificationNum;
+    }
+
+    public void setNewNotificationNum(Long newNotificationNum) {
+        this.newNotificationNum = newNotificationNum;
     }
 }

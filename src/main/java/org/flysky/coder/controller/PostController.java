@@ -6,14 +6,18 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.flysky.coder.entity.Post;
 import org.flysky.coder.entity.User;
 import org.flysky.coder.service.IPostService;
+import org.flysky.coder.service.IReplyService;
 import org.flysky.coder.service.IUserService;
 import org.flysky.coder.vo.Result;
 import org.flysky.coder.vo.ResultWrapper;
 import org.flysky.coder.vo.user.AnonymousNameGenerator;
+import org.flysky.coder.vo2.PostResultWrapper;
 import org.flysky.coder.vo2.Request.Post.Anonymous.AnonymousPostWrapper;
 import org.flysky.coder.vo2.Request.Post.Anonymous.SearchAnonymousPostWrapper;
 import org.flysky.coder.vo2.Request.Post.Forum.ForumPostWrapper;
+import org.flysky.coder.vo2.Response.ResponsePostWrapper;
 import org.flysky.coder.vo2.Response.SearchPostWrapper;
+import org.flysky.coder.vo2.ViewPostWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,16 +33,62 @@ public class PostController {
 //    @Autowired
 //    private RedisTokenService redisTokenService;
 
-//    @Autowired
-//    private IUserService userService;
+    @Autowired
+    private IUserService userService;
+
+    @Autowired
+    private IReplyService replyService;
 
     /*
     需求101.A 论坛分类浏览
      */
     @RequestMapping("/forum/showForumPostBySectorAndType/{page}/{sectorId}")
-    public PageInfo<Post> showForumPostBySectorAndType(@PathVariable int sectorId, @PathVariable int page){
-        PageInfo<Post> postList=postService.viewPostBySectorAndType(sectorId,0,page);
-        return postList;
+    public ViewPostWrapper showForumPostBySectorAndType(@PathVariable int sectorId, @PathVariable int page){
+        PageInfo postList=postService.viewPostBySectorAndType(sectorId,0,page);
+        List<Post> pList=postList.getList();
+        List<PostResultWrapper> postResultWrapperList=new ArrayList<PostResultWrapper>();
+        ViewPostWrapper vpw=new ViewPostWrapper();
+        for(Post p:pList){
+            PostResultWrapper prw=new PostResultWrapper();
+            prw.setContent(p.getContent());
+            prw.setId(p.getId());
+            prw.setTime(p.getUpdatedAt());
+            prw.setUsername(userService.getUserNameById(p.getUserId()));
+            prw.setTitle(p.getTitle());
+            prw.setReplyNum(replyService.getReplyNumByPostId(p.getId()));
+            postResultWrapperList.add(prw);
+        }
+        if(page==1){
+            List<Integer> sticky=postService.showStickyPostBySectorId(sectorId);
+            List<PostResultWrapper> stickyList=new ArrayList<>();
+            for(Integer i:sticky){
+                Post p=postService.getPostByPostId(i);
+                PostResultWrapper prw=new PostResultWrapper();
+                prw.setContent(p.getContent());
+                prw.setId(p.getId());
+                prw.setTime(p.getUpdatedAt());
+                prw.setUsername(userService.getUserNameById(p.getUserId()));
+                prw.setTitle(p.getTitle());
+                prw.setReplyNum(replyService.getReplyNumByPostId(p.getId()));
+                stickyList.add(prw);
+            }
+            vpw.setStickyList(stickyList);
+            List<PostResultWrapper> result=new ArrayList<>();
+            for(PostResultWrapper prw:postResultWrapperList){
+                Integer id=prw.getId();
+                if(!sticky.contains(id)){
+                    result.add(prw);
+                }
+            }
+            postList.setList(result);
+            vpw.setPostPageInfo(postList);
+        }else{
+            vpw.setStickyList(null);
+            postList.setList(postResultWrapperList);
+            vpw.setPostPageInfo(postList);
+        }
+        //postList.setList(postResultWrapperList);
+        return vpw;
     }
 
     /*
@@ -46,7 +96,20 @@ public class PostController {
      */
     @RequestMapping("/forum/showAnonymousPostBySectorAndType/{page}/{sectorId}")
     public PageInfo<Post> showAnonymousPostBySectorAndType(@PathVariable int sectorId, @PathVariable int page){
-        PageInfo<Post> postList=postService.viewPostBySectorAndType(sectorId,1,page);
+        PageInfo postList=postService.viewPostBySectorAndType(sectorId,1,page);
+        List<Post> pList=postList.getList();
+        List<PostResultWrapper> postResultWrapperList=new ArrayList<PostResultWrapper>();
+        for(Post p:pList){
+            PostResultWrapper prw=new PostResultWrapper();
+            prw.setContent(p.getContent());
+            prw.setId(p.getId());
+            prw.setTime(p.getUpdatedAt());
+            prw.setUsername(p.getAnonymousName());
+            prw.setTitle(p.getTitle());
+            prw.setReplyNum(replyService.getReplyNumByPostId(p.getId()));
+            postResultWrapperList.add(prw);
+        }
+        postList.setList(postResultWrapperList);
         return postList;
     }
 
@@ -57,7 +120,6 @@ public class PostController {
     public ResultWrapper createForumPost(HttpSession session,@RequestBody ForumPostWrapper forumPostWrapper){
         User u=(User)session.getAttribute("user");
         Integer uid=u.getId();
-
         String title=forumPostWrapper.getTitle();
         String content=forumPostWrapper.getContent();
         Integer sectorId=forumPostWrapper.getSectorId();
@@ -86,18 +148,32 @@ public class PostController {
     需求106 302 点赞论坛帖子 点赞匿名区帖子
      */
     @RequestMapping("/forum/upvote/{postId}")
-    public ResultWrapper upvote(@PathVariable int postId){
-        Integer result= postService.upvotePost(postId);
+    public ResultWrapper upvote(HttpSession session,@PathVariable int postId){
+        User u=(User)session.getAttribute("user");
+        Integer result= postService.upvotePost(postId,u.getId());
         return new ResultWrapper(result);
+    }
+
+    @RequestMapping("/forum/isUpvoted/{postId}")
+    public Result isUpvoted(HttpSession session,@PathVariable int postId){
+        User u=(User)session.getAttribute("user");
+        return new Result(postService.isUpvoted(postId,u.getId()));
     }
 
     /*
     需求107 点踩论坛帖子
      */
     @RequestMapping("/forum/downvote/{postId}")
-    public ResultWrapper downvote(@PathVariable int postId){
-        Integer result=postService.downvotePost(postId);
+    public ResultWrapper downvote(HttpSession session,@PathVariable int postId){
+        User u=(User)session.getAttribute("user");
+        Integer result=postService.downvotePost(postId,u.getId());
         return new ResultWrapper(result);
+    }
+
+    @RequestMapping("/forum/isDownvoted/{postId}")
+    public Result isDownvoted(HttpSession session,@PathVariable int postId){
+        User u=(User)session.getAttribute("user");
+        return new Result(postService.isDownvoted(postId,u.getId()));
     }
 
     /*
@@ -140,17 +216,11 @@ public class PostController {
 //    @RequestMapping("/forum/getCollectionList/{id}")
 //    public Result
 
-    /*
-    需求109 用户在论坛关注其他用户
-     */
-
-    /*
-    需求110 用户在论坛取消关注其他用户
-     */
 
     /*
     需求111 删除帖子
      */
+    @RequiresRoles("manager")
     @RequestMapping("/forum/deletePost/{postId}")
     public ResultWrapper deletePost(@PathVariable int postId){
         Integer result=postService.deletePost(postId);
@@ -162,7 +232,7 @@ public class PostController {
     /*
     需求113 论坛管理员推荐帖子F
      */
-
+    @RequiresRoles("manager")
     @RequestMapping("/forum/recommendPost/{postId}")
     public ResultWrapper recommendPost(@PathVariable int postId){
         Integer result=postService.recommendPost(postId);
@@ -172,6 +242,7 @@ public class PostController {
     /*
     需求114 论坛管理员取消推荐帖子
      */
+    @RequiresRoles("manager")
     @RequestMapping("/forum/removeRecommendedPost/{postId}")
     public ResultWrapper removeRecommendedPost(@PathVariable int postId){
         Integer result=postService.removeRecommendedPost(postId);
@@ -185,9 +256,16 @@ public class PostController {
     public ResultWrapper showAllRecommendedPosts(){
         ResultWrapper rw=new ResultWrapper();
         List<Integer> postIdList=postService.showAllRecommendedPosts();
-        List<Post> postList=new ArrayList<>();
+        List<ResponsePostWrapper> postList=new ArrayList<>();
         for(Integer id:postIdList){
-            postList.add(postService.getPostByPostId(id));
+            Post p=postService.getPostByPostId(id);
+            ResponsePostWrapper rpw=new ResponsePostWrapper();
+            rpw.setContent(p.getContent());
+            rpw.setTime(p.getUpdatedAt());
+            rpw.setTitle(p.getTitle());
+            rpw.setUsername(userService.getUserById(p.getUserId()).getUsername());
+            rpw.setId(p.getId());
+            postList.add(rpw);
         }
         rw.setPayload(postList);
         return rw;
@@ -222,9 +300,16 @@ public class PostController {
     public ResultWrapper showStickyPostBySectorId(@PathVariable Integer sectorId){
         ResultWrapper rw=new ResultWrapper();
         List<Integer> postIdList=postService.showStickyPostBySectorId(sectorId);
-        List<Post> postList=new ArrayList<>();
+        List<ResponsePostWrapper> postList=new ArrayList<>();
         for(Integer id:postIdList){
-            postList.add(postService.getPostByPostId(id));
+            Post p=postService.getPostByPostId(id);
+            ResponsePostWrapper rpw=new ResponsePostWrapper();
+            rpw.setContent(p.getContent());
+            rpw.setTime(p.getUpdatedAt());
+            rpw.setTitle(p.getTitle());
+            rpw.setUsername(userService.getUserById(p.getUserId()).getUsername());
+            rpw.setId(p.getId());
+            postList.add(rpw);
         }
         rw.setPayload(postList);
         return rw;

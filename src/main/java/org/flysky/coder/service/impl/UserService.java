@@ -60,7 +60,7 @@ public class UserService implements IUserService{
     @Override
     public boolean login(User user) {
         String pwd = user.getPassword();
-        user.setPassword(EncodeUtil.string2MD5(pwd + SecurityUtil.SALT));
+        user.setPassword(SecurityUtil.encrypt(pwd));
         User u = userMapper.selectByEmailAndPassword(user);
         // 如果返回的u不为null，u没有被封，u被激活
         if (u == null) {

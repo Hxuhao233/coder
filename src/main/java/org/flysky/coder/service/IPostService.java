@@ -13,9 +13,13 @@ import java.util.List;
 public interface IPostService {
     public Integer createPost(Integer uid, String title, String content, Integer sectorId, List<String> tagNameList, boolean isAnonymous, String anonymousName, Integer type);
 
-    public Integer upvotePost(Integer postId);
+    public Integer upvotePost(Integer postId,Integer userId);
 
-    public Integer downvotePost(Integer postId);
+    public Integer downvotePost(Integer postId,Integer userId);
+
+    public Integer isUpvoted(Integer postId,Integer userId);
+
+    public Integer isDownvoted(Integer postId,Integer userId);
 
     public Integer collectPost(Integer postId, Integer uid);
 

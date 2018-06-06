@@ -1,18 +1,18 @@
-package org.flysky.coder.vo2.Response;
+package org.flysky.coder.vo2;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class SearchReplyResult {
+public class PostResultWrapper {
+    private Integer id;
     private String username;
     private String title;
-    private String content;
     private LocalDateTime time;
-    private Integer id;
+    private Integer replyNum;
+    private String content;
+    public PostResultWrapper(){
 
-    public SearchReplyResult() {
     }
 
     public Integer getId() {
@@ -39,14 +39,6 @@ public class SearchReplyResult {
         this.title = title;
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public LocalDateTime getTime() {
         return time;
@@ -54,5 +46,21 @@ public class SearchReplyResult {
 
     public void setTime(LocalDateTime time) {
         this.time = time;
+    }
+
+    public Integer getReplyNum() {
+        return replyNum;
+    }
+
+    public void setReplyNum(Integer replyNum) {
+        this.replyNum = replyNum;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

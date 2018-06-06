@@ -10,8 +10,8 @@ public interface INotificationService {
     void newReplyNotification(int uid,int replyId);
     void newPostDeleted(int uid,String postName);
     void newPostRecovered(int uid,String postName);
-    void beforeViewMessageNoticications(int uid);
-    void beforeViewReplyNotifications(int uid);
+    void afterViewMessageNoticications(int uid);
+    void afterViewReplyNotifications(int uid);
     void beforeViewPostDeletedNotifications(int uid);
     void beforeViewPostRecoveredNotifications(int uid);
     List<Reply> viewReplyNotifications(int uid);
@@ -21,4 +21,6 @@ public interface INotificationService {
     Long getNewReplyNotificationNum(int uid);
     Long getNewPostDeletedNotificationNum(int uid);
     Long getNewPostRecoveredNotificaionNum(int uid);
+    List<Message> getNewMessageNotifications(int uid);
+    List<Reply> getReplyNotifications(int uid);
 }

@@ -17,4 +17,5 @@ public interface IReplyService {
     PageInfo<Reply> searchForumPostReply(String content, String username, String title,Integer page,Integer pageSize);
     PageInfo<Reply> searchAnonymousPostReply(String content,String title,Integer page,Integer pageSize);
     Reply getReplyById(Integer id);
+    Integer getReplyNumByPostId(Integer postId);
 }

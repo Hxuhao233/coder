@@ -32,4 +32,6 @@ public interface ReplyMapper {
     List<Reply> searchForumPostReply(@Param("content")String content,@Param("username") String username,@Param("title")String title);
 
     List<Reply> searchAnonymousPostReply(@Param("content")String content,@Param("title") String title);
+
+    Integer getReplyNumByPostId(Integer postId);
 }
